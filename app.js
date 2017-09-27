@@ -5,7 +5,11 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const config = require('./config/configurations');
+const dotEnv = require('dotenv');
+global.constants = require('./constants/constants');
 
+
+dotEnv.config();
 config.initGlobalInstances();
 
 const index = require('./routes/index');
