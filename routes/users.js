@@ -1,10 +1,11 @@
 const express = require('express');
+const userController = require('../controllers/user-controller');
+
+const { auth } = global;
 
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/', (req, res) => {
-  res.send('respond with a resource');
-});
+// authenticate route
+router.post('/user-detail', auth.authenticate(), userController.userDetail);
 
 module.exports = router;
