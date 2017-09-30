@@ -10,7 +10,7 @@ const app = express();
 
 dotEnv.config();
 config.initGlobalInstances();
-const { auth, helpers } = global.auth;
+const { auth, helpers } = global;
 helpers.connectDb();
 auth.setupAuthCallback();
 
