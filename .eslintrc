@@ -1,6 +1,7 @@
 {
   "parser": "babel-eslint",
-  "extends": "airbnb-base",
+//  "extends": "airbnb-base",
+  "extends": "",
   "rules": {
     "no-use-before-define": "off"
   }
