@@ -1,8 +1,10 @@
 {
   "parser": "babel-eslint",
-//  "extends": "airbnb-base",
-  "extends": "",
+  "extends": "airbnb-base",
+//  "extends": "",
   "rules": {
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "no-trailing-spaces": "off",
+    "no-unused-vars": "off"
   }
 }

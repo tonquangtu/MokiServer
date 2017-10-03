@@ -1,11 +1,11 @@
-const { mongoose } = global.mongoose;
-const { Schema } = mongoose.Schema;
+const { mongoose } = global;
+const { Schema } = mongoose;
 
 const UsersSchema = new Schema({
 
   username: { type: String, required: true },
   hash_password: { type: String, required: true },
-  phoneNumber: {
+  phone_number: {
     type: String,
     required: true,
     index: true,

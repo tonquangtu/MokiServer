@@ -1,5 +1,5 @@
-const { mongoose } = global.mongoose;
-const { Schema } = mongoose.Schema;
+const { mongoose } = global;
+const { Schema } = mongoose;
 
 const ReportsSchema = new Schema({
   reporter: { type: Schema.ObjectId, ref: 'users', required: true },
