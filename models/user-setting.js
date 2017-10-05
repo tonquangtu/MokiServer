@@ -1,5 +1,5 @@
-const { mongoose } = global.mongoose;
-const { Schema } = mongoose.Schema;
+const { mongoose } = global;
+const { Schema } = mongoose;
 
 const UserSettingsSchema = new Schema({
   user: { type: Schema.ObjectId, ref: 'users', required: true },

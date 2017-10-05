@@ -4,31 +4,26 @@ const { constants, helpers } = global;
 
 exports.login = (req, res) => {
   let statusCode;
-  let responseCode;
-  let responseMessage;
-  let responseData;
   const reqData = validateLoginData(req.body);
   if (reqData) {
     const { phoneNumber, password } = reqData;
-    loginService.login(phoneNumber, password, (loginSuccess, message, data) => {
+    loginService.login(phoneNumber, password, (loginSuccess, response) => {
       if (loginSuccess) {
         statusCode = 200;
-        responseCode = constants.code.ok;
       } else {
         statusCode = 404;
-        responseCode = constants.code.userInvalid;
       }
-      responseMessage = message;
-      responseData = data;
+      helpers.sendResponse(res, statusCode, response);
     });
   } else {
     statusCode = 404;
-    responseCode = constants.code.paramInvalid;
-    responseMessage = constants.message.paramInvalid;
-    responseData = null;
+    const response = {
+      code: constants.response.paramValueInvalid.code,
+      message: constants.response.paramValueInvalid.message,
+      data: null,
+    };
+    helpers.sendResponse(res, statusCode, response);
   }
-
-  helpers.sendResponse(res, responseData, responseMessage, responseCode, statusCode);
 };
 
 function validateLoginData(loginData) {

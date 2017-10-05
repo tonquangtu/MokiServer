@@ -1,15 +1,13 @@
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
+const constants = require('../constants/constants');
+const jwtConfig = require('../config/jwt-config');
 
-const { constants } = global.constants;
-const { jwtConfig } = global.jwtConfig;
-
-const { ExtractJwt } = passport.ExtractJwt;
-const { Strategy } = passportJWT.Strategy;
+const { ExtractJwt, Strategy } = passportJWT;
 
 const options = {
   secretOrKey: jwtConfig.secretOrKey,
-  jwtFromRequest: ExtractJwt.fromAuthHeader(),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 };
 
 exports.setupAuthCallback = () => {
@@ -18,7 +16,7 @@ exports.setupAuthCallback = () => {
     if (isLogin && user) {
       return done(null, user);
     }
-    return done(new Error(constants.message.notFoundUser), null);
+    return done(new Error(constants.response.userNotFound.message), null);
   });
 
   passport.use(strategy);
