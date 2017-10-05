@@ -1,5 +1,5 @@
-const { mongoose } = global.mongoose;
-const { Schema } = mongoose.Schema;
+const { mongoose } = global;
+const { Schema } = mongoose;
 
 const ProductsSchema = new Schema({
   name: { type: String, required: true },
@@ -36,6 +36,7 @@ const ProductsSchema = new Schema({
       created_at: { type: Date, required: true, default: Date.now },
     },
   ],
+  campaigns: [{ type: Schema.ObjectId, ref: 'campaigns', required: true }],
   created_at: { type: Date, required: true, default: Date.now },
   updated_at: { type: Date, required: true, default: Date.now },
   deleted_at: { type: Date, default: null },

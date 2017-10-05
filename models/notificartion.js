@@ -1,5 +1,5 @@
-const { mongoose } = global.mongoose;
-const { Schema } = mongoose.Schema;
+const { mongoose } = global;
+const { Schema } = mongoose;
 
 const NotificationsSchema = new Schema({
   object: { type: Schema.ObjectId, required: true },

@@ -1,14 +1,9 @@
-const { mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 const constants = require('../constants/constants');
 const helpers = require('../helpers/helpers');
 const auth = require('../securities/authentication');
+const jwtConfig = require('./jwt-config');
 
-const jwtConfig = {
-  secretOrKey: process.env.JWT_SECRET,
-  jwtSession: {
-    session: false,
-  },
-};
 
 exports.initGlobalInstances = () => {
   global.mongoose = mongoose;
