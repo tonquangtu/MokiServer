@@ -9,14 +9,17 @@ exports.login = (req, res) => {
     const { phoneNumber, password } = reqData;
     loginService.login(phoneNumber, password, (loginSuccess, response) => {
       if (loginSuccess) {
-        statusCode = 200;
+        statusCode = constants.statusCode.ok;
       } else {
-        statusCode = 404;
+        statusCode = constants.statusCode.notFound;
+        if (response.code === constants.response.systemError.code) {
+          statusCode = constants.statusCode.systemError;
+        }
       }
       helpers.sendResponse(res, statusCode, response);
     });
   } else {
-    statusCode = 404;
+    statusCode = constants.statusCode.notFound;
     const response = {
       code: constants.response.paramValueInvalid.code,
       message: constants.response.paramValueInvalid.message,
