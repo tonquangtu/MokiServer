@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "async": "^2.5.0",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
@@ -22,6 +23,7 @@
     "morgan": "~1.8.1",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.0",
+    "passport-local": "^1.0.0",
     "serve-favicon": "~2.4.2"
   },
   "devDependencies": {

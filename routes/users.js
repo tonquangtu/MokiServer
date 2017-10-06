@@ -6,6 +6,6 @@ const { auth } = global;
 const router = express.Router();
 
 // authenticate route
-router.post('/user-detail', auth.authenticate(), userController.userDetail);
+router.post('/user-detail', auth.jwtAuthenticate(), userController.userDetail);
 
 module.exports = router;
