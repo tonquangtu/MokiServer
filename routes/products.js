@@ -1,6 +1,6 @@
-const express = require('express');
 const productController = require('../controllers/product-controller');
 
+const { express } = global;
 const { auth } = global;
 
 const router = express.Router();

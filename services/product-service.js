@@ -1,7 +1,7 @@
-const UserRepo = require('../responsitories/user-responsitory');
-const ProductRepo = require('../responsitories/product-responsitory');
-const LikeRepo = require('../responsitories/like-responsitory');
-const BlockRepo = require('../responsitories/block-responsitory');
+const UserRepo = require('../repositories/user-repository');
+const ProductRepo = require('../repositories/product-repository');
+const LikeRepo = require('../repositories/like-repository');
+const BlockRepo = require('../repositories/block-repository');
 
 const { constants } = global;
 

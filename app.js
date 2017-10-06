@@ -1,23 +1,20 @@
-const express = require('express');
+// const express = require('express');
 const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const dotEnv = require('dotenv');
-const globalModule = require('./globals/global-module');
-const globalModel = require('./globals/global-model');
-
-const app = express();
 
 dotEnv.config();
+require('./globals/global-module').initGlobalModules();
 
-globalModule.initGlobalModules();
-globalModel.initGlobalModels();
+const { auth, helpers, express } = global;
+const app = express();
 
-const { auth, helpers } = global;
 helpers.connectDb();
-auth.setupAuthCallback();
+require('./globals/global-model').initGlobalModels();
 
+auth.setupAuthCallback();
 app.use(auth.passportInitialize());
 
 // view engine setup

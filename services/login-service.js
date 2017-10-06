@@ -1,4 +1,4 @@
-const userRepo = require('../responsitories/user-responsitory');
+const userRepo = require('../repositories/user-repository');
 
 const { constants, helpers } = global;
 

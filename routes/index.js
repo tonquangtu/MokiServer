@@ -1,6 +1,6 @@
-const express = require('express');
 const loginController = require('../controllers/login-controller');
 
+const { express } = global;
 const router = express.Router();
 
 /* GET home page. */
