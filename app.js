@@ -3,13 +3,17 @@ const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const config = require('./config/configurations');
 const dotEnv = require('dotenv');
+const globalModule = require('./globals/global-module');
+const globalModel = require('./globals/global-model');
 
 const app = express();
 
 dotEnv.config();
-config.initGlobalInstances();
+
+globalModule.initGlobalModules();
+globalModel.initGlobalModels();
+
 const { auth, helpers } = global;
 helpers.connectDb();
 auth.setupAuthCallback();
