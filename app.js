@@ -12,7 +12,7 @@ dotEnv.config();
 config.initGlobalInstances();
 const { auth, helpers } = global;
 helpers.connectDb();
-auth.setupAuthCallback();
+auth.setupTokenBaseAuth();
 
 app.use(auth.passportInitialize());
 

@@ -2,3 +2,5 @@
 .idea
 /node_modules
 .eslintrc
+npm-debug.log
+package-lock.json

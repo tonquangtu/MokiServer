@@ -117,4 +117,6 @@ module.exports = {
       },
     },
   },
+  tokenField: 'token',
+
 };
