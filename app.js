@@ -14,7 +14,7 @@ const app = express();
 helpers.connectDb();
 require('./globals/global-model').initGlobalModels();
 
-auth.setupAuthCallback();
+auth.setupTokenBaseAuth();
 app.use(auth.passportInitialize());
 
 // view engine setup
