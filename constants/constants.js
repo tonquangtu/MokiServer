@@ -108,6 +108,15 @@ module.exports = {
       code: 1017,
       message: 'Not found user in system',
     },
+    campaignNotFound: {
+      code: 1018,
+      message: 'Not found campaigns in system',
+    },
+  },
+  statusCode: {
+    ok: 200,
+    notFound: 404,
+    systemError: 505,
   },
   product: {
     media: {

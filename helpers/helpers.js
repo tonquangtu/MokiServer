@@ -1,7 +1,9 @@
 const jwt = require('jwt-simple');
 const mongoose = require('mongoose');
 const jwtConfig = require('../config/jwt-config');
+const dotEnv = require('dotenv');
 
+dotEnv.config();
 
 exports.connectDb = () => {
   mongoose.connect(process.env.DB_URL, {
