@@ -1,5 +1,4 @@
 const userRepo = require('../repositories/user-repository');
-const bcrypt = require('bcrypt-nodejs');
 
 const { constants, helpers } = global;
 
@@ -18,7 +17,7 @@ exports.login = (phoneNumber, password, callback) => {
       };
       return callback(loginSuccess, response);
     }
-    if (!validPassword(password, user.hash_password)) {
+    if (!helpers.validPassword(password, user.hash_password)) {
       loginSuccess = false;
       response = {
         code: constants.response.wrongPassword.code,
@@ -62,7 +61,3 @@ exports.login = (phoneNumber, password, callback) => {
     return callback(loginSuccess, response);
   });
 };
-
-function validPassword(reqPassword, hashPassword) {
-  return bcrypt.compareSync(reqPassword, hashPassword);
-}

@@ -6,7 +6,7 @@ const globalModule = require('../globals/global-module');
 
 dotEnv.config();
 globalModule.initGlobalModules();
-const { mongoose } = global;
+const { mongoose, helpers } = global;
 
 const dbUrl = process.env.DB_URL;
 const conn = mongoose.connect(dbUrl);
@@ -291,10 +291,11 @@ function countryCreate(countryParams, callback) {
 
 function usersFaker(cb) {
   console.log('vao user');
+  const pass = '123456789';
   async.parallel([
     function (callback) {
       const username = faker.name.findName();
-      const password = faker.name.firstName();
+      const hashPassword = helpers.generateHashPassword(pass);
       const phoneNumber = faker.phone.phoneNumber();
       const uuid = faker.random.uuid();
       const avatar = faker.image.avatar();
@@ -317,10 +318,10 @@ function usersFaker(cb) {
       //     url,
       //   },
       // });
-      const token = password;
+      const token = hashPassword;
       const userParams = [
         username,
-        password,
+        hashPassword,
         phoneNumber,
         uuid,
         token,
@@ -650,8 +651,7 @@ function deleteAllDocuments(cb) {
         console.log('delete all table');
       }
       cb(null, 'deleteAllDocuments');
-    },
-  );
+    });
 }
 
 const arrCalls = [];
@@ -698,8 +698,7 @@ async.series(
     }
     // All done, disconnect from database
     mongoose.connection.close();
-  },
-);
+  });
 
 function randomInt(low, high) {
   return Math.round(Math.random() * (high - low) + low);
