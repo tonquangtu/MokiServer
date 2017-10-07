@@ -1,4 +1,4 @@
-const { constants, helpers } = global;
+const {constants, helpers} = global;
 
 const productService = require('../services/product-service');
 
@@ -24,7 +24,6 @@ exports.getProductList = (req, res) => {
       req.user.id,
       (responseData) => {
         helpers.sendResponse(res, statusCode, responseData);
-      },
-    );
+      });
   }
 };
