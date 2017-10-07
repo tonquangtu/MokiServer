@@ -35,16 +35,16 @@ const categories = [];
 const countries = [];
 const reports = [];
 const sizes = [];
-const maxUser = 10;
-const maxProduct = 10;
-const maxLike = 10;
-const maxBlock = 10;
-const maxCampaign = 10;
-const maxBrand = 10;
-const maxCategory = 10;
-const maxReport = 10;
+const maxUser = 100;
+const maxProduct = 10000;
+const maxLike = 1000;
+const maxBlock = 100;
+const maxCampaign = 100;
+const maxBrand = 100;
+const maxCategory = 50;
+const maxReport = 100;
 const maxSize = 10;
-const maxCountry = 10;
+const maxCountry = 60;
 
 deleteAllDocuments(() => {
   console.log('done');
