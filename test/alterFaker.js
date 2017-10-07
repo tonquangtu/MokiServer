@@ -1,8 +1,9 @@
 const dotEnv = require('dotenv');
 const config = require('../config/configurations');
+const globalModule = require('../globals/global-module');
 
 dotEnv.config();
-config.initGlobalInstances();
+globalModule.initGlobalModules();
 const { mongoose } = global;
 
 const dbUrl = process.env.DB_URL;

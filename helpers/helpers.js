@@ -2,6 +2,7 @@ const jwt = require('jwt-simple');
 const mongoose = require('mongoose');
 const jwtConfig = require('../config/jwt-config');
 const dotEnv = require('dotenv');
+const bcrypt = require('bcrypt-nodejs');
 
 dotEnv.config();
 
@@ -18,3 +19,8 @@ exports.sendResponse = (res, statusCode, response) => {
 };
 
 exports.encodeToken = payload => jwt.encode(payload, jwtConfig.secretOrKey);
+
+exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+
+exports.validPassword =
+  (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
