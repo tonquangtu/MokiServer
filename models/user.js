@@ -22,13 +22,13 @@ const UsersSchema = new Schema({
   city: { type: String },
   blocks: [
     {
-      user: { type: Schema.ObjectId, ref: 'users', required: true },
+      user: { type: Schema.ObjectId, ref: 'User', required: true },
       created_at: { type: Date, required: true, default: Date.now },
     },
   ],
   follows_to: [
     {
-      user: { type: Schema.ObjectId, ref: 'users', required: true },
+      user: { type: Schema.ObjectId, ref: 'User', required: true },
       created_at: { type: Date, required: true, default: Date.now },
     },
   ],

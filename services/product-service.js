@@ -5,7 +5,8 @@ const BlockRepo = require('../repositories/block-repository');
 
 const { constants } = global;
 
-exports.getListProduct = (categoryId, campaignId, lastId, count, index, userId, callback) => {
+exports.getProductList = (categoryId, campaignId, lastId, count, index, userId, callback) => {
+  console.log(`${categoryId} ${campaignId} ${lastId} ${count} ${index} ${userId} `);
   let response = {};
   const promise = ProductRepo.getListProducts(categoryId, campaignId, lastId, count);
   promise.then((products) => {
@@ -18,17 +19,22 @@ exports.getListProduct = (categoryId, campaignId, lastId, count, index, userId, 
       return callback(response);
     }
 
-    const numNewItems = ProductRepo.getNewItems().then(data => data.length);
-    response = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: {
-        products: getProductArr(products, userId),
-        new_items: numNewItems,
-        last_id: products.slice(-1)[0].id,
-      },
-    };
-    return callback(response);
+    ProductRepo.getNewItems(index).then((data) => {
+      const numNewItems = data.length;
+      getProductAtributes(products, userId, (productArr) => {
+        response = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: {
+            products: productArr,
+            new_items: numNewItems,
+            last_id: products.slice(-1)[0].id,
+          },
+        };
+        return callback(response);
+      });
+
+    });
   }).catch((err) => {
     response = {
       code: constants.response.systemError.code,
@@ -39,60 +45,83 @@ exports.getListProduct = (categoryId, campaignId, lastId, count, index, userId, 
   });
 };
 
-function getProductArr(products, userId) {
+function getProductAtributes(products, userId, cb) {
   const productArr = [];
+  let count = 0;
   products.forEach((product) => {
-    const likePromise = LikeRepo.getLikeUserProduct(userId, product.id);
-    const blockPromise = BlockRepo.getBlockUserProduct(userId, product.id);
-    const isLiked = likePromise.then(data => data.length !== 0);
-    const isBlocked = blockPromise.then(data => data.length !== 0);
-    let canEdit = false;
+    const isLiked = LikeRepo.getLikeUserProduct(userId, product.id)
+      .then((data) => {
+        if (!data) {
+          return false;
+        }
+        return data.length !== 0;
+      }).catch((err) => {
 
-    const seller = UserRepo.getUserById(product.seller);
+      });
+    const isBlocked = BlockRepo.getBlockUserProduct(userId, product.id)
+      .then((data) => {
+        if (!data) {
+          return false;
+        }
+        return data.length !== 0;
+      }).catch((err) => {
 
-    if (product.banned === 0 || seller.id === userId) {
-      if (seller.id === userId) {
-        canEdit = true;
-      }
-      const oneProduct = {
-        id: product.id,
-        name: product.name,
-        image: [],
-        video: [],
-        price: product.price,
-        price_percent: product.price_percent,
-        brand: product.brands,
-        described: product.description,
-        created: product.created_at,
-        like: product.like,
-        comment: product.comment,
-        is_liked: isLiked,
-        is_blocked: isBlocked,
-        can_edit: canEdit,
-        banned: product.banned,
-        seller: {
-          id: seller.id,
-          username: seller.name,
-          avatar: seller.avatar,
-        },
-      };
-      if (product.media.type === constants.product.media.type.image) {
-        product.media.urls.forEach((item) => {
-          oneProduct.image.push({
-            url: item,
+      });
+    Promise.all([
+      isLiked, isBlocked,
+    ]).then((data) => {
+      let canEdit = false;
+
+      const seller = UserRepo.getUserById(product.seller);
+      if (seller.id === userId || (!data[1] && product.banned === 0)) {
+        if (seller.id === userId) {
+          canEdit = true;
+        }
+        const oneProduct = {
+          id: product.id,
+          name: product.name,
+          image: [],
+          video: [],
+          price: product.price,
+          price_percent: product.price_percent,
+          brand: product.brands,
+          described: product.description,
+          created: product.created_at,
+          like: product.like,
+          comment: product.comment,
+          is_liked: data[0],
+          is_blocked: data[1],
+          can_edit: canEdit,
+          banned: product.banned,
+          seller: {
+            id: seller.id,
+            username: seller.name,
+            avatar: seller.avatar,
+          },
+        };
+        if (product.media.type === constants.product.media.type.image) {
+          product.media.urls.forEach((item) => {
+            oneProduct.image.push({
+              url: item,
+            });
           });
-        });
-      } else {
-        product.media.urls.forEach((item) => {
-          oneProduct.video.push({
-            url: item[0],
-            thumb: product.media.thumb,
+        } else {
+          product.media.urls.forEach((item) => {
+            oneProduct.video.push({
+              url: item[0],
+              thumb: product.media.thumb,
+            });
           });
-        });
+        }
+        productArr.push(oneProduct);
       }
-
-      productArr.push(oneProduct);
-    }
+      count += 1;
+      if (count === products.length) {
+        return cb(productArr);
+      }
+    }).catch((err) => {
+      count += 1;
+      console.log(err);
+    });
   });
-  return productArr;
 }
