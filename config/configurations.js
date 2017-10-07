@@ -3,6 +3,7 @@ const constants = require('../constants/constants');
 const helpers = require('../helpers/helpers');
 const auth = require('../securities/authentication');
 const jwtConfig = require('./jwt-config');
+const async = require('async');
 
 
 exports.initGlobalInstances = () => {
@@ -11,5 +12,6 @@ exports.initGlobalInstances = () => {
   global.constants = constants;
   global.helpers = helpers;
   global.auth = auth;
+  global.async = async;
 };
 
