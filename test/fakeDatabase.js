@@ -1,7 +1,7 @@
 const async = require('async');
 const faker = require('faker');
 const dotEnv = require('dotenv');
-const config = require('./config/configurations');
+const config = require('../config/configurations');
 
 dotEnv.config();
 config.initGlobalInstances();
@@ -13,16 +13,16 @@ mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection 
 mongoose.connection.on('open', () => {
 });
 
-const User = require('./models/user');
-const Product = require('./models/product');
-const Like = require('./models/like');
-const Block = require('./models/block');
-const Campaign = require('./models/campaign');
-const Brand = require('./models/brand');
-const Category = require('./models/category');
-const Country = require('./models/country');
-const Report = require('./models/report');
-const Size = require('./models/size');
+const User = require('../models/user');
+const Product = require('../models/product');
+const Like = require('../models/like');
+const Block = require('../models/block');
+const Campaign = require('../models/campaign');
+const Brand = require('../models/brand');
+const Category = require('../models/category');
+const Country = require('../models/country');
+const Report = require('../models/report');
+const Size = require('../models/size');
 
 
 const users = [];
