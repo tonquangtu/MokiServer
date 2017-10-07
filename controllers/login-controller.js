@@ -34,10 +34,9 @@ function validateLoginData(loginData) {
   const phoneNumber = loginData.phoneNumber.trim();
   const password = loginData.password.trim();
   if (phoneNumber.length < 7 || phoneNumber.length > 11 || password.length < 1) return null;
-  if (Number.isNaN(phoneNumber)) return null;
-
+  // if (Number.isNaN(phoneNumber)) return null;
   return {
     password,
-    phoneNumber: Number(phoneNumber),
+    phoneNumber,
   };
 }
