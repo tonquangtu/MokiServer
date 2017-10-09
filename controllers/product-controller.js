@@ -21,3 +21,9 @@ exports.getProductList = (req, res) => {
     },
   );
 };
+
+exports.getCommentProduct = (req, res) => {
+  const data = req.body;
+  const productId = data.product_id;
+
+};

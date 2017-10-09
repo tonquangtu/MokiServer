@@ -23,3 +23,5 @@ exports.getNewItems = (index) => {
   const newestItem = new mongoose.Types.ObjectId(index);
   return Product.find({}).where('_id').gt(newestItem).exec();
 };
+
+exports.getProductDetail = productId => Product.findById(productId).exec();

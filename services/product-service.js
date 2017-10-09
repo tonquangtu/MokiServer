@@ -1,7 +1,7 @@
-const UserRepo = require('../repositories/user-repository');
-const ProductRepo = require('../repositories/product-repository');
-const LikeRepo = require('../repositories/like-repository');
-const BlockRepo = require('../repositories/block-repository');
+const userRepo = require('../repositories/user-repository');
+const productRepo = require('../repositories/product-repository');
+const likeRepo = require('../repositories/like-repository');
+const blockRepo = require('../repositories/block-repository');
 
 const { constants } = global;
 
@@ -40,6 +40,18 @@ exports.getProductList = (categoryId, campaignId, lastId, count, index, userId, 
       data: null,
     };
     return callback(response);
+  });
+};
+exports.getCommentProduct = (productId) => {
+  const promise = productRepo.getProductDetail(productId);
+  promise.then((product) => {
+    let response = {};
+    const comments = product.comments;
+    if (comments.length === 0) {
+
+    }
+  }).catch((err) => {
+
   });
 };
 
