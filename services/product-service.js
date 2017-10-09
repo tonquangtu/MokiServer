@@ -6,7 +6,6 @@ const BlockRepo = require('../repositories/block-repository');
 const { constants } = global;
 
 exports.getProductList = (categoryId, campaignId, lastId, count, index, userId, callback) => {
-  console.log(`${categoryId} ${campaignId} ${lastId} ${count} ${index} ${userId} `);
   let response = {};
   const promise = ProductRepo.getListProducts(categoryId, campaignId, lastId, count);
   promise.then((products) => {
@@ -33,7 +32,6 @@ exports.getProductList = (categoryId, campaignId, lastId, count, index, userId, 
         };
         return callback(response);
       });
-
     });
   }).catch((err) => {
     response = {
@@ -49,24 +47,25 @@ function getProductAtributes(products, userId, cb) {
   const productArr = [];
   let count = 0;
   products.forEach((product) => {
-    const isLiked = LikeRepo.getLikeUserProduct(userId, product.id)
-      .then((data) => {
-        if (!data) {
-          return false;
-        }
-        return data.length !== 0;
-      }).catch((err) => {
+    let isLiked = false;
+    let isBlocked = false;
+    if (userId !== 0) {
+      isLiked = LikeRepo.getLikeUserProduct(userId, product.id)
+        .then((data) => {
+          if (!data) {
+            return false;
+          }
+          return data.length !== 0;
+        }).catch(err => false);
+      isBlocked = BlockRepo.getBlockUserProduct(userId, product.id)
+        .then((data) => {
+          if (!data) {
+            return false;
+          }
+          return data.length !== 0;
+        }).catch(err => false);
+    }
 
-      });
-    const isBlocked = BlockRepo.getBlockUserProduct(userId, product.id)
-      .then((data) => {
-        if (!data) {
-          return false;
-        }
-        return data.length !== 0;
-      }).catch((err) => {
-
-      });
     Promise.all([
       isLiked, isBlocked,
     ]).then((data) => {
