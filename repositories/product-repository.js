@@ -2,7 +2,7 @@ const Product = require('../models/product');
 
 const { mongoose } = global;
 
-exports.getListProducts = (categoryId, campaignId, lastId, count) => {
+exports.getProductList = (categoryId, campaignId, lastId, count) => {
   const data = {};
   const numProduct = parseInt(count, 10);
   if (campaignId > 0) {
@@ -23,3 +23,6 @@ exports.getNewItems = (index) => {
   const newestItem = new mongoose.Types.ObjectId(index);
   return Product.find({}).where('_id').gt(newestItem).exec();
 };
+exports.getProductDetail = productId => Product.findById(productId).exec();
+exports.getProductOfUser =
+  userId => Product.find({ user_id: userId }).exec();
