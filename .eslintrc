@@ -5,6 +5,8 @@
   "rules": {
     "no-use-before-define": "off",
     "no-trailing-spaces": "off",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "prefer-destructuring": "off",
+    "consistent-return": "off"
   }
 }
