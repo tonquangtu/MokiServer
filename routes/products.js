@@ -4,6 +4,7 @@ const { express, auth } = global;
 
 const router = express.Router();
 
-router.post('/products', auth.jwtAuthenticate(), productController.getProductList);
+router.post('/', productController.getProductList);
+router.post('/detail', productController.getProductDetail);
 
 module.exports = router;
