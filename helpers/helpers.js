@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const jwtConfig = require('../config/jwt-config');
 const dotEnv = require('dotenv');
 const bcrypt = require('bcrypt-nodejs');
+const constants = require('../constants/constants');
 
 dotEnv.config();
 
@@ -24,3 +25,27 @@ exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genS
 
 exports.validPassword =
   (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
+
+exports.getSystemErrorResponse = () => {
+  return {
+    code: constants.response.systemError.code,
+    message: constants.response.systemError.message,
+    data: null,
+  };
+};
+
+exports.getUserNotFoundResponse = () => {
+  return {
+    code: constants.response.userNotFound.code,
+    message: constants.response.userNotFound.message,
+    data: null,
+  };
+};
+
+exports.getParamValueInvalidResponse = () => {
+  return {
+    code: constants.response.paramValueInvalid.code,
+    message: constants.response.paramValueInvalid.message,
+    data: null,
+  };
+};

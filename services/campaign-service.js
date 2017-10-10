@@ -3,9 +3,19 @@ const campaignRepo = require('../repositories/campaign-repository');
 const { constants } = global;
 
 exports.getAllCampaigns = (callback) => {
-  let response;
   const promise = campaignRepo.getAllCampaigns();
-  promise.then((campaigns) => {
+  processCampaigns(promise, callback);
+};
+
+exports.getNewestCampaigns = (callback) => {
+  const limit = constants.campaigns_limit;
+  const promise = campaignRepo.getNewestCampaigns(limit);
+  processCampaigns(promise, callback);
+};
+
+function processCampaigns(campaignPromise, callback) {
+  let response;
+  campaignPromise.then((campaigns) => {
     if (!campaigns || campaigns.length < 1) {
       response = {
         code: constants.response.campaignNotFound.code,
@@ -39,4 +49,4 @@ exports.getAllCampaigns = (callback) => {
     };
     return callback(response);
   });
-};
+}

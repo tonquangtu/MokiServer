@@ -5,6 +5,7 @@
   "rules": {
     "no-use-before-define": "off",
     "no-trailing-spaces": "off",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "no-underscore-dangle":"off"
   }
 }

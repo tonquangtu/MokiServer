@@ -127,5 +127,5 @@ module.exports = {
     },
   },
   tokenField: 'token',
-
+  campaigns_limit: 5,
 };
