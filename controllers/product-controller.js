@@ -1,4 +1,4 @@
-const { helpers, constants } = global;
+const { helpers } = global;
 
 const productService = require('../services/product-service');
 
@@ -16,6 +16,18 @@ exports.getProductList = (req, res) => {
     count: data.count,
     index: data.index,
     userId,
+  }, (responseData) => {
+    helpers.sendResponse(res, statusCode, responseData);
+  });
+};
+exports.getProductDetail = (req, res) => {
+  const statusCode = 200;
+  const data = req.body;
+  const productId = data.id;
+  const userId = req.user ? req.user.userId : 0;
+  productService.getProductDetail(productId, userId, (responseData) => {
+    helpers.sendResponse(res, statusCode, responseData);
+  });
   }, (responseData) => {
     helpers.sendResponse(res, statusCode, responseData);
   });
