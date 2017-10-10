@@ -49,17 +49,46 @@ exports.getProductDetail = (productId, userId, callback) => {
     getResponseForProductDetail(product, userId, responseData => callback(responseData));
   }).catch(err => callback(getResponseForErrorSystem()));
 };
-exports.getCommentProduct = (productId) => {
+exports.getCommentProduct = (productId, callback) => {
   const promise = productRepo.getProductDetail(productId);
   promise.then((product) => {
-    let response = {};
     const comments = product.comments;
     if (comments.length === 0) {
-
+      return callback(getResponseForNoData());
     }
-  }).catch((err) => {
-
-  });
+    const promiseCommentList = [];
+    comments.forEach((comment) => {
+      const onePromiseComment = userRepo.getUserById(comment.commenter)
+        .then((commenter) => {
+          return {
+            id: comment.id,
+            comment: comment.content,
+            created: comment.created_at,
+            poster: {
+              id: commenter.id,
+              name: commenter.username,
+              avatar: commenter.avatar,
+            },
+          };
+        }).catch((err) => {
+          console.log(err.message);
+          return null;
+        });
+      promiseCommentList.push(onePromiseComment);
+    });
+    Promise.all(promiseCommentList).then((commentResponse) => {
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: commentResponse,
+        is_blocked: [],
+      };
+      callback(response);
+    }).catch((err) => {
+      console.log(err.message);
+      callback(getResponseForErrorSystem());
+    });
+  }).catch(err => callback(getResponseForErrorSystem()));
 };
 
 function getProductAtributes(products, userId, cb) {
