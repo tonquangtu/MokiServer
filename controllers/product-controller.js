@@ -31,7 +31,10 @@ exports.getProductDetail = (req, res) => {
 };
 
 exports.getCommentProduct = (req, res) => {
+  const statusCode = 200;
   const data = req.body;
   const productId = data.product_id;
-
+  productService.getCommentProduct(productId, (responseData) => {
+    helpers.sendResponse(res, statusCode, responseData);
+  });
 };
