@@ -26,26 +26,4 @@ exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genS
 exports.validPassword =
   (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
 
-exports.getSystemErrorResponse = () => {
-  return {
-    code: constants.response.systemError.code,
-    message: constants.response.systemError.message,
-    data: null,
-  };
-};
-
-exports.getUserNotFoundResponse = () => {
-  return {
-    code: constants.response.userNotFound.code,
-    message: constants.response.userNotFound.message,
-    data: null,
-  };
-};
-
-exports.getParamValueInvalidResponse = () => {
-  return {
-    code: constants.response.paramValueInvalid.code,
-    message: constants.response.paramValueInvalid.message,
-    data: null,
-  };
-};
+exports.isValidId = id => id.match(/^[0-9a-fA-F]{24}$/);

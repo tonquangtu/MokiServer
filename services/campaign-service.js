@@ -42,11 +42,6 @@ function processCampaigns(campaignPromise, callback) {
     return callback(response);
   }).catch((err) => {
     console.log(err);
-    response = {
-      code: constants.response.systemError.code,
-      message: constants.response.systemError.message,
-      data: null,
-    };
-    return callback(response);
+    return callback(constants.systemErrorResponse);
   });
 }

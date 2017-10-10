@@ -20,12 +20,7 @@ exports.login = (req, res) => {
     });
   } else {
     statusCode = constants.statusCode.notFound;
-    const response = {
-      code: constants.response.paramValueInvalid.code,
-      message: constants.response.paramValueInvalid.message,
-      data: null,
-    };
-    helpers.sendResponse(res, statusCode, response);
+    helpers.sendResponse(res, statusCode, constants.userNotFoundResponse);
   }
 };
 

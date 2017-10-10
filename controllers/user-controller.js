@@ -7,11 +7,11 @@ exports.userDetail = (req, res) => {
   const reqData = req.body;
   if (!reqData) {
     statusCode = 404;
-    const response = helpers.getParamValueInvalidResponse();
-    helpers.sendResponse(res, statusCode, response);
+    helpers.sendResponse(res, statusCode, constants.paramValueInvalidResponse);
   } else {
     userService.getUserDetail(req.user.id, reqData.userId, (response) => {
-      if (response.code === constants.response.userNotFound.code) {
+      if (response.code === constants.response.userNotFound.code ||
+        response.code === constants.response.paramValueInvalid.code) {
         statusCode = 404;
       } else if (response.code === constants.response.systemError.code) {
         statusCode = 500;
