@@ -45,5 +45,5 @@ exports.postCommentProduct = (req, res) => {
   const productId = data.product_id;
   const comment = data.comment;
   const index = data.index;
-  productService.
+  // productService.
 };
