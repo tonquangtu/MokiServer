@@ -1,4 +1,5 @@
 const userRepo = require('../repositories/user-repository');
+const userService = require('../services/user-service');
 
 const { constants, helpers } = global;
 
@@ -50,4 +51,9 @@ exports.login = (phoneNumber, password, callback) => {
     loginSuccess = false;
     return callback(loginSuccess, constants.systemErrorResponse);
   });
+};
+
+exports.logout = (userId, callback) => {
+  const updateData = { token: null };
+  return userService.updateUser(userId, updateData, callback);
 };

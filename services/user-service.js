@@ -87,3 +87,24 @@ exports.getUserDetail = (myId, otherUserId, callback) => {
   }
   return this.getOtherUserDetail(myId, otherUserId, callback);
 };
+
+exports.updateUser = (userId, updateData, callback) => {
+  if (!helpers.isValidId(userId)) {
+    return callback(constants.paramValueInvalidResponse);
+  }
+  const promise = userRepo.findAndUpdateUser(userId, updateData);
+  promise.then((user) => {
+    if (!user) {
+      return callback(constants.userNotFoundResponse);
+    }
+    const response = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: null,
+    };
+    return callback(response);
+  }).catch((err) => {
+    console.log(err);
+    return callback(constants.systemErrorResponse);
+  });
+};

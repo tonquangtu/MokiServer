@@ -24,6 +24,18 @@ exports.login = (req, res) => {
   }
 };
 
+exports.logout = (req, res) => {
+  let statusCode = 200;
+  loginService.logout(req.user.id, (response) => {
+    if (response.code === constants.response.userNotFound.code) {
+      statusCode = 404;
+    } else if (response.code === constants.response.systemError.code) {
+      statusCode = 500;
+    }
+    helpers.sendResponse(res, statusCode, response);
+  });
+};
+
 function validateLoginData(loginData) {
   if (!loginData.phoneNumber || !loginData.password) return null;
   const phoneNumber = loginData.phoneNumber.trim();
