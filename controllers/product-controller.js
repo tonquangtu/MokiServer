@@ -9,17 +9,25 @@ exports.getProductList = (req, res) => {
   const campaignId = data.campaign_id ? data.campaign_id : 0;
   const lastId = data.last_id ? data.last_id : 0;
   const userId = req.user ? req.user.id : 0;
-  productService.getProductList(
+  productService.getProductList({
     categoryId,
     campaignId,
     lastId,
-    data.count,
-    data.index,
+    count: data.count,
+    index: data.index,
     userId,
-    (responseData) => {
-      helpers.sendResponse(res, statusCode, responseData);
-    },
-  );
+  }, (responseData) => {
+    helpers.sendResponse(res, statusCode, responseData);
+  });
+};
+exports.getProductDetail = (req, res) => {
+  const statusCode = 200;
+  const data = req.body;
+  const productId = data.id;
+  const userId = req.user ? req.user.userId : 0;
+  productService.getProductDetail(productId, userId, (responseData) => {
+    helpers.sendResponse(res, statusCode, responseData);
+  });
 };
 
 exports.getCommentProduct = (req, res) => {
