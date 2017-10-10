@@ -92,6 +92,9 @@ exports.getCommentProduct = (productId, callback) => {
 
   }).catch(err => callback(getResponseForErrorSystem()));
 };
+exports.addCommentProduct = (productId, comment, index, callback) => {
+
+};
 
 function getProductAtributes(products, userId, cb) {
   const productArr = [];

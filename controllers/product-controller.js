@@ -42,5 +42,8 @@ exports.getCommentProduct = (req, res) => {
 exports.postCommentProduct = (req, res) => {
   const statusCode = 200;
   const data = req.body;
-  const
+  const productId = data.product_id;
+  const comment = data.comment;
+  const index = data.index;
+  productService.
 };
