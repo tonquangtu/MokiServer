@@ -7,5 +7,5 @@ const router = express.Router();
 router.post('/', productController.getProductList);
 router.post('/detail', productController.getProductDetail);
 router.post('/comments', productController.getCommentProduct);
-router.post('/add-comment', productController.postCommentProduct);
+router.post('/add-comment', auth.jwtAuthenticate(), productController.postCommentProduct);
 module.exports = router;

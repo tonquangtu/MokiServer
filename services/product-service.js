@@ -88,12 +88,32 @@ exports.getCommentProduct = (productId, callback) => {
       console.log(err.message);
       callback(getResponseForErrorSystem());
     });
-
-
   }).catch(err => callback(getResponseForErrorSystem()));
 };
-exports.addCommentProduct = (productId, comment, index, callback) => {
-
+exports.addCommentProduct = (productId, comment, userId, index, callback) => {
+  const promise = productRepo.getProductDetail(productId);
+  promise.then((product) => {
+    const comments = product.comments;
+    comments.push({
+      content: comment,
+      commenter: userId,
+    });
+    product.save((err, newProduct) => {
+      if (err) {
+        console.log(err.message);
+        callback(getResponseForErrorSystem());
+      } else {
+        getCommentListNew(newProduct.comments, index, (data) => {
+          const response = {
+            code: constants.response.ok.code,
+            message: constants.response.ok.message,
+            data,
+          };
+          callback(response);
+        });
+      }
+    });
+  });
 };
 
 function getProductAtributes(products, userId, cb) {
@@ -327,4 +347,35 @@ function getListBrandOfProduct(product) {
   });
 
   return Promise.all(promiseBrandList).then(data => data);
+}
+function getCommentListNew(comments, commentId, callback) {
+  const commentIdList = comments.map(comment => comment.id.toString());
+  const index = commentIdList.indexOf(commentId);
+  if (index >= 0) {
+    comments.splice(0, index + 1);
+    const promiseCommentList = [];
+    comments.forEach((comment) => {
+      const promiseUser = userRepo.getUserById(comment.commenter).then((user) => {
+        return {
+          id: comment.id,
+          comment: comment.content,
+          created: comment.created_at,
+          poster: {
+            id: user.id,
+            name: user.username,
+            avatar: user.avatar,
+          },
+        };
+      });
+      promiseCommentList.push(promiseUser);
+    });
+    Promise.all(promiseCommentList).then((data) => {
+      callback(data);
+    }).catch((err) => {
+      console.log(err.message);
+      callback(null);
+    });
+  } else {
+    callback(null);
+  }
 }
