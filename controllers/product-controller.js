@@ -28,9 +28,6 @@ exports.getProductDetail = (req, res) => {
   productService.getProductDetail(productId, userId, (responseData) => {
     helpers.sendResponse(res, statusCode, responseData);
   });
-  }, (responseData) => {
-    helpers.sendResponse(res, statusCode, responseData);
-  });
 };
 exports.getProductDetail = (req, res) => {
   const statusCode = 200;
