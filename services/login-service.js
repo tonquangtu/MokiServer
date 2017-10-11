@@ -1,4 +1,5 @@
 const userRepo = require('../repositories/user-repository');
+const userService = require('../services/user-service');
 
 const { constants, helpers } = global;
 
@@ -10,21 +11,11 @@ exports.login = (phoneNumber, password, callback) => {
   promise.then((user) => {
     if (!user) {
       loginSuccess = false;
-      response = {
-        code: constants.response.userNotFound.code,
-        message: constants.response.userNotFound.message,
-        data: null,
-      };
-      return callback(loginSuccess, response);
+      return callback(loginSuccess, constants.response.userNotFound);
     }
     if (!helpers.validPassword(password, user.hash_password)) {
       loginSuccess = false;
-      response = {
-        code: constants.response.wrongPassword.code,
-        message: constants.response.wrongPassword.message,
-        data: null,
-      };
-      return callback(loginSuccess, response);
+      return callback(loginSuccess, constants.response.wrongPassword);
     }
 
     loginSuccess = true;
@@ -53,11 +44,11 @@ exports.login = (phoneNumber, password, callback) => {
   }).catch((err) => {
     console.log(err);
     loginSuccess = false;
-    response = {
-      code: constants.response.systemError.code,
-      message: constants.response.systemError.message,
-      data: null,
-    };
-    return callback(loginSuccess, response);
+    return callback(loginSuccess, constants.response.systemError);
   });
+};
+
+exports.logout = (userId, callback) => {
+  const updateData = { token: null };
+  return userService.updateUser(userId, updateData, callback);
 };
