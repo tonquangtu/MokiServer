@@ -5,4 +5,4 @@ exports.getUserByPhoneNumber = phoneNumber => User.findOne({ phone_number: phone
 exports.getUserById = userId => User.findById(userId).exec();
 
 exports.findAndUpdateUser =
-  (userId, updateData) => User.findByIdAndUpdate(userId, updateData).exec();
+  (userId, updateData, options) => User.findByIdAndUpdate(userId, updateData, options).exec();

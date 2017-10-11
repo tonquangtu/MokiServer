@@ -12,13 +12,14 @@ exports.setupTokenBaseAuth = () => {
   const options = {
     secretOrKey: jwtConfig.secretOrKey,
     jwtFromRequest: ExtractJwt.fromBodyField(constants.tokenField),
+    session: false,
   };
   const strategy = new JwtStrategy(options, (payload, done) => {
     const { isLogin, user } = payload;
     if (isLogin && user) {
       return done(null, user);
     }
-    return done(new Error(constants.response.userNotFound.message), null);
+    return done(null, false, constants.response.tokenInvalid);
   });
 
   passport.use(strategy);
@@ -41,6 +42,8 @@ exports.setupLocalAuth = () => {
 
 exports.passportInitialize = () => passport.initialize();
 
-exports.jwtAuthenticate = () => passport.authenticate('jwt', jwtConfig.jwtSession);
+exports.jwtAuthenticate = () => passport.authenticate('jwt', {
+  session: jwtConfig.jwtSession.session,
+});
 
 exports.localAuthenticate = () => passport.authenticate('local');

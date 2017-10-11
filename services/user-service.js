@@ -88,11 +88,11 @@ exports.getUserDetail = (myId, otherUserId, callback) => {
   return this.getOtherUserDetail(myId, otherUserId, callback);
 };
 
-exports.updateUser = (userId, updateData, callback) => {
+exports.updateUser = (userId, updateData, options, callback) => {
   if (!helpers.isValidId(userId)) {
     return callback(constants.response.paramValueInvalid);
   }
-  const promise = userRepo.findAndUpdateUser(userId, updateData);
+  const promise = userRepo.findAndUpdateUser(userId, updateData, options);
   promise.then((user) => {
     if (!user) {
       return callback(constants.response.userNotFound);
