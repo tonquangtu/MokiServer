@@ -29,3 +29,12 @@ exports.getProductDetail = (req, res) => {
     helpers.sendResponse(res, statusCode, responseData);
   });
 };
+
+exports.deleteProduct = (req, res) => {
+  const statusCode = 200;
+  const data = req.body;
+  const productId = data.id;
+  productService.deleteProduct(productId, req.user.id, (responseData) => {
+    helpers.sendResponse(res, statusCode, responseData);
+  });
+};
