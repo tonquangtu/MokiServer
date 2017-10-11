@@ -75,28 +75,28 @@ exports.getCommentProduct = (productId, callback) => {
   }).catch(err => callback(constants.response.systemError));
 };
 
-exports.addCommentProduct = (productId, comment, userId, index, callback) => {
-  const promise = productRepo.getProductDetail(productId);
+exports.addCommentProduct = (productId, comment, index, userId, callback) => {
+  const promise = productRepo.getProductWithComment(productId);
   promise.then((product) => {
-    const comments = product.comments;
+    const { comments } = product;
     comments.push({
       content: comment,
       commenter: userId,
     });
-    product.save((err, newProduct) => {
-      if (err) {
-        console.log(err.message);
-        callback(getResponseForErrorSystem());
-      } else {
-        getCommentListNew(newProduct.comments, index, (data) => {
-          const response = {
-            code: constants.response.ok.code,
-            message: constants.response.ok.message,
-            data,
-          };
-          callback(response);
-        });
-      }
+    const promiseProduct
+      = productRepo.findAndUpdateCommentsProduct(product.id, product, { new: true });
+    promiseProduct.then((newProduct) => {
+      getCommentListNew(newProduct.comments, index, (data) => {
+        const response = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data,
+        };
+        return callback(response);
+      });
+    }).catch((err) => {
+      console.log(err.message);
+      return callback(constants.response.systemError);
     });
   });
 };
@@ -279,4 +279,30 @@ function getListItemOfProduct(listItem) {
       name: item.name,
     };
   });
+}
+
+function getCommentListNew(comments, commentId, callback) {
+  const commentIdList = comments.map(comment => comment.id);
+  const tempComments = comments;
+  let index = 0;
+  if (commentId !== 0) {
+    index = commentIdList.indexOf(commentId);
+    tempComments.splice(0, index + 1);
+  }
+  if (index > -1) {
+    const newComments = tempComments.map((comment) => {
+      return {
+        id: comment.id,
+        comment: comment.content,
+        created: comment.created_at,
+        poster: {
+          id: comment.commenter.id,
+          name: comment.commenter.username,
+          avatar: comment.commenter.avatar,
+        },
+      };
+    });
+    return callback(newComments);
+  }
+  return callback(null);
 }

@@ -47,9 +47,8 @@ exports.postCommentProduct = (req, res) => {
   const statusCode = 200;
   const data = req.body;
   const productId = data.product_id;
-  const comment = data.comment;
-  const index = data.index;
-  productService.addCommentProduct(productId, comment, req.user.id, index, (responseData) => {
+  const { comment, index } = data;
+  productService.addCommentProduct(productId, comment, index, req.user.id, (responseData) => {
     helpers.sendResponse(res, statusCode, responseData);
   });
 };
