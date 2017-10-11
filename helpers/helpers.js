@@ -28,18 +28,3 @@ exports.validPassword =
 
 exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
 
-exports.getResponseForErrorSystem = () => {
-  return {
-    code: constants.response.systemError.code,
-    message: constants.response.systemError.message,
-    data: null,
-  };
-};
-
-exports.getResponseForNoData = () => {
-  return {
-    code: constants.response.noDataOrEndListData.code,
-    message: constants.response.noDataOrEndListData.message,
-    data: null,
-  };
-};
