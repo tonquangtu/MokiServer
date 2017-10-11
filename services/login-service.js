@@ -11,16 +11,11 @@ exports.login = (phoneNumber, password, callback) => {
   promise.then((user) => {
     if (!user) {
       loginSuccess = false;
-      return callback(loginSuccess, constants.userNotFoundResponse);
+      return callback(loginSuccess, constants.response.userNotFound);
     }
     if (!helpers.validPassword(password, user.hash_password)) {
       loginSuccess = false;
-      response = {
-        code: constants.response.wrongPassword.code,
-        message: constants.response.wrongPassword.message,
-        data: null,
-      };
-      return callback(loginSuccess, response);
+      return callback(loginSuccess, constants.response.wrongPassword);
     }
 
     loginSuccess = true;
@@ -49,7 +44,7 @@ exports.login = (phoneNumber, password, callback) => {
   }).catch((err) => {
     console.log(err);
     loginSuccess = false;
-    return callback(loginSuccess, constants.systemErrorResponse);
+    return callback(loginSuccess, constants.response.systemError);
   });
 };
 

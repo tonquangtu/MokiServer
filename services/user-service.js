@@ -13,7 +13,7 @@ exports.getOtherUserDetail = (myId, otherUserId, callback) => {
     const otherUser = result[0];
     const user = result[1];
     if (!otherUser || !user) {
-      return callback(constants.userNotFoundResponse);
+      return callback(constants.response.userNotFound);
     }
 
     const isFollowed = _.findIndex(user.follows_to, { user: otherUser._id }) !== -1 ? 1 : 0;
@@ -38,7 +38,7 @@ exports.getOtherUserDetail = (myId, otherUserId, callback) => {
     return callback(response);
   }).catch((err) => {
     console.log(err);
-    return callback(constants.systemErrorResponse);
+    return callback(constants.response.systemError);
   });
 };
 
@@ -47,7 +47,7 @@ exports.getMyDetail = (myId, callback) => {
   const promise = userRepo.getUserById(myId);
   promise.then((user) => {
     if (!user) {
-      return callback(constants.userNotFoundResponse);
+      return callback(constants.response.userNotFound);
     }
     const addressItem = _.find(user.addresses, { _id: user.default_address });
     const userAddress = addressItem ? addressItem.address : null;
@@ -75,7 +75,7 @@ exports.getMyDetail = (myId, callback) => {
     return callback(response);
   }).catch((err) => {
     console.log(err);
-    return callback(constants.systemErrorResponse);
+    return callback(constants.response.systemError);
   });
 };
 
@@ -83,19 +83,19 @@ exports.getUserDetail = (myId, otherUserId, callback) => {
   if (!otherUserId || myId === otherUserId) {
     return this.getMyDetail(myId, callback);
   } else if (!helpers.isValidId(otherUserId)) {
-    return callback(constants.paramValueInvalidResponse);
+    return callback(constants.response.paramValueInvalid);
   }
   return this.getOtherUserDetail(myId, otherUserId, callback);
 };
 
 exports.updateUser = (userId, updateData, callback) => {
   if (!helpers.isValidId(userId)) {
-    return callback(constants.paramValueInvalidResponse);
+    return callback(constants.response.paramValueInvalid);
   }
   const promise = userRepo.findAndUpdateUser(userId, updateData);
   promise.then((user) => {
     if (!user) {
-      return callback(constants.userNotFoundResponse);
+      return callback(constants.response.userNotFound);
     }
     const response = {
       code: constants.response.ok.code,
@@ -105,6 +105,6 @@ exports.updateUser = (userId, updateData, callback) => {
     return callback(response);
   }).catch((err) => {
     console.log(err);
-    return callback(constants.systemErrorResponse);
+    return callback(constants.response.systemError);
   });
 };
