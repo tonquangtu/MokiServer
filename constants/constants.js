@@ -113,6 +113,21 @@ module.exports = {
       message: 'Not found campaigns in system',
     },
   },
+  systemErrorResponse: {
+    code: 1016,
+    message: 'System have an error',
+    data: null,
+  },
+  userNotFoundResponse: {
+    code: 1017,
+    message: 'Not found user in system',
+    data: null,
+  },
+  paramValueInvalidResponse: {
+    code: 1004,
+    message: 'Parameter value is invalid.',
+    data: null,
+  },
   statusCode: {
     ok: 200,
     notFound: 404,
@@ -127,4 +142,5 @@ module.exports = {
     },
   },
   tokenField: 'token',
+
 };

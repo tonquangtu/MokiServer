@@ -1,4 +1,4 @@
-const { helpers } = global;
+const { helpers, constants } = global;
 
 const productService = require('../services/product-service');
 
@@ -31,10 +31,14 @@ exports.getProductDetail = (req, res) => {
 };
 
 exports.getCommentProduct = (req, res) => {
-  const statusCode = 200;
+  let statusCode = 200;
   const data = req.body;
-  const productId = data.product_id;
-  productService.getCommentProduct(productId, (responseData) => {
-    helpers.sendResponse(res, statusCode, responseData);
-  });
+  if (!data) {
+    statusCode = 404;
+    helpers.sendResponse(res, statusCode, constants.paramValueInvalidResponse);
+  } else {
+    productService.getCommentProduct(data.product_id, (responseData) => {
+      helpers.sendResponse(res, statusCode, responseData);
+    });
+  }
 };

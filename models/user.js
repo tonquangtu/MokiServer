@@ -18,8 +18,13 @@ const UsersSchema = new Schema({
   active: { type: Number, required: true, enum: [0, 1] },
   url: { type: String, required: true },
   status: { type: Number, required: true, enum: [0, 1] },
-  address: { type: String },
-  city: { type: String },
+  addresses: [
+    {
+      address: { type: String },
+      city: { type: String },
+    },
+  ],
+  default_address: { type: Schema.ObjectId },
   blocks: [
     {
       user: { type: Schema.ObjectId, ref: 'User', required: true },

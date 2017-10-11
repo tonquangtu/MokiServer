@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const jwtConfig = require('../config/jwt-config');
 const dotEnv = require('dotenv');
 const bcrypt = require('bcrypt-nodejs');
+const constants = require('../constants/constants');
 
 dotEnv.config();
 
@@ -24,3 +25,21 @@ exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genS
 
 exports.validPassword =
   (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
+
+exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
+
+exports.getResponseForErrorSystem = () => {
+  return {
+    code: constants.response.systemError.code,
+    message: constants.response.systemError.message,
+    data: null,
+  };
+};
+
+exports.getResponseForNoData = () => {
+  return {
+    code: constants.response.noDataOrEndListData.code,
+    message: constants.response.noDataOrEndListData.message,
+    data: null,
+  };
+};

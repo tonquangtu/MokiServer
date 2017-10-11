@@ -20,13 +20,20 @@ exports.login = (req, res) => {
     });
   } else {
     statusCode = constants.statusCode.notFound;
-    const response = {
-      code: constants.response.paramValueInvalid.code,
-      message: constants.response.paramValueInvalid.message,
-      data: null,
-    };
-    helpers.sendResponse(res, statusCode, response);
+    helpers.sendResponse(res, statusCode, constants.userNotFoundResponse);
   }
+};
+
+exports.logout = (req, res) => {
+  let statusCode = 200;
+  loginService.logout(req.user.id, (response) => {
+    if (response.code === constants.response.userNotFound.code) {
+      statusCode = 404;
+    } else if (response.code === constants.response.systemError.code) {
+      statusCode = 500;
+    }
+    helpers.sendResponse(res, statusCode, response);
+  });
 };
 
 function validateLoginData(loginData) {
