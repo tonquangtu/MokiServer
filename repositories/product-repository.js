@@ -14,13 +14,16 @@ exports.getProductList = (categoryId, campaignId, lastId, count) => {
   }
   if (lastId === 0) {
     return Product.find(data)
-      .sort('-id').limit(numProduct)
+      .sort('-id')
+      .limit(numProduct)
       .populate({ path: 'brands', select: 'name' })
       .populate({ path: 'seller', select: 'username avatar' })
       .select(selectAttribute)
       .exec();
   }
-  return Product.find(data).where('id').lt(lastId).sort('-id')
+  return Product.find(data)
+    .where('id').lt(lastId)
+    .sort('-id')
     .limit(numProduct)
     .populate({ path: 'brands', select: 'name' })
     .populate({ path: 'seller', select: 'username avatar' })
@@ -30,7 +33,9 @@ exports.getProductList = (categoryId, campaignId, lastId, count) => {
 
 exports.getNewItems = (index) => {
   const newestItem = new mongoose.Types.ObjectId(index);
-  return Product.find({}).where('_id').gt(newestItem).exec();
+  return Product.find({})
+    .where('_id').gt(newestItem)
+    .exec();
 };
 exports.getProductDetail = productId => Product.findById(productId)
   .populate({ path: 'seller', select: 'username avatar' })
@@ -40,6 +45,8 @@ exports.getProductDetail = productId => Product.findById(productId)
   .select('name media seller price price_percent description ships_from ships_from_ids condition like comment banned sizes brands categories url weight dimension campaigns created_at')
   .exec();
 exports.getProductWithComment = productId => Product.findById(productId)
-  .populate({ path: 'comments.commenter', select: 'username avatar' }).exec();
+  .populate({ path: 'comments.commenter', select: 'username avatar' })
+  .exec();
 exports.getProductOfUser =
-  userId => Product.find({ seller: userId }).exec();
+  userId => Product.find({ seller: userId })
+    .exec();

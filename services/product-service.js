@@ -5,33 +5,31 @@ const blockRepo = require('../repositories/block-repository');
 const { constants } = global;
 
 exports.getProductList = (data, callback) => {
-  const categoryId = data.categoryId;
-  const campaignId = data.campaignId;
-  const lastId = data.lastId;
-  const count = data.count;
-  const index = data.index;
-  const userId = data.userId;
+  const {
+    categoryId, campaignId, lastId, count, index, userId,
+  } = data;
   let response = {};
+  let products = [];
   const promise = productRepo.getProductList(categoryId, campaignId, lastId, count);
-  promise.then((products) => {
+  promise.then((productList) => {
+    products = productList;
     if (!products || products.length === 0) {
       return callback(constants.response.noDataOrEndListData);
     }
-
-    productRepo.getNewItems(index).then((dataResponse) => {
-      const numNewItems = dataResponse.length;
-      getProductAttributes(products, userId, (productArr) => {
-        response = {
-          code: constants.response.ok.code,
-          message: constants.response.ok.message,
-          data: {
-            products: productArr,
-            newItems: numNewItems,
-            lastId: products.slice(-1)[0].id,
-          },
-        };
-        return callback(response);
-      });
+    return productRepo.getNewItems(index);
+  }).then((dataResponse) => {
+    const numNewItems = dataResponse.length;
+    getProductAttributes(products, userId, (productArr) => {
+      response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          products: productArr,
+          newItems: numNewItems,
+          lastId: products.slice(-1)[0].id,
+        },
+      };
+      return callback(response);
     });
   }).catch(err => callback(constants.response.systemError));
 };
@@ -51,7 +49,7 @@ exports.getCommentProduct = (productId, callback) => {
     if (!product) {
       return callback(constants.response.productNotExist);
     }
-    const comments = product.comments;
+    const { comments } = product;
     if (comments.length === 0) {
       return callback(constants.response.noDataOrEndListData);
     }
@@ -73,7 +71,7 @@ exports.getCommentProduct = (productId, callback) => {
       data: commentResponse,
       isBlocked: [],
     };
-    callback(response);
+    return callback(response);
   }).catch(err => callback(constants.response.systemError));
 };
 
@@ -101,7 +99,7 @@ function getProductAttributes(products, userId, cb) {
       if (data[1]) {
         isUserBlocked = data[1].length !== 0;
       }
-      const seller = product.seller;
+      const { seller } = product;
       if (seller && (seller.id === userId || (!isUserBlocked && product.banned === 0))) {
         if (seller.id === userId) {
           canEdit = true;
@@ -161,7 +159,7 @@ function getResponseForProductDetail(product, userId, callback) {
     isLiked = likeRepo.getLikeUserProduct(userId, product.id);
     isBlocked = blockRepo.getBlockUserProduct(userId, product.id);
   }
-  const seller = product.seller;
+  const { seller } = product;
   const numProductOfUser = productRepo.getProductOfUser(seller.id);
 
   Promise.all([
