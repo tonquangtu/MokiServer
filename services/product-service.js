@@ -21,9 +21,7 @@ exports.getProductList = (data, callback) => {
     }
 
     return productRepo.getNewItems(index);
-  }).then((dataResponse) => {
-    const numNewItems = dataResponse.length;
-
+  }).then((numNewItems) => {
     getProductAttributes(products, userId, (productArr) => {
       response = {
         code: constants.response.ok.code,
