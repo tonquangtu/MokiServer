@@ -96,13 +96,15 @@ exports.addCommentProduct = (productId, comment, index, userId, callback) => {
       return callback(constants.response.productNotExist);
     }
 
-    const { comments } = product;
+    const newProduct = product;
+    const { comments } = newProduct;
     comments.push({
       content: comment,
       commenter: userId,
     });
+    newProduct.comment += 1;
 
-    return productRepo.findAndUpdateCommentsProduct(product.id, product, { new: true });
+    return productRepo.findAndUpdateCommentsProduct(product.id, newProduct, { new: true });
   }).then((newProduct) => {
     getCommentListNew(newProduct.comments, index, (data) => {
       if (!data) {
