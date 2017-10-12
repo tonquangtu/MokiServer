@@ -87,7 +87,43 @@ exports.getCommentProduct = (productId, callback) => {
   }).catch(err => callback(constants.response.systemError));
 };
 
-function getProductAttributes(products, userId, cb) {
+exports.addCommentProduct = (productId, comment, index, userId, callback) => {
+  const promise = productRepo.getProductWithComment(productId);
+  promise.then((product) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+
+    const newProduct = product;
+    const { comments } = newProduct;
+    comments.push({
+      content: comment,
+      commenter: userId,
+    });
+    newProduct.comment += 1;
+
+    return productRepo.findAndUpdateCommentsProduct(product.id, newProduct, { new: true });
+  }).then((newProduct) => {
+    getCommentListNew(newProduct.comments, index, (data) => {
+      if (!data) {
+        return callback(constants.response.paramValueInvalid);
+      }
+
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data,
+      };
+
+      return callback(response);
+    });
+  }).catch((err) => {
+    console.log(err.message);
+    return callback(constants.response.systemError);
+  });
+};
+
+function getProductAttributes(products, userId, callback) {
   const productArr = [];
   let count = 0;
   products.forEach((product) => {
@@ -163,7 +199,7 @@ function getProductAttributes(products, userId, cb) {
 
       count += 1;
       if (count === products.length) {
-        return cb(productArr);
+        return callback(productArr);
       }
     }).catch((err) => {
       count += 1;
@@ -279,4 +315,30 @@ function getListItemOfProduct(listItem) {
       name: item.name,
     };
   });
+}
+
+function getCommentListNew(comments, commentId, callback) {
+  const commentIdList = comments.map(comment => comment.id);
+  const tempComments = comments;
+  let index = 0;
+  if (commentId !== 0) {
+    index = commentIdList.indexOf(commentId);
+    tempComments.splice(0, index + 1);
+  }
+  if (index > -1) {
+    const newComments = tempComments.map((comment) => {
+      return {
+        id: comment.id,
+        comment: comment.content,
+        created: comment.created_at,
+        poster: {
+          id: comment.commenter.id,
+          name: comment.commenter.username,
+          avatar: comment.commenter.avatar,
+        },
+      };
+    });
+    return callback(newComments);
+  }
+  return callback(null);
 }

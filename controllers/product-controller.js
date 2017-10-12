@@ -61,6 +61,27 @@ exports.getCommentProduct = (req, res) => {
   }
 };
 
+exports.postCommentProduct = (req, res) => {
+  const data = req.body;
+  const validValue = validateValueComment(data);
+
+  if (!data.productId || !data.comment || !data.index) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if (typeof data.comment !== 'string' && !(data.comment instanceof String)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
+  } else if (!validValue) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+  } else {
+    const {
+      productId, comment, index,
+    } = validValue;
+
+    productService.addCommentProduct(productId, comment, index, req.user.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
+  }
+};
+
 function validateValueProductListParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;
@@ -75,5 +96,16 @@ function validateValueProductListParams(productListParams) {
 
   return {
     categoryId, campaignId, lastId,
+  };
+}
+
+function validateValueComment(commentParams) {
+  const { productId, comment, index } = commentParams;
+  if (!helpers.isValidId(productId) || !helpers.isValidId(index) || comment.trim() === '') {
+    return false;
+  }
+
+  return {
+    productId, comment, index,
   };
 }

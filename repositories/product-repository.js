@@ -58,3 +58,8 @@ exports.getProductWithComment = productId => Product.findById(productId)
 
 exports.getProductOfUser = userId => Product.find({ seller: userId })
   .exec();
+
+exports.findAndUpdateCommentsProduct =
+  (productId, productData, option) => Product.findByIdAndUpdate(productId, productData, option)
+    .populate({ path: 'comments.commenter', select: 'username avatar' })
+    .exec();
