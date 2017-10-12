@@ -8,17 +8,22 @@ exports.getProductList = (data, callback) => {
   const {
     categoryId, campaignId, lastId, count, index, userId,
   } = data;
+
   let response = {};
   let products = [];
+
   const promise = productRepo.getProductList(categoryId, campaignId, lastId, count);
   promise.then((productList) => {
     products = productList;
+
     if (!products || products.length === 0) {
       return callback(constants.response.noDataOrEndListData);
     }
+
     return productRepo.getNewItems(index);
   }).then((dataResponse) => {
     const numNewItems = dataResponse.length;
+
     getProductAttributes(products, userId, (productArr) => {
       response = {
         code: constants.response.ok.code,
@@ -29,10 +34,12 @@ exports.getProductList = (data, callback) => {
           lastId: products.slice(-1)[0].id,
         },
       };
+
       return callback(response);
     });
   }).catch(err => callback(constants.response.systemError));
 };
+
 exports.getProductDetail = (productId, userId, callback) => {
   const promise = productRepo.getProductDetail(productId);
 
@@ -40,19 +47,24 @@ exports.getProductDetail = (productId, userId, callback) => {
     if (!product) {
       return callback(constants.response.productNotExist);
     }
+
     getResponseForProductDetail(product, userId, responseData => callback(responseData));
   }).catch(err => callback(constants.response.systemError));
 };
+
 exports.getCommentProduct = (productId, callback) => {
   const promise = productRepo.getProductWithComment(productId);
   promise.then((product) => {
     if (!product) {
       return callback(constants.response.productNotExist);
     }
+
     const { comments } = product;
+
     if (comments.length === 0) {
       return callback(constants.response.noDataOrEndListData);
     }
+
     const commentResponse = comments.map((comment) => {
       return {
         id: comment.id,
@@ -65,12 +77,14 @@ exports.getCommentProduct = (productId, callback) => {
         },
       };
     });
+
     const response = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: commentResponse,
       isBlocked: [],
     };
+
     return callback(response);
   }).catch(err => callback(constants.response.systemError));
 };
@@ -92,6 +106,7 @@ function getProductAttributes(products, userId, cb) {
       let canEdit = false;
       let isUserLiked = false;
       let isUserBlocked = false;
+
       if (data[0]) {
         isUserLiked = data[0].length !== 0;
       }
@@ -99,11 +114,14 @@ function getProductAttributes(products, userId, cb) {
       if (data[1]) {
         isUserBlocked = data[1].length !== 0;
       }
+
       const { seller } = product;
+
       if (seller && (seller.id === userId || (!isUserBlocked && product.banned === 0))) {
         if (seller.id === userId) {
           canEdit = true;
         }
+
         const oneProduct = {
           id: product.id,
           name: product.name,
@@ -126,6 +144,7 @@ function getProductAttributes(products, userId, cb) {
             avatar: seller.avatar,
           },
         };
+
         if (product.media.type === constants.product.media.type.image) {
           product.media.urls.forEach((item) => {
             oneProduct.image.push({
@@ -140,8 +159,10 @@ function getProductAttributes(products, userId, cb) {
             });
           });
         }
+
         productArr.push(oneProduct);
       }
+
       count += 1;
       if (count === products.length) {
         return cb(productArr);
@@ -152,13 +173,16 @@ function getProductAttributes(products, userId, cb) {
     });
   });
 }
+
 function getResponseForProductDetail(product, userId, callback) {
   let isLiked = false;
   let isBlocked = false;
+
   if (userId !== 0) {
     isLiked = likeRepo.getLikeUserProduct(userId, product.id);
     isBlocked = blockRepo.getBlockUserProduct(userId, product.id);
   }
+
   const { seller } = product;
   const numProductOfUser = productRepo.getProductOfUser(seller.id);
 
@@ -183,7 +207,7 @@ function getResponseForProductDetail(product, userId, callback) {
       listingProduct = data[2].length;
     }
 
-    if (seller.id === userId || (!isUserBlocked && product.banned === 0)) {
+    if (seller && (seller.id === userId || (!isUserBlocked && product.banned === 0))) {
       if (seller.id === userId) {
         canEdit = true;
       }
@@ -220,6 +244,7 @@ function getResponseForProductDetail(product, userId, callback) {
         weight: product.weight,
         dimension: product.dimension,
       };
+
       if (product.media.type === constants.product.media.type.image) {
         product.media.urls.forEach((item) => {
           productResponse.image.push({
@@ -234,11 +259,13 @@ function getResponseForProductDetail(product, userId, callback) {
           });
         });
       }
+
       const response = {
         code: constants.response.ok.code,
         message: constants.response.ok.message,
         data: productResponse,
       };
+
       callback(response);
     }
   }).catch((err) => {
@@ -246,6 +273,7 @@ function getResponseForProductDetail(product, userId, callback) {
     callback(constants.response.systemError);
   });
 }
+
 function getListItemOfProduct(listItem) {
   return listItem.map((item) => {
     return {
