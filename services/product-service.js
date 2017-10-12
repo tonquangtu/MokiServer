@@ -50,6 +50,42 @@ exports.getProductDetail = (productId, userId, callback) => {
   }).catch(err => callback(getResponseForErrorSystem()));
 };
 
+exports.likeProduct = (productId, userId, callback) => {
+  const promiseProduct = productRepo.getProductDetail(productId);
+  let productData;
+  promiseProduct.then((product) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+    productData = product;
+
+    return likeRepo.getLikeUserProduct(userId, productId);
+  }).then((like) => {
+    const likeData = {
+      user: userId,
+      product: productId,
+      is_liked: 1,
+    };
+
+    return likeRepo.findByIdAndUpdate(like, likeData);
+  }).then((data) => {
+    productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
+
+    return productRepo.findAndUpdateProduct(productId, productData, { new: false });
+  }).then((product) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        like: product.like,
+      },
+    };
+
+    return callback(responseData);
+  })
+    .catch(err => callback(constants.response.systemError));
+};
+
 function getProductAtributes(products, userId, cb) {
   const productArr = [];
   let count = 0;

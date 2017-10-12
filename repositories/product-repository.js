@@ -26,3 +26,7 @@ exports.getNewItems = (index) => {
 exports.getProductDetail = productId => Product.findById(productId).exec();
 exports.getProductOfUser =
   userId => Product.find({ user_id: userId }).exec();
+
+exports.findAndUpdateProduct =
+  (productId, productData, option) => Product.findByIdAndUpdate(productId, productData, option)
+    .exec();
