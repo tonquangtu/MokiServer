@@ -64,4 +64,9 @@ exports.findAndUpdateCommentsProduct =
     .populate({ path: 'comments.commenter', select: 'username avatar' })
     .exec();
 
-exports.deleteProduct = productId => Product.findByIdAndRemove(productId).exec();
+exports.deleteProduct = productId => Product.findByIdAndRemove(productId)
+  .exec();
+
+exports.findAndUpdateProduct =
+  (productId, productData, option) => Product.findByIdAndUpdate(productId, productData, option)
+    .exec();

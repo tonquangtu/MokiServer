@@ -140,6 +140,45 @@ exports.deleteProduct = (productId, userId, callback) => {
     .catch(err => callback(constants.response.systemError));
 };
 
+exports.likeProduct = (productId, userId, callback) => {
+  const promiseProduct = productRepo.getProductDetail(productId);
+  let productData;
+
+  promiseProduct.then((product) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+    productData = product;
+
+    return likeRepo.getLikeUserProduct(userId, productId);
+  }).then((like) => {
+    console.log(like);
+    const likeData = {
+      user: userId,
+      product: productId,
+      is_liked: 1,
+    };
+
+    return likeRepo.findByIdAndUpdate(like, likeData);
+  }).then((data) => {
+    console.log(data);
+    productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
+
+    return productRepo.findAndUpdateProduct(productId, productData, { new: true });
+  }).then((product) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        like: product.like,
+      },
+    };
+
+    return callback(responseData);
+  })
+    .catch(err => callback(constants.response.systemError));
+};
+
 function getProductAttributes(products, userId, callback) {
   const productArr = [];
   let count = 0;
