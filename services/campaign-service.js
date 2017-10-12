@@ -17,12 +17,7 @@ function processCampaigns(campaignPromise, callback) {
   let response;
   campaignPromise.then((campaigns) => {
     if (!campaigns || campaigns.length < 1) {
-      response = {
-        code: constants.response.campaignNotFound.code,
-        message: constants.response.campaignNotFound.message,
-        data: null,
-      };
-      return callback(response);
+      return callback(constants.response.campaignNotFound);
     }
 
     const responseData = [];
@@ -42,6 +37,6 @@ function processCampaigns(campaignPromise, callback) {
     return callback(response);
   }).catch((err) => {
     console.log(err);
-    return callback(constants.systemErrorResponse);
+    return callback(constants.response.systemError);
   });
 }

@@ -20,7 +20,7 @@ exports.login = (req, res) => {
     });
   } else {
     statusCode = constants.statusCode.notFound;
-    helpers.sendResponse(res, statusCode, constants.userNotFoundResponse);
+    helpers.sendResponse(res, statusCode, constants.response.userNotFound);
   }
 };
 
