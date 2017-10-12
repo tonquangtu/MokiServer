@@ -31,10 +31,20 @@ exports.getProductDetail = (req, res) => {
 };
 
 exports.deleteProduct = (req, res) => {
-  const statusCode = 200;
   const data = req.body;
-  const productId = data.id;
-  productService.deleteProduct(productId, req.user.id, (responseData) => {
-    helpers.sendResponse(res, statusCode, responseData);
-  });
+  const validateResult = validateProductId(data.id);
+
+  if (!validateResult.valid) {
+    helpers.sendResponse(res, validateResult.statusCode, validateResult.responseData);
+  } else {
+    const { productId } = validateResult.responseData;
+
+    productService.deleteProduct(productId, req.user.id, (responseData) => {
+      helpers.sendResponse(res, validateResult.statusCode, responseData);
+    });
+  }
 };
+
+function validateProductId(productId) {
+
+}

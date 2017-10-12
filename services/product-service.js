@@ -49,46 +49,24 @@ exports.getProductDetail = (productId, userId, callback) => {
     getResponseForProductDetail(product, userId, responseData => callback(responseData));
   }).catch(err => callback(getResponseForErrorSystem()));
 };
+
 exports.deleteProduct = (productId, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
   promiseProduct.then((product) => {
     if (!product) {
-      const response = {
-        code: constants.response.productNotExist,
-        message: constants.response.productNotExist.message,
-        data: null,
-      };
-      callback(response);
-    } else {
-      const seller = product.seller;
-      if (seller === userId) {
-        product.remove((err) => {
-          if (err) {
-            console.log(err.message);
-            callback(getResponseForErrorSystem());
-          } else {
-            const response = {
-              code: constants.response.ok.code,
-              message: constants.response.ok.message,
-              data: null,
-            };
-            callback(response);
-          }
-        });
-      } else {
-        const response = {
-          code: constants.response.notAccess.code,
-          message: constants.response.notAccess.message,
-          data: null,
-        };
-        callback(response);
-      }
+      return callback(constants.response.productNotExist);
     }
-  }).catch((err) => {
-    console.log(err.message);
-    callback(getResponseForErrorSystem());
-  });
+
+    const { seller } = product;
+    if (seller !== userId) {
+      return callback(constants.response.notAccess);
+    }
+
+    return productRepo.deleteProduct(productId);
+  }).then(data => callback(constants.response.ok))
+    .catch(err => callback(constants.response.systemError));
 };
+
 function getProductAtributes(products, userId, cb) {
   const productArr = [];
   let count = 0;

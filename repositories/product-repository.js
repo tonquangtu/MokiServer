@@ -26,3 +26,5 @@ exports.getNewItems = (index) => {
 exports.getProductDetail = productId => Product.findById(productId).exec();
 exports.getProductOfUser =
   userId => Product.find({ user_id: userId }).exec();
+
+exports.deleteProduct = productId => Product.findByIdAndRemove(productId).exec();
