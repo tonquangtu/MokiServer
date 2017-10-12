@@ -17,7 +17,7 @@ exports.getProductList = (categoryId, campaignId, lastId, count) => {
 
   if (lastId === 0) {
     return Product.find(data)
-      .sort('-id')
+      .sort({ _id: -1 })
       .limit(numProduct)
       .populate({ path: 'brands', select: 'name' })
       .populate({ path: 'seller', select: 'username avatar' })
@@ -26,8 +26,8 @@ exports.getProductList = (categoryId, campaignId, lastId, count) => {
   }
 
   return Product.find(data)
-    .where('id').lt(lastId)
-    .sort('-id')
+    .where('_id').lt(lastId)
+    .sort({ _id: -1 })
     .limit(numProduct)
     .populate({ path: 'brands', select: 'name' })
     .populate({ path: 'seller', select: 'username avatar' })
@@ -40,6 +40,7 @@ exports.getNewItems = (index) => {
 
   return Product.find({})
     .where('_id').gt(newestItem)
+    .count()
     .exec();
 };
 
