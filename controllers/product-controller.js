@@ -4,18 +4,17 @@ const productService = require('../services/product-service');
 
 exports.getProductList = (req, res) => {
   const data = req.body;
-  const validValue = validateValueProductListParams(data);
 
   if (!data.count || !data.index) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
   } else if (!Number.isInteger(data.count)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
-  } else if (!validValue) {
+  } else if (!validateValueProductListParams(data)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
     const {
       categoryId, campaignId, lastId,
-    } = validValue;
+    } = validateValueProductListParams(data);
     const userId = req.user ? req.user.userId : 0;
 
     productService.getProductList({
@@ -63,18 +62,17 @@ exports.getCommentProduct = (req, res) => {
 
 exports.postCommentProduct = (req, res) => {
   const data = req.body;
-  const validValue = validateValueComment(data);
 
   if (!data.productId || !data.comment || !data.index) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
   } else if (typeof data.comment !== 'string' && !(data.comment instanceof String)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
-  } else if (!validValue) {
+  } else if (!validateValueComment(data)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
     const {
       productId, comment, index,
-    } = validValue;
+    } = validateValueComment(data);
 
     productService.addCommentProduct(productId, comment, index, req.user.id, (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
@@ -110,6 +108,25 @@ exports.likeProduct = (req, res) => {
   }
 };
 
+exports.reportProduct = (req, res) => {
+  const data = req.body;
+
+  if (!data.productId || !data.subject || !data.details) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if ((typeof data.subject !== 'string' && !(data.subject instanceof String))
+  || (typeof data.details !== 'string' && !(data.details instanceof String))) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
+  } else if (!validateValueReport(data)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+  } else {
+    const { productId, subject, details } = validateValueReport(data);
+
+    productService.reportProduct(productId, subject, details, req.user.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
+  }
+};
+
 function validateValueProductListParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;
@@ -135,5 +152,17 @@ function validateValueComment(commentParams) {
 
   return {
     productId, comment, index,
+  };
+}
+
+function validateValueReport(reportParams) {
+  const { productId, subject, details } = reportParams;
+
+  if (!helpers.isValidId(productId) || subject.trim() === '' || details.trim() === '') {
+    return false;
+  }
+
+  return {
+    productId, subject, details,
   };
 }
