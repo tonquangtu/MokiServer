@@ -8,7 +8,7 @@ exports.getLikeUserProduct = (userId, productId) => Like.findOne({
 exports.findByIdAndUpdate = (like, likeData) => {
   if (!like) {
     const newLike = new Like(likeData);
-    return newLike.save().exec();
+    return newLike.save();
   }
 
   const newLike = like;

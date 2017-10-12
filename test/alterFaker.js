@@ -19,11 +19,11 @@ const Size = require('../models/size');
 const Category = require('../models/category');
 const Brand = require('../models/brand');
 
-// changeAllToken();
+changeAllToken();
 addAttributeProduct();
-// setTimeout(() => { addAttributeUser(0); }, 0);
-// setTimeout(() => { addAttributeUser(1); }, 5000);
-// setTimeout(() => { addAttributeUser(2); }, 10000);
+setTimeout(() => { addAttributeUser(0); }, 0);
+setTimeout(() => { addAttributeUser(1); }, 5000);
+setTimeout(() => { addAttributeUser(2); }, 10000);
 function changeAllToken() {
   User.find({}, (err, users) => {
     if (err) {
