@@ -82,6 +82,19 @@ exports.postCommentProduct = (req, res) => {
   }
 };
 
+exports.deleteProduct = (req, res) => {
+  const data = req.body;
+  if (!data.id) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if (!helpers.isValidId(data.id)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+  } else {
+    productService.deleteProduct(data.id, req.user.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
+  }
+};
+
 function validateValueProductListParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;

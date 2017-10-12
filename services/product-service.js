@@ -123,6 +123,23 @@ exports.addCommentProduct = (productId, comment, index, userId, callback) => {
   });
 };
 
+exports.deleteProduct = (productId, userId, callback) => {
+  const promiseProduct = productRepo.getProductDetail(productId);
+  promiseProduct.then((product) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+
+    const { seller } = product;
+    if (seller.id !== userId) {
+      return callback(constants.response.notAccess);
+    }
+
+    return productRepo.deleteProduct(productId);
+  }).then(data => callback(constants.response.ok))
+    .catch(err => callback(constants.response.systemError));
+};
+
 function getProductAttributes(products, userId, callback) {
   const productArr = [];
   let count = 0;
