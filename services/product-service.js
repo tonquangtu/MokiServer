@@ -1,6 +1,7 @@
 const productRepo = require('../repositories/product-repository');
 const likeRepo = require('../repositories/like-repository');
 const blockRepo = require('../repositories/block-repository');
+const reportRepo = require('../repositories/report-repository');
 
 const { constants } = global;
 
@@ -176,6 +177,25 @@ exports.likeProduct = (productId, userId, callback) => {
 
     return callback(responseData);
   })
+    .catch(err => callback(constants.response.systemError));
+};
+
+exports.reportProduct = (productId, subject, details, userId, callback) => {
+  const promiseProduct = productRepo.getProductDetail(productId);
+  promiseProduct.then((product) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+
+    const reportData = {
+      reporter: userId,
+      product: productId,
+      subject,
+      details,
+    };
+
+    return reportRepo.saveReport(reportData);
+  }).then(data => callback(constants.response.ok))
     .catch(err => callback(constants.response.systemError));
 };
 
