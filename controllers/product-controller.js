@@ -132,10 +132,12 @@ exports.getProductListMyLike = (req, res) => {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
   } else if (!Number.isInteger(data.count)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
-  } else if (!validateValueMyLikeParams(data)) {
+  } else if (!helpers.isValidId(data.index)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
-
+    productService.getProductListMyLike(data.index, data.count, req.user.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
   }
 };
 
@@ -190,6 +192,3 @@ function validateValueReportParams(reportParams) {
   };
 }
 
-function validateValueMyLikeParams(myLikeParams) {
-
-}
