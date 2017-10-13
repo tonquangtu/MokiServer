@@ -21,7 +21,7 @@ exports.getProductList = (data, callback) => {
       return callback(constants.response.noDataOrEndListData);
     }
 
-    return productRepo.getNewItems(index);
+    return productRepo.getNewItems(index, categoryId);
   }).then((numNewItems) => {
     getProductAttributes(products, userId, (productArr) => {
       response = {
@@ -213,6 +213,21 @@ exports.getProductListMyLike = (index, count, userId, callback) => {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data,
+    };
+    return callback(responseData);
+  }).catch(err => callback(constants.response.systemError));
+};
+
+exports.getNumberNewItems = (lastId, categoryId, callback) => {
+  const promise = productRepo.getNewItems(lastId, categoryId);
+  promise.then((numNewItem) => {
+    console.log(numNewItem);
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        newItems: numNewItem,
+      },
     };
     return callback(responseData);
   }).catch(err => callback(constants.response.systemError));
