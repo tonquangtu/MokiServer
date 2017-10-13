@@ -48,7 +48,7 @@ exports.getProductDetail = productId => Product.findById(productId)
   .populate({ path: 'seller', select: 'username avatar' })
   .populate({ path: 'sizes', select: 'name' })
   .populate({ path: 'brands', select: 'name' })
-  .populate({ path: 'categories', select: 'name' })
+  .populate({ path: 'categories', select: 'name has_brand has_name' })
   .select('name media seller price price_percent description ships_from ships_from_ids condition like comment banned sizes brands categories url weight dimension campaigns created_at')
   .exec();
 

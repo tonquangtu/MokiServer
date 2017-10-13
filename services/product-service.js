@@ -153,7 +153,6 @@ exports.likeProduct = (productId, userId, callback) => {
 
     return likeRepo.getLikeUserProduct(userId, productId);
   }).then((like) => {
-    console.log(like);
     const likeData = {
       user: userId,
       product: productId,
@@ -162,7 +161,6 @@ exports.likeProduct = (productId, userId, callback) => {
 
     return likeRepo.findByIdAndUpdate(like, likeData);
   }).then((data) => {
-    console.log(data);
     productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
 
     return productRepo.findAndUpdateProduct(productId, productData, { new: true });
@@ -346,7 +344,7 @@ function getResponseForProductDetail(product, userId, callback) {
           score: Math.round(Math.random() * 5),
           listing: listingProduct,
         },
-        category: getListItemOfProduct(product.categories),
+        category: getListItemOfProduct(product.categories, 'category'),
         isBlocked: isUserBlocked,
         canEdit,
         banned: product.banned,
@@ -384,7 +382,17 @@ function getResponseForProductDetail(product, userId, callback) {
   });
 }
 
-function getListItemOfProduct(listItem) {
+function getListItemOfProduct(listItem, type = null) {
+  if (type === 'category') {
+    return listItem.map((item) => {
+      return {
+        id: item.id,
+        name: item.name,
+        hasBrand: item.has_brand,
+        hasName: item.has_name,
+      };
+    });
+  }
   return listItem.map((item) => {
     return {
       id: item.id,
