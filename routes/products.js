@@ -11,5 +11,6 @@ router.post('/add-comment', auth.jwtAuthenticate(), productController.postCommen
 router.post('/delete-product', auth.jwtAuthenticate(), productController.deleteProduct);
 router.post('/like-product', auth.jwtAuthenticate(), productController.likeProduct);
 router.post('/report-product', auth.jwtAuthenticate(), productController.reportProduct);
+router.post('/my-like', auth.jwtAuthenticate(), productController.getProductListMyLike);
 
 module.exports = router;

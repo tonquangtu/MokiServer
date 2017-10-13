@@ -9,7 +9,6 @@ exports.getProductList = (data, callback) => {
   const {
     categoryId, campaignId, lastId, count, index, userId,
   } = data;
-  console.log(userId);
 
   let response = {};
   let products = [];
@@ -52,7 +51,7 @@ exports.getProductDetail = (productId, userId, callback) => {
   }).catch(err => callback(constants.response.systemError));
 };
 
-exports.getCommentProduct = (productId, userId, callback) => {
+exports.getCommentProduct = (productId, callback) => {
   const promise = productRepo.getProductWithComment(productId);
   promise.then((product) => {
     if (!product) {
@@ -78,12 +77,11 @@ exports.getCommentProduct = (productId, userId, callback) => {
       };
     });
 
-    const isBlocked = userId === 0 ? null : false;
     const response = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: commentResponse,
-      isBlocked,
+      isBlocked: [],
     };
 
     return callback(response);
