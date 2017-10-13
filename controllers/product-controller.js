@@ -65,12 +65,12 @@ exports.postCommentProduct = (req, res) => {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
   } else if (typeof data.comment !== 'string' && !(data.comment instanceof String)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
-  } else if (!validateValueComment(data)) {
+  } else if (!validateValueCommentParams(data)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
     const {
       productId, comment, index,
-    } = validateValueComment(data);
+    } = validateValueCommentParams(data);
 
     productService.addCommentProduct(productId, comment, index, req.user.id, (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
@@ -114,12 +114,28 @@ exports.reportProduct = (req, res) => {
   } else if ((typeof data.subject !== 'string' && !(data.subject instanceof String))
   || (typeof data.details !== 'string' && !(data.details instanceof String))) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
-  } else if (!validateValueReport(data)) {
+  } else if (!validateValueReportParams(data)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
-    const { productId, subject, details } = validateValueReport(data);
+    const { productId, subject, details } = validateValueReportParams(data);
 
     productService.reportProduct(productId, subject, details, req.user.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
+  }
+};
+
+exports.getProductListMyLike = (req, res) => {
+  const data = req.body;
+
+  if (!data.count || !data.index) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if (!Number.isInteger(data.count)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
+  } else if (!helpers.isValidId(data.index)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+  } else {
+    productService.getProductListMyLike(data.index, data.count, req.user.id, (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
   }
@@ -153,7 +169,7 @@ function validateValueProductListParams(productListParams) {
   };
 }
 
-function validateValueComment(commentParams) {
+function validateValueCommentParams(commentParams) {
   const { productId, comment, index } = commentParams;
   if (!helpers.isValidId(productId) || !helpers.isValidId(index) || comment.trim() === '') {
     return false;
@@ -164,7 +180,7 @@ function validateValueComment(commentParams) {
   };
 }
 
-function validateValueReport(reportParams) {
+function validateValueReportParams(reportParams) {
   const { productId, subject, details } = reportParams;
 
   if (!helpers.isValidId(productId) || subject.trim() === '' || details.trim() === '') {
@@ -175,3 +191,4 @@ function validateValueReport(reportParams) {
     productId, subject, details,
   };
 }
+
