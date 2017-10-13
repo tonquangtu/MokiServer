@@ -28,3 +28,5 @@ exports.validPassword =
 
 exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
 
+exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
+
