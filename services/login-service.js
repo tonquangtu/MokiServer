@@ -1,33 +1,22 @@
 const userRepo = require('../repositories/user-repository');
+const userService = require('../services/user-service');
 
 const { constants, helpers } = global;
 
 exports.login = (phoneNumber, password, callback) => {
-  let loginSuccess;
+  let loginSuccess = false;
   let response = {};
 
   const promise = userRepo.getUserByPhoneNumber(phoneNumber);
   promise.then((user) => {
     if (!user) {
-      loginSuccess = false;
-      response = {
-        code: constants.response.userNotFound.code,
-        message: constants.response.userNotFound.message,
-        data: null,
-      };
-      return callback(loginSuccess, response);
+      response = constants.response.userNotFound;
+      return null;
     }
     if (!helpers.validPassword(password, user.hash_password)) {
-      loginSuccess = false;
-      response = {
-        code: constants.response.wrongPassword.code,
-        message: constants.response.wrongPassword.message,
-        data: null,
-      };
-      return callback(loginSuccess, response);
+      response = constants.response.wrongPassword;
+      return null;
     }
-
-    loginSuccess = true;
     const payload = {
       isLogin: true,
       user: {
@@ -38,26 +27,31 @@ exports.login = (phoneNumber, password, callback) => {
         url: user.url,
       },
     };
+
     const token = helpers.encodeToken(payload);
-    response = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: {
-        token,
-        id: user.id,
-        username: user.username,
-        avatar: user.avatar,
-      },
-    };
+    return userRepo.findAndUpdateUser(user.id, { token }, { new: true });
+  }).then((user) => {
+    if (user) {
+      loginSuccess = true;
+      response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          token: user.token,
+          id: user.id,
+          username: user.username,
+          avatar: user.avatar,
+        },
+      };
+    }
     return callback(loginSuccess, response);
   }).catch((err) => {
     console.log(err);
     loginSuccess = false;
-    response = {
-      code: constants.response.systemError.code,
-      message: constants.response.systemError.message,
-      data: null,
-    };
-    return callback(loginSuccess, response);
+    return callback(loginSuccess, constants.response.systemError);
   });
 };
+
+exports.logout =
+  (userId, callback) => userService.updateUser(userId, { token: null }, null, callback);
+
