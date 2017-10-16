@@ -118,10 +118,7 @@ exports.addCommentProduct = (productId, comment, index, userId, callback) => {
 
       return callback(response);
     });
-  }).catch((err) => {
-    console.log(err.message);
-    return callback(constants.response.systemError);
-  });
+  }).catch(err => callback(constants.response.systemError));
 };
 
 exports.deleteProduct = (productId, userId, callback) => {
@@ -221,7 +218,6 @@ exports.getProductListMyLike = (index, count, userId, callback) => {
 exports.getNumberNewItems = (lastId, categoryId, callback) => {
   const promise = productRepo.getNewItems(lastId, categoryId);
   promise.then((numNewItem) => {
-    console.log(numNewItem);
     const responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
@@ -311,9 +307,8 @@ function getProductAttributes(products, userId, callback) {
       if (count === products.length) {
         return callback(productArr);
       }
-    }).catch((err) => {
+    }).catch(() => {
       count += 1;
-      console.log(err);
     });
   });
 }
@@ -412,10 +407,7 @@ function getResponseForProductDetail(product, userId, callback) {
 
       callback(response);
     }
-  }).catch((err) => {
-    console.log(err);
-    callback(constants.response.systemError);
-  });
+  }).catch(err => callback(constants.response.systemError));
 }
 
 function getListItemOfProduct(listItem, type = null) {
