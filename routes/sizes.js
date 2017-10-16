@@ -4,6 +4,6 @@ const { express, auth } = global;
 
 const router = express.Router();
 
-router.post('/', sizeController.getListSizes);
+router.post('/', sizeController.getSizes);
 
 module.exports = router;

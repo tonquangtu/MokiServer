@@ -2,11 +2,18 @@ const { helpers, constants } = global;
 
 const sizeService = require('../services/size-service');
 
-exports.getListSizes = (req, res) => {
-  const sizeId = req.body;
+exports.getSizes = (req, res) => {
+  const categoryId = req.body;
 
-  sizeService.getListSizes(sizeId, (responseData) => {
-    helpers.sendResponse(res, constants.statusCode.ok, responseData);
-  });
+  if (!categoryId.id) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if (!helpers.isValidId(categoryId.id)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+  } else {
+    sizeService.getSizeList(categoryId.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
+  }
+
 
 };
