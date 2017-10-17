@@ -157,8 +157,5 @@ exports.getFollowList = (data, callback) => {
       data: followListArray,
     };
     return callback(responseData);
-  }).catch((err) => {
-    console.log(err.message);
-    return callback(constants.response.systemError)
-  });
+  }).catch(err => callback(constants.response.systemError));
 };
