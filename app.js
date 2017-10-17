@@ -31,21 +31,23 @@ const index = require('./routes/index');
 const users = require('./routes/users');
 const products = require('./routes/products');
 const campaigns = require('./routes/campaigns');
-<<<<<<< HEAD
+// <<<<<<< HEAD
 const sizes = require('./routes/sizes');
-=======
+const brands = require('./routes/brands');
+// =======
 const searches = require('./routes/searches');
->>>>>>> 7a55f86e1ddb24dc1d0ff37fb45a1bf7cd79ed7c
+// >>>>>>> 7a55f86e1ddb24dc1d0ff37fb45a1bf7cd79ed7c
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/products', products);
 app.use('/campaigns', campaigns);
-<<<<<<< HEAD
+// <<<<<<< HEAD
 app.use('/sizes', sizes);
-=======
+app.use('/brands', brands);
+// =======
 app.use('/searches', searches);
->>>>>>> 7a55f86e1ddb24dc1d0ff37fb45a1bf7cd79ed7c
+// >>>>>>> 7a55f86e1ddb24dc1d0ff37fb45a1bf7cd79ed7c
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

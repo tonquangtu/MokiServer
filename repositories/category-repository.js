@@ -11,3 +11,8 @@ exports.getSizeArrayByCategoryId = (index) => {
     .populate({ path: 'sizes', select: 'name' })
     .exec();
 };
+
+exports.getBrandByCategoryId = categoryId => Category
+  .findById(categoryId)
+  .populate({ path: 'brands' })
+  .exec();
