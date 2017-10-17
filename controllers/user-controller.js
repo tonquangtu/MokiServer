@@ -21,6 +21,12 @@ exports.userDetail = (req, res) => {
   }
 };
 
+exports.getSetting = (req, res) => {
+  userService.getSetting(req.user.id, (responseData) => {
+    helpers.sendResponse(res, constants.statusCode.ok, responseData);
+  });
+};
+
 exports.getFollowList = (req, res, type) => {
   const data = req.body;
   if (data.userId === undefined || data.index === undefined || data.count === undefined) {

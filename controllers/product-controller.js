@@ -141,6 +141,32 @@ exports.getProductListMyLike = (req, res) => {
   }
 };
 
+exports.getNumberNewItems = (req, res) => {
+  const data = req.body;
+  if (!data.lastId) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if (!validateValueCheckNewItemParams(data)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+  } else {
+    const { lastId, categoryId } = validateValueCheckNewItemParams(data);
+
+    productService.getNumberNewItems(lastId, categoryId, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
+  }
+};
+
+function getUserIdFromToken(data) {
+  let userId;
+  if (data.token) {
+    const user = helpers.decodeToken(data.token);
+    userId = user ? user.user.id : 0;
+  } else {
+    userId = 0;
+  }
+  return userId;
+}
+
 function validateValueProductListParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;
@@ -179,5 +205,16 @@ function validateValueReportParams(reportParams) {
   return {
     productId, subject, details,
   };
+}
+
+function validateValueCheckNewItemParams(checkNewItemParams) {
+  const categoryId = checkNewItemParams.categoryId ? checkNewItemParams.categoryId : 0;
+  const { lastId } = checkNewItemParams;
+
+  if ((categoryId !== 0 && !helpers.isValidId(categoryId)) || !helpers.isValidId(lastId)) {
+    return false;
+  }
+
+  return { categoryId, lastId };
 }
 

@@ -40,3 +40,18 @@ exports.getUserIdFromToken = (token) => {
   }
   return userId;
 };
+
+exports.validNumber = (aNumber) => {
+  if (!aNumber || Number.isNaN(aNumber)) {
+    return null;
+  }
+  return Number(aNumber);
+};
+
+exports.validString = (aString) => {
+  if (!aString) {
+    return null;
+  }
+  const trimString = aString.trim();
+  return trimString.length > 0 ? trimString : null;
+};

@@ -6,6 +6,7 @@ const router = express.Router();
 
 // authenticate route
 router.post('/detail', auth.jwtAuthenticate(), userController.userDetail);
+router.post('/setting', auth.jwtAuthenticate(), userController.getSetting);
 router.post('/followed', (req, res) => userController.getFollowList(req, res, constants.followedField));
 router.post('/following', (req, res) => userController.getFollowList(req, res, constants.followingField));
 

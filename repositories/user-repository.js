@@ -1,4 +1,4 @@
-const { User, constants } = global;
+const { User, UserSetting, constants } = global;
 
 exports.getUserByPhoneNumber = phoneNumber => User.findOne({ phone_number: phoneNumber }).exec();
 
@@ -6,6 +6,8 @@ exports.getUserById = userId => User.findById(userId).exec();
 
 exports.findAndUpdateUser =
   (userId, updateData, options) => User.findByIdAndUpdate(userId, updateData, options).exec();
+
+exports.getPushSetting = userId => UserSetting.find({ user: userId }).exec();
 
 exports.getUserByIdAndListFollow = (userId, index, count, type) => {
   const typeFollow = type === constants.followedField ? 'follows_from' : 'follows_to';

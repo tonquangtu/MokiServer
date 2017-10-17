@@ -12,5 +12,6 @@ router.post('/delete-product', auth.jwtAuthenticate(), productController.deleteP
 router.post('/like-product', auth.jwtAuthenticate(), productController.likeProduct);
 router.post('/report-product', auth.jwtAuthenticate(), productController.reportProduct);
 router.post('/my-like', auth.jwtAuthenticate(), productController.getProductListMyLike);
+router.post('/new-item', productController.getNumberNewItems);
 
 module.exports = router;
