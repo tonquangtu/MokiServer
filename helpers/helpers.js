@@ -21,6 +21,8 @@ exports.sendResponse = (res, statusCode, response) => {
 
 exports.encodeToken = payload => jwt.encode(payload, jwtConfig.secretOrKey);
 
+exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
+
 exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 
 exports.validPassword =
@@ -42,5 +44,3 @@ exports.validNumber = (aNumber) => {
   }
   return Number(aNumber);
 };
-
-exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
