@@ -113,7 +113,6 @@ exports.getSetting = (userId, callback) => {
   const promise = userRepo.getPushSetting(userId);
   promise.then((userSetting) => {
     const pushSetting = userSetting[0].push_setting;
-    console.log(userSetting);
     const responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
@@ -127,8 +126,5 @@ exports.getSetting = (userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch((err) => {
-    console.log(err.message);
-    return callback(constants.response.systemError);
-  });
+  }).catch(err => callback(constants.response.systemError));
 };
