@@ -21,6 +21,12 @@ exports.userDetail = (req, res) => {
   }
 };
 
+exports.getSetting = (req, res) => {
+  userService.getSetting(req.user.id, (responseData) => {
+    helpers.sendResponse(res, constants.statusCode.ok, responseData);
+  });
+};
+
 exports.setUserInfo = (req, res) => {
   const data = req.body;
 
