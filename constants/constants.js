@@ -140,6 +140,11 @@ module.exports = {
       message: 'Not found campaigns in system',
       data: null,
     },
+    searchNotFound: {
+      code: 1019,
+      message: 'Not found items in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,

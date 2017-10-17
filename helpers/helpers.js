@@ -44,3 +44,19 @@ exports.validNumber = (aNumber) => {
   }
   return Number(aNumber);
 };
+
+exports.getUserFromToken = (token) => {
+  if (!token) {
+    return null;
+  }
+  const payload = this.decodeToken(token);
+  if (!payload || !payload.isLogin || !payload.user) {
+    return null;
+  }
+
+  // need to check this token is still valid or not ?
+  if (!this.isValidId(payload.user.id)) {
+    return null;
+  }
+  return payload.user;
+};
