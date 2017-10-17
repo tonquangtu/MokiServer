@@ -21,6 +21,8 @@ exports.sendResponse = (res, statusCode, response) => {
 
 exports.encodeToken = payload => jwt.encode(payload, jwtConfig.secretOrKey);
 
+exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
+
 exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 
 exports.validPassword =
@@ -28,5 +30,17 @@ exports.validPassword =
 
 exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
 
-exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
+exports.validString = (aString) => {
+  if (!aString) {
+    return null;
+  }
+  const trimString = aString.trim();
+  return trimString.length > 0 ? trimString : null;
+};
 
+exports.validNumber = (aNumber) => {
+  if (!aNumber || Number.isNaN(aNumber)) {
+    return null;
+  }
+  return Number(aNumber);
+};

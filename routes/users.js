@@ -6,5 +6,6 @@ const router = express.Router();
 
 // authenticate route
 router.post('/detail', auth.jwtAuthenticate(), userController.userDetail);
+router.post('/setting', auth.jwtAuthenticate(), userController.getSetting);
 router.post('/set-setting', auth.jwtAuthenticate(), userController.setSetting);
 module.exports = router;

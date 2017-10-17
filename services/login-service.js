@@ -6,7 +6,6 @@ const { constants, helpers } = global;
 exports.login = (phoneNumber, password, callback) => {
   let loginSuccess = false;
   let response = {};
-
   const promise = userRepo.getUserByPhoneNumber(phoneNumber);
   promise.then((user) => {
     if (!user) {
@@ -27,7 +26,6 @@ exports.login = (phoneNumber, password, callback) => {
         url: user.url,
       },
     };
-
     const token = helpers.encodeToken(payload);
     return userRepo.findAndUpdateUser(user.id, { token }, { new: true });
   }).then((user) => {

@@ -2,7 +2,7 @@ const { mongoose } = global;
 const { Schema } = mongoose;
 
 const UserSettingsSchema = new Schema({
-  user: { type: Schema.ObjectId, ref: 'users', required: true },
+  user: { type: Schema.ObjectId, ref: 'users', required: true, unique: true },
   push_setting: {
     like: { type: Number, required: true, default: 1 },
     comment: { type: Number, required: true, default: 1 },
