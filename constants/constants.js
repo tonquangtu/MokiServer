@@ -140,6 +140,11 @@ module.exports = {
       message: 'Not found campaigns in system',
       data: null,
     },
+    searchNotFound: {
+      code: 1019,
+      message: 'Not found items in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -155,4 +160,25 @@ module.exports = {
     },
   },
   tokenField: 'token',
+  campaigns_limit: 5,
+  dbName: 'moki',
+  documents: {
+    block: 'blocks',
+    brand: 'brands',
+    campaign: 'campaigns',
+    category: 'categories',
+    country: 'countries',
+    like: 'likes',
+    notification: 'notifications',
+    product: 'products',
+    report: 'reports',
+    searchHistory: 'search_histories',
+    size: 'sizes',
+    user: 'users',
+    userSetting: 'user_settings',
+  },
+  search: {
+    simple: 'simple',
+    full: 'full',
+  },
 };

@@ -12,7 +12,6 @@ exports.setupTokenBaseAuth = () => {
   const options = {
     secretOrKey: jwtConfig.secretOrKey,
     jwtFromRequest: ExtractJwt.fromBodyField(constants.tokenField),
-    session: false,
   };
   const strategy = new JwtStrategy(options, (payload, done) => {
     const { isLogin, user } = payload;

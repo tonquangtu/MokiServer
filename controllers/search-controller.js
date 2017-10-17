@@ -1,0 +1,79 @@
+const searchService = require('../services/search-service');
+
+const { constants, helpers } = global;
+
+exports.searchProducts = (req, res) => {
+  let statusCode;
+  const searchParams = req.body;
+  if (!searchParams) {
+    statusCode = constants.statusCode.notFound;
+    helpers.sendResponse(res, statusCode, constants.response.paramValueInvalid);
+  } else {
+    const validSearchParams = validateSearchParams(searchParams);
+    if (!validSearchParams) {
+      statusCode = constants.statusCode.notFound;
+      helpers.sendResponse(res, statusCode, constants.response.paramValueInvalid);
+    } else {
+      searchService.searchProducts(validSearchParams, (response) => {
+        statusCode = constants.statusCode.ok;
+        if (response.code === constants.response.searchNotFound.code) {
+          statusCode = constants.statusCode.notFound;
+        } else if (response.code === constants.response.systemError.code){
+          statusCode = constants.statusCode.systemError;
+        }
+        helpers.sendResponse(res, statusCode, response);
+      });
+    }
+  }
+};
+
+function validateSearchParams(searchParams) {
+  const {
+    token,
+    keyword,
+    categoryId,
+    brandId,
+    productSizeId,
+    priceMin,
+    priceMax,
+    condition,
+    index,
+    count,
+  } = searchParams;
+  const user = helpers.getUserFromToken(token);
+  const validKeyword = helpers.validString(keyword);
+  const isValidCategoryId = helpers.isValidId(categoryId);
+  const isValidBrandId = helpers.isValidId(brandId);
+  const isValidProductSizeId = helpers.isValidId(productSizeId);
+  const validPriceMin = helpers.validNumber(priceMin);
+  const validPriceMax = helpers.validNumber(priceMax);
+  const validCondition = helpers.validString(condition);
+  const validIndex = helpers.validNumber(index);
+  const validCount = helpers.validNumber(count);
+  const userId = user ? user.id : null;
+  let isValidPrice = false;
+  if (validPriceMin && validPriceMax && validPriceMax >= validPriceMin) {
+    isValidPrice = true;
+  }
+
+  if ((!validIndex && validIndex !== 0) || !validCount) {
+    return null;
+  }
+
+  if (validKeyword || isValidCategoryId || isValidBrandId
+  || isValidProductSizeId || isValidPrice || validCondition) {
+    return {
+      userId,
+      categoryId,
+      brandId,
+      productSizeId,
+      keyword: validKeyword,
+      priceMin: validPriceMin,
+      priceMax: validPriceMax,
+      condition: validCondition,
+      fromIndex: validIndex,
+      limit: validCount,
+    };
+  }
+  return null;
+}
