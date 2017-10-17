@@ -1,17 +1,15 @@
 const Product = require('../models/product');
 
-const { mongoose } = global;
-
 exports.getProductList = (categoryId, campaignId, lastId, count) => {
   const data = {};
   const selectAttribute = 'name media seller price price_percent description brands created_at like comment banned';
   const numProduct = parseInt(count, 10);
 
-  if (campaignId > 0) {
+  if (campaignId !== 0) {
     data.campaigns = campaignId;
   }
 
-  if (categoryId > 0) {
+  if (categoryId !== 0) {
     data.categories = categoryId;
   }
 
@@ -35,11 +33,15 @@ exports.getProductList = (categoryId, campaignId, lastId, count) => {
     .exec();
 };
 
-exports.getNewItems = (index) => {
-  const newestItem = new mongoose.Types.ObjectId(index);
-
+exports.getNewItems = (index, categoryId) => {
+  if (categoryId !== 0) {
+    return Product.find({ categories: categoryId })
+      .where('_id').gt(index)
+      .count()
+      .exec();
+  }
   return Product.find({})
-    .where('_id').gt(newestItem)
+    .where('_id').gt(index)
     .count()
     .exec();
 };
