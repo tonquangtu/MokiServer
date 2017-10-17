@@ -110,20 +110,21 @@ exports.updateUser = (userId, updateData, options, callback) => {
 };
 
 exports.setUserInfo = (data, userId, callback) => {
+  console.log(data);
   const updateData = {};
-  if (data.email !== null) {
+  if (data.email !== undefined) {
     updateData.email = data.email;
   }
-  if (data.username !== null) {
+  if (data.username !== undefined) {
     updateData.username = data.username;
   }
-  if (data.status !== null) {
+  if (data.status !== undefined) {
     updateData.status = data.status;
   }
-  if (data.avatar !== null) {
+  if (data.avatar !== undefined) {
     updateData.avatar = data.avatar;
   }
-  if (data.address !== null && data.city !== null) {
+  if (data.address !== undefined && data.city !== undefined) {
     updateData.addresses.push({
       address: data.address,
       city: data.city,
