@@ -1,7 +1,7 @@
 const likeRepo = require('../repositories/like-repository');
 const searcher = require('../searches/elasticsearch');
 
-const { constants } = global;
+const { constants, logger } = global;
 
 exports.searchProducts = (searchParams, callback) => {
   const selectFields = ['name', 'media', 'price', 'price_percent', 'like', 'comment'];
@@ -49,7 +49,7 @@ exports.searchProducts = (searchParams, callback) => {
       return callback(response);
     })
     .catch((err) => {
-      console.log(err);
+      logger.error('Error at function searchProducts in search-service.\n', err);
       return callback(constants.response.systemError);
     });
 };
@@ -59,7 +59,7 @@ function getProdsFromESResponse(esResponse) {
     return null;
   }
   const { hits } = esResponse.hits;
-  console.log(`Search take: ${esResponse.took}  ms`);
+  logger.info(`Search take: ${esResponse.took}  ms\n`);
 
   return hits.map((item) => {
     let image = null;

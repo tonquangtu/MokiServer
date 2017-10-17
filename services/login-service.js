@@ -1,7 +1,7 @@
 const userRepo = require('../repositories/user-repository');
 const userService = require('../services/user-service');
 
-const { constants, helpers } = global;
+const { constants, helpers, logger } = global;
 
 exports.login = (phoneNumber, password, callback) => {
   let loginSuccess = false;
@@ -44,7 +44,7 @@ exports.login = (phoneNumber, password, callback) => {
     }
     return callback(loginSuccess, response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function login in login-service.\n', err);
     loginSuccess = false;
     return callback(loginSuccess, constants.response.systemError);
   });

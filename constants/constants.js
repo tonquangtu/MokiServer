@@ -181,4 +181,8 @@ module.exports = {
     simple: 'simple',
     full: 'full',
   },
+  logTransport: {
+    console: 1,
+    file: 2,
+  },
 };
