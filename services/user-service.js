@@ -108,3 +108,37 @@ exports.updateUser = (userId, updateData, options, callback) => {
     return callback(constants.response.systemError);
   });
 };
+
+exports.setUserInfo = (data, userId, callback) => {
+  const updateData = {};
+  if (data.email !== null) {
+    updateData.email = data.email;
+  }
+  if (data.username !== null) {
+    updateData.username = data.username;
+  }
+  if (data.status !== null) {
+    updateData.status = data.status;
+  }
+  if (data.avatar !== null) {
+    updateData.avatar = data.avatar;
+  }
+  if (data.address !== null && data.city !== null) {
+    updateData.addresses.push({
+      address: data.address,
+      city: data.city,
+    });
+  }
+  const promise = userRepo.findAndUpdateUser(userId, updateData, { new: true });
+  promise.then((newUser) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        avatar: newUser.avatar,
+      },
+    };
+
+    return callback(responseData);
+  }).catch(err => callback(constants.response.systemError));
+};
