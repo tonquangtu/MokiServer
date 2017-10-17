@@ -132,6 +132,6 @@ exports.setSetting = (data, userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch(err =>  callback(constants.response.systemError));
+  }).catch(err => callback(constants.response.systemError));
 };
 
