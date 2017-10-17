@@ -24,7 +24,7 @@ const Category = require('../models/category');
 const Country = require('../models/country');
 const Report = require('../models/report');
 const Size = require('../models/size');
-
+const UserOrderAddress = require('../models/user-order-address');
 
 const users = [];
 const products = [];
@@ -46,6 +46,7 @@ const maxCategory = 50;
 const maxReport = 100;
 const maxSize = 10;
 const maxCountry = 60;
+const maxOrderAddress = 30;
 
 deleteAllDocuments(() => {
   console.log('done');
@@ -288,6 +289,25 @@ function countryCreate(countryParams, callback) {
     }
   });
 }
+function userOrderAddressCreate(orderParams, callback) {
+  const orderDetail = {
+    user: orderParams[0],
+    order_addresses: {
+      address: orderParams[1],
+      address_id: orderParams[2],
+      default: orderParams[3],
+    },
+  };
+
+  const order = new UserOrderAddress(orderDetail);
+  order.save((err) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+    }
+    callback(null, 'userOrder');
+  });
+}
 
 function usersFaker(cb) {
   console.log('vao user');
@@ -528,6 +548,24 @@ function countriesFaker(cb) {
     },
   ], cb);
 }
+function userOrderAddressFaker(cb) {
+  async.parallel([
+    function (callback) {
+      const orderParams = [
+        users[randomInt(0, users.length - 1)],
+        faker.address.streetName(),
+        [
+          randomInt(10, 99),
+          randomInt(100, 999),
+          randomInt(1000, 9999),
+        ],
+        faker.address.streetName(),
+      ];
+
+      userOrderAddressCreate(orderParams, callback);
+    },
+  ], cb);
+}
 
 function deleteAllUser(cb) {
   User.remove({}, (err) => {
@@ -629,6 +667,16 @@ function deleteAllCountry(cb) {
     cb(null, 'deleteAllCountry');
   });
 }
+function deleteAllOrderAddress(cb) {
+  UserOrderAddress.remove({}, (err) => {
+    if (err) {
+      console.log('can not delete order address');
+    } else {
+      console.log('delete all order address');
+    }
+    cb(null, 'deleteAllOrderAddress');
+  });
+}
 
 function deleteAllDocuments(cb) {
   async.series(
@@ -643,6 +691,7 @@ function deleteAllDocuments(cb) {
       deleteAllReport,
       deleteAllSize,
       deleteAllCountry,
+      deleteAllOrderAddress,
     ],
     (err, result) => {
       if (err) {
@@ -685,6 +734,9 @@ for (let i = 0; i < maxSize; i += 1) {
 }
 for (let i = 0; i < maxCountry; i += 1) {
   arrCalls.push(countriesFaker);
+}
+for (let i = 0; i < maxOrderAddress; i += 1) {
+  arrCalls.push(userOrderAddressFaker);
 }
 async.series(
   arrCalls,
