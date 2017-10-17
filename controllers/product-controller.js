@@ -22,7 +22,7 @@ exports.getProductList = (req, res) => {
       lastId,
       count: data.count,
       index: data.index,
-      userId: getUserIdFromToken(data),
+      userId: helpers.getUserIdFromToken(data.token),
     }, (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
@@ -38,7 +38,7 @@ exports.getProductDetail = (req, res) => {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
 
-    productService.getProductDetail(data.id, getUserIdFromToken(data), (responseData) => {
+    productService.getProductDetail(data.id, helpers.getUserIdFromToken(data.token), (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
   }
@@ -52,7 +52,7 @@ exports.getCommentProduct = (req, res) => {
   } else if (!helpers.isValidId(data.productId)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
-    productService.getCommentProduct(data.productId, getUserIdFromToken(data), (responseData) => {
+    productService.getCommentProduct(data.productId, helpers.getUserIdFromToken(data.token), (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
   }
@@ -140,17 +140,6 @@ exports.getProductListMyLike = (req, res) => {
     });
   }
 };
-
-function getUserIdFromToken(data) {
-  let userId;
-  if (data.token) {
-    const user = helpers.decodeToken(data.token);
-    userId = user ? user.user.id : 0;
-  } else {
-    userId = 0;
-  }
-  return userId;
-}
 
 function validateValueProductListParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;

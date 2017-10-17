@@ -108,3 +108,57 @@ exports.updateUser = (userId, updateData, options, callback) => {
     return callback(constants.response.systemError);
   });
 };
+
+exports.getFollowList = (data, callback) => {
+  const {
+    userId, myId, index, count, type,
+  } = data;
+  const promise = userRepo.getUserByIdAndListFollow(userId, index, count, type);
+  let followList;
+  promise.then((user) => {
+    followList = type === (constants.followedField) ? user.follows_from : user.follows_to;
+    if (myId === 0) {
+      const followListArray = [];
+      followList.forEach((follower) => {
+        if (follower.user) {
+          followListArray.push({
+            id: follower.user.id,
+            username: follower.user.username,
+            avatar: follower.user.avatar,
+            followed: 0,
+          });
+        }
+      });
+      const responseData = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: followListArray,
+      };
+      return callback(responseData);
+    }
+    return userRepo.getUserByIdAndListFollow(myId, 0, 0, constants.followingField);
+  }).then((myInfo) => {
+    const followListArray = [];
+    followList.forEach((follower) => {
+      if (follower.user) {
+        const follow = _.find(myInfo.follows_to, user => user.user.id === follower.user.id);
+        const followed = follow ? 1 : 0;
+        followListArray.push({
+          id: follower.user.id,
+          username: follower.user.username,
+          avatar: follower.user.avatar,
+          followed,
+        });
+      }
+    });
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: followListArray,
+    };
+    return callback(responseData);
+  }).catch((err) => {
+    console.log(err.message);
+    return callback(constants.response.systemError)
+  });
+};

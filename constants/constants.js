@@ -155,4 +155,6 @@ module.exports = {
     },
   },
   tokenField: 'token',
+  followedField: 'followed',
+  followingField: 'following',
 };
