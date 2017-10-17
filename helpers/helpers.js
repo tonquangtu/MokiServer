@@ -27,3 +27,18 @@ exports.validPassword =
   (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
 
 exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
+
+exports.validString = (aString) => {
+  if (!aString) {
+    return null;
+  }
+  const trimString = aString.trim();
+  return trimString.length > 0 ? trimString : null;
+};
+
+exports.validNumber = (aNumber) => {
+  if (!aNumber || Number.isNaN(aNumber)) {
+    return null;
+  }
+  return Number(aNumber);
+};
