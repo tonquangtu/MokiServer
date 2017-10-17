@@ -42,3 +42,5 @@ exports.validNumber = (aNumber) => {
   }
   return Number(aNumber);
 };
+
+exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
