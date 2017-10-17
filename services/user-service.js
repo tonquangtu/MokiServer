@@ -108,3 +108,23 @@ exports.updateUser = (userId, updateData, options, callback) => {
     return callback(constants.response.systemError);
   });
 };
+
+exports.getSetting = (userId, callback) => {
+  const promise = userRepo.getPushSetting(userId);
+  promise.then((userSetting) => {
+    const pushSetting = userSetting[0].push_setting;
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        like: pushSetting.like,
+        comment: pushSetting.comment,
+        announcement: pushSetting.announcement,
+        sound_on: pushSetting.sound_on,
+        sound_default: pushSetting.sound_default,
+      },
+    };
+
+    return callback(responseData);
+  }).catch(err => callback(constants.response.systemError));
+};
