@@ -8,7 +8,7 @@ const UserSettingsSchema = new Schema({
     comment: { type: Number, required: true, default: 1 },
     announcement: { type: Number, required: true, default: 1 },
     sound_on: { type: Number, required: true, default: 1 },
-    sound_off: { type: Number, required: true, default: 1 },
+    sound_default: { type: Number, required: true, default: 1 },
   },
 });
 module.exports = mongoose.model('user_settings', UserSettingsSchema);
