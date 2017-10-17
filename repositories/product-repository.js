@@ -72,3 +72,9 @@ exports.deleteProduct = productId => Product.findByIdAndRemove(productId)
 exports.findAndUpdateProduct =
   (productId, productData, option) => Product.findByIdAndUpdate(productId, productData, option)
     .exec();
+
+exports.addProduct = (productData) => {
+  const product = new Product(productData);
+  return product.save();
+};
+

@@ -22,7 +22,7 @@ exports.getProductList = (req, res) => {
       lastId,
       count: data.count,
       index: data.index,
-      userId: getUserIdFromToken(data),
+      userId: helpers.getUserIdFromToken(data.token),
     }, (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
@@ -38,7 +38,7 @@ exports.getProductDetail = (req, res) => {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
 
-    productService.getProductDetail(data.id, getUserIdFromToken(data), (responseData) => {
+    productService.getProductDetail(data.id, helpers.getUserIdFromToken(data.token), (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
   }
@@ -52,7 +52,7 @@ exports.getCommentProduct = (req, res) => {
   } else if (!helpers.isValidId(data.productId)) {
     helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
-    productService.getCommentProduct(data.productId, getUserIdFromToken(data), (responseData) => {
+    productService.getCommentProduct(data.productId, helpers.getUserIdFromToken(data.token), (responseData) => {
       helpers.sendResponse(res, constants.statusCode.ok, responseData);
     });
   }
@@ -156,16 +156,36 @@ exports.getNumberNewItems = (req, res) => {
   }
 };
 
-function getUserIdFromToken(data) {
-  let userId;
-  if (data.token) {
-    const user = helpers.decodeToken(data.token);
-    userId = user ? user.user.id : 0;
+exports.addProduct = (req, res) => {
+  const data = req.body;
+  const attributeRequiredArr = [
+    data.price,
+    data.name,
+    data.categoryId,
+    data.shipsFrom,
+    data.shipsFromId,
+    data.condition,
+  ];
+  const attributeIntegerArr = [
+    data.price,
+    data.condition,
+  ];
+  const attributeStringArr = [
+    data.name,
+    data.shipsFrom,
+  ];
+  if (!checkExist(attributeRequiredArr)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+  } else if (!checkInteger(attributeIntegerArr) || !checkString(attributeStringArr)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
+  } else if (!checkValueAddProductParams(data)) {
+    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
   } else {
-    userId = 0;
+    productService.addProduct(data, req.user.id, (responseData) => {
+      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    });
   }
-  return userId;
-}
+};
 
 function validateValueProductListParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
@@ -218,3 +238,29 @@ function validateValueCheckNewItemParams(checkNewItemParams) {
   return { categoryId, lastId };
 }
 
+function checkExist(attributeArray) {
+  return attributeArray.indexOf(undefined) === -1;
+}
+
+function checkInteger(attributeArray) {
+  return attributeArray.map((item) => {
+    return Number.isInteger(item);
+  }).indexOf(false) === -1;
+}
+
+function checkString(attributeArray) {
+  return attributeArray.map((item) => {
+    return helpers.validString(item);
+  }).indexOf(null) === -1;
+}
+
+function checkValueAddProductParams(data) {
+  if (!helpers.isValidId(data.categoryId)
+    || (checkExist([data.brandId]) && !helpers.isValidId(data.brandId))
+    || (checkExist([data.productSizeId]) && !helpers.isValidId(data.productSizeId))
+    || data.name.length > 30) {
+    return false;
+  }
+
+  return true;
+}

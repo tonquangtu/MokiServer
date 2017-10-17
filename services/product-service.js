@@ -229,6 +229,59 @@ exports.getNumberNewItems = (lastId, categoryId, callback) => {
   }).catch(err => callback(constants.response.systemError));
 };
 
+exports.addProduct = (data, userId, callback) => {
+  let media;
+  if (data.image === undefined) {
+    media = {
+      type: constants.product.media.type.video,
+      urls: [data.video],
+      thumb: data.thumb,
+    };
+  } else {
+    media = {
+      type: constants.product.media.type.image,
+      urls: data.image,
+      thumb: null,
+    };
+  }
+  const productData = {
+    name: data.name,
+    media,
+    seller: userId,
+    price: data.price,
+    price_percent: 0,
+    description: data.described === undefined ? '' : data.described,
+    ships_from: data.shipsFrom,
+    ships_from_ids: data.shipsFromId,
+    condition: data.condition,
+    sizes: data.productSizeId === undefined ? [] : [data.productSizeId],
+    brands: data.brandId === undefined ? [] : [data.brandId],
+    categories: [data.categoryId],
+    url: '/products/detail',
+    weight: data.weight === undefined ? '' : data.weight,
+    dimension: data.dimension === undefined ? [] : data.dimension,
+    comments: [],
+    campaigns: [],
+  };
+
+  const promise = productRepo.addProduct(productData);
+  promise.then((newProduct) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        id: newProduct.id,
+        url: newProduct.url,
+      },
+    };
+
+    return callback(responseData);
+  }).catch((err) => {
+    console.log(err.message);
+    return callback(constants.response.systemError);
+  });
+};
+
 function getProductAttributes(products, userId, callback) {
   const productArr = [];
   let count = 0;

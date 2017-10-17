@@ -44,3 +44,14 @@ exports.validNumber = (aNumber) => {
   }
   return Number(aNumber);
 };
+
+exports.getUserIdFromToken = (token) => {
+  let userId;
+  if (token) {
+    const user = this.decodeToken(token);
+    userId = user ? user.user.id : 0;
+  } else {
+    userId = 0;
+  }
+  return userId;
+};
