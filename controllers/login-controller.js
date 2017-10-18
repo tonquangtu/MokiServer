@@ -25,12 +25,12 @@ exports.login = (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  let statusCode = 200;
+  let statusCode = constants.statusCode.ok;
   loginService.logout(req.user.id, (response) => {
     if (response.code === constants.response.userNotFound.code) {
-      statusCode = 404;
+      statusCode = constants.statusCode.notFound;
     } else if (response.code === constants.response.systemError.code) {
-      statusCode = 500;
+      statusCode = constants.statusCode.systemError;
     }
     helpers.sendResponse(res, statusCode, response);
   });

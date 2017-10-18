@@ -140,6 +140,11 @@ module.exports = {
       message: 'Not found campaigns in system',
       data: null,
     },
+    searchNotFound: {
+      code: 1019,
+      message: 'Not found items in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -175,6 +180,14 @@ module.exports = {
   search: {
     simple: 'simple',
     full: 'full',
+  },
+  logTransport: {
+    console: 1,
+    file: 2,
+  },
+  pushSetting: {
+    turnOn: 1,
+    turnOff: 0,
   },
   followedField: 'followed',
   followingField: 'following',

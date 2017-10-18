@@ -21,6 +21,8 @@ exports.sendResponse = (res, statusCode, response) => {
 
 exports.encodeToken = payload => jwt.encode(payload, jwtConfig.secretOrKey);
 
+exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
+
 exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 
 exports.validPassword =
@@ -28,30 +30,45 @@ exports.validPassword =
 
 exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
 
-exports.decodeToken = token => jwt.decode(token, jwtConfig.secretOrKey);
-
-exports.getUserIdFromToken = (token) => {
-  let userId;
-  if (token) {
-    const user = this.decodeToken(token);
-    userId = user ? user.user.id : 0;
-  } else {
-    userId = 0;
-  }
-  return userId;
-};
-
-exports.validNumber = (aNumber) => {
-  if (!aNumber || Number.isNaN(aNumber)) {
-    return null;
-  }
-  return Number(aNumber);
-};
-
 exports.validString = (aString) => {
   if (!aString) {
     return null;
   }
   const trimString = aString.trim();
   return trimString.length > 0 ? trimString : null;
+};
+
+exports.validNumber = (aNumber) => {
+  if (!this.isExist(aNumber) || Number.isNaN(aNumber)) {
+    return null;
+  }
+  return Number(aNumber);
+};
+
+exports.getUserFromToken = (token) => {
+  if (!token) {
+    return null;
+  }
+  const payload = this.decodeToken(token);
+  if (!payload || !payload.isLogin || !payload.user) {
+    return null;
+  }
+
+  // need to check this token is still valid or not ?
+  if (!this.isValidId(payload.user.id)) {
+    return null;
+  }
+  return payload.user;
+};
+
+exports.isExist = attribute => (attribute !== undefined) && (attribute !== null);
+
+exports.validInteger = (aNumber) => {
+  const number = this.validNumber(aNumber);
+
+  if (number === null || !Number.isInteger(number)) {
+    return null;
+  }
+
+  return number;
 };

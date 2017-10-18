@@ -4,3 +4,4 @@
 .eslintrc
 npm-debug.log
 package-lock.json
+error.log
