@@ -126,27 +126,34 @@ exports.getSetting = (userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getSetting.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.setUserInfo = (data, userId, callback) => {
+  const {
+    email, username, status, avatar, address, city,
+  } = data;
   const updateData = {};
-  if (data.email !== undefined) {
-    updateData.email = data.email;
+
+  if (helpers.isExist(email)) {
+    updateData.email = email;
   }
-  if (data.username !== undefined) {
-    updateData.username = data.username;
+  if (helpers.isExist(username)) {
+    updateData.username = username;
   }
-  if (data.status !== undefined) {
-    updateData.status = data.status;
+  if (helpers.isExist(status)) {
+    updateData.status = helpers.validInteger(status);
   }
-  if (data.avatar !== undefined) {
-    updateData.avatar = data.avatar;
+  if (helpers.isExist(avatar)) {
+    updateData.avatar = avatar;
   }
-  if (data.address !== undefined && data.city !== undefined) {
+  if (helpers.isExist(address) && helpers.isExist(city)) {
     updateData.addresses.push({
-      address: data.address,
-      city: data.city,
+      address,
+      city,
     });
   }
   const promise = userRepo.findAndUpdateUser(userId, updateData, { new: true });
@@ -160,5 +167,8 @@ exports.setUserInfo = (data, userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function setUserInfo.\n', err);
+    return callback(constants.response.systemError);
+  });
 };

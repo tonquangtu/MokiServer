@@ -29,19 +29,33 @@ exports.getSetting = (req, res) => {
 
 exports.setUserInfo = (req, res) => {
   const data = req.body;
-
-  if (data.status !== undefined) {
-    if (!Number.isInteger(data.status)) {
-      helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
-    } else if (data.status !== 0 && data.status !== 1) {
+  if (!data) {
+    helpers.sendResponse(
+      res, constants.statusCode.notFound,
+      constants.response.paramValueInvalid,
+    );
+  } else if (helpers.isExist(data.status)) {
+    const statusValid = helpers.validInteger(data.status);
+    if (statusValid === null) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramTypeInvalid,
+      );
+    } else if (statusValid !== 0 && statusValid !== 1) {
       helpers.sendResponse(
         res, constants.statusCode.notFound,
         constants.response.paramValueInvalid,
       );
     }
   }
-  userService.setUserInfo(data, req.user.id, (responseData) => {
-    helpers.sendResponse(res, constants.statusCode.ok, responseData);
-  });
+  userService.setUserInfo(
+    data, req.user.id,
+    (responseData) => {
+      helpers.sendResponse(
+        res, constants.statusCode.ok,
+        responseData,
+      );
+    },
+  );
 };
 
