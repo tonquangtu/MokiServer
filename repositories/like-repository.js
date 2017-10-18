@@ -5,7 +5,7 @@ exports.getLikeUserProduct = (userId, productId) => Like.findOne({
   product: productId,
 }).exec();
 
-exports.findByIdAndUpdate = (like, likeData) => {
+exports.findAndUpdateLike = (like, likeData) => {
   if (!like) {
     const newLike = new Like(likeData);
     return newLike.save();
@@ -16,10 +16,11 @@ exports.findByIdAndUpdate = (like, likeData) => {
   return Like.findByIdAndUpdate(like.id, newLike).exec();
 };
 
-exports.getProductListMyLike = (userId, count) => Like.find({
+exports.getMyLikeProductList = (userId, count, index) => Like.find({
   user: userId,
   is_liked: 1,
 }).sort({ _id: -1 })
+  .skip(index)
   .limit(count)
   .populate({ path: 'product', select: 'name price media' })
   .exec();

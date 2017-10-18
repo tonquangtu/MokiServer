@@ -1,6 +1,6 @@
 const userRepo = require('../repositories/user-repository');
 
-const { constants, helpers, _ } = global;
+const { constants, helpers, _, logger } = global;
 
 exports.getOtherUserDetail = (myId, otherUserId, callback) => {
   let response;
@@ -37,7 +37,7 @@ exports.getOtherUserDetail = (myId, otherUserId, callback) => {
     };
     return callback(response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function getOtherUserDetail in user-service.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -74,7 +74,7 @@ exports.getMyDetail = (myId, callback) => {
     };
     return callback(response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function getMyDetail in user-service.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -104,7 +104,7 @@ exports.updateUser = (userId, updateData, options, callback) => {
     };
     return callback(response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function updateUser in user-service.\n', err);
     return callback(constants.response.systemError);
   });
 };

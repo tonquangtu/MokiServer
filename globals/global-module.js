@@ -5,6 +5,7 @@ const helpers = require('../helpers/helpers');
 const auth = require('../securities/authentication');
 const jwtConfig = require('../config/jwt-config');
 const _ = require('lodash');
+const logger = require('../helpers/logger');
 
 exports.initGlobalModules = () => {
   global.express = express;
@@ -15,5 +16,6 @@ exports.initGlobalModules = () => {
   global.helpers = helpers;
   global.auth = auth;
   global._ = _;
+  global.logger = logger;
 };
 
