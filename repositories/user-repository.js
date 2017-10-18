@@ -8,3 +8,10 @@ exports.findAndUpdateUser =
   (userId, updateData, options) => User.findByIdAndUpdate(userId, updateData, options).exec();
 
 exports.getPushSetting = userId => UserSetting.find({ user: userId }).exec();
+
+exports.findAndUpdateUserSetting =
+  (userId, userSettingData, options) => UserSetting.findOneAndUpdate(
+    { user: userId },
+    userSettingData,
+    options,
+  ).exec();

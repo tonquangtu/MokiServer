@@ -59,3 +59,41 @@ exports.setUserInfo = (req, res) => {
   );
 };
 
+exports.setSetting = (req, res) => {
+  const data = req.body;
+  if (!data) {
+    helpers.sendResponse(
+      res, constants.statusCode.notFound,
+      constants.response.paramValueInvalid,
+    );
+  } else {
+    const validSettingParams = validateSettingParams(data);
+
+    userService.setSetting(
+      validSettingParams, req.user.id,
+      (responseData) => {
+        helpers.sendResponse(
+          res, constants.statusCode.ok,
+          responseData,
+        );
+      },
+    );
+  }
+};
+
+function validateSettingParams(data) {
+  const {
+    like, comment, announcement, soundOn, soundDefault,
+  } = data;
+  const { turnOn } = constants.pushSetting;
+  const likeValid = helpers.isExist(like) ? like : turnOn;
+  const commentValid = helpers.isExist(comment) ? comment : turnOn;
+  const announcementValid = helpers.isExist(announcement) ? announcement : turnOn;
+  const soundOnValid = helpers.isExist(soundOn) ? soundOn : turnOn;
+  const soundDefaultValid = helpers.isExist(soundDefault) ? soundDefault : turnOn;
+
+  return {
+    likeValid, commentValid, announcementValid, soundOnValid, soundDefaultValid,
+  };
+}
+
