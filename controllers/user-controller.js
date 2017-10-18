@@ -67,10 +67,19 @@ exports.setSetting = (req, res) => {
       constants.response.paramValueInvalid,
     );
   } else {
-    const validSettingParams = validateSettingParams(data);
+    const {
+      likeValid, commentValid, announcementValid, soundOnValid, soundDefaultValid,
+    } = validateSettingParams(data);
+    const dataValid = {
+      like: likeValid,
+      comment: commentValid,
+      announcement: announcementValid,
+      soundOn: soundOnValid,
+      soundDefault: soundDefaultValid,
+    };
 
     userService.setSetting(
-      validSettingParams, req.user.id,
+      dataValid, req.user.id,
       (responseData) => {
         helpers.sendResponse(
           res, constants.statusCode.ok,
@@ -78,6 +87,55 @@ exports.setSetting = (req, res) => {
         );
       },
     );
+  }
+};
+
+exports.getFollowList = (req, res, type) => {
+  const data = req.body;
+  if (!data) {
+    helpers.sendResponse(
+      res, constants.statusCode.notFound,
+      constants.response.paramValueInvalid,
+    );
+  } else {
+    const {
+      userId, index, count, token,
+    } = data;
+    const countValid = helpers.validInteger(count);
+    const indexValid = helpers.validInteger(index);
+
+    if (!helpers.isExist(userId) || !helpers.isExist(index) || !helpers.isExist(count)) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramNotEnough,
+      );
+    } else if (countValid === null || indexValid === null) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramTypeInvalid,
+      );
+    } else if (!helpers.isValidId(userId) || countValid <= 0 || indexValid < 0) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramValueInvalid,
+      );
+    } else {
+      const user = helpers.getUserFromToken(token);
+      const myId = user ? user.id : 0;
+
+      userService.getFollowList({
+        userId,
+        myId,
+        index: indexValid,
+        count: countValid,
+        type,
+      }, (responseData) => {
+        helpers.sendResponse(
+          res, constants.statusCode.ok,
+          responseData,
+        );
+      });
+    }
   }
 };
 
