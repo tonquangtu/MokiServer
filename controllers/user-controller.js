@@ -27,3 +27,73 @@ exports.getSetting = (req, res) => {
   });
 };
 
+exports.setUserInfo = (req, res) => {
+  const data = req.body;
+  if (!data) {
+    helpers.sendResponse(
+      res, constants.statusCode.notFound,
+      constants.response.paramValueInvalid,
+    );
+  } else if (helpers.isExist(data.status)) {
+    const statusValid = helpers.validInteger(data.status);
+    if (statusValid === null) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramTypeInvalid,
+      );
+    } else if (statusValid !== 0 && statusValid !== 1) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramValueInvalid,
+      );
+    }
+  }
+  userService.setUserInfo(
+    data, req.user.id,
+    (responseData) => {
+      helpers.sendResponse(
+        res, constants.statusCode.ok,
+        responseData,
+      );
+    },
+  );
+};
+
+exports.setSetting = (req, res) => {
+  const data = req.body;
+  if (!data) {
+    helpers.sendResponse(
+      res, constants.statusCode.notFound,
+      constants.response.paramValueInvalid,
+    );
+  } else {
+    const validSettingParams = validateSettingParams(data);
+
+    userService.setSetting(
+      validSettingParams, req.user.id,
+      (responseData) => {
+        helpers.sendResponse(
+          res, constants.statusCode.ok,
+          responseData,
+        );
+      },
+    );
+  }
+};
+
+function validateSettingParams(data) {
+  const {
+    like, comment, announcement, soundOn, soundDefault,
+  } = data;
+  const { turnOn } = constants.pushSetting;
+  const likeValid = helpers.isExist(like) ? like : turnOn;
+  const commentValid = helpers.isExist(comment) ? comment : turnOn;
+  const announcementValid = helpers.isExist(announcement) ? announcement : turnOn;
+  const soundOnValid = helpers.isExist(soundOn) ? soundOn : turnOn;
+  const soundDefaultValid = helpers.isExist(soundDefault) ? soundDefault : turnOn;
+
+  return {
+    likeValid, commentValid, announcementValid, soundOnValid, soundDefaultValid,
+  };
+}
+

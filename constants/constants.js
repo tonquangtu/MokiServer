@@ -181,4 +181,12 @@ module.exports = {
     simple: 'simple',
     full: 'full',
   },
+  logTransport: {
+    console: 1,
+    file: 2,
+  },
+  pushSetting: {
+    turnOn: 1,
+    turnOff: 0,
+  },
 };

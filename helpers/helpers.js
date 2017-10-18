@@ -39,7 +39,7 @@ exports.validString = (aString) => {
 };
 
 exports.validNumber = (aNumber) => {
-  if (!aNumber || Number.isNaN(aNumber)) {
+  if (!this.isExist(aNumber) || Number.isNaN(aNumber)) {
     return null;
   }
   return Number(aNumber);
@@ -59,4 +59,16 @@ exports.getUserFromToken = (token) => {
     return null;
   }
   return payload.user;
+};
+
+exports.isExist = attribute => (attribute !== undefined) && (attribute !== null);
+
+exports.validInteger = (aNumber) => {
+  const number = this.validNumber(aNumber);
+
+  if (number === null || !Number.isInteger(number)) {
+    return null;
+  }
+
+  return number;
 };
