@@ -316,9 +316,9 @@ function userSettingCreate(userSettingParams, callback) {
 function userOrderAddressCreate(orderParams, callback) {
   const orderDetail = {
     user: orderParams[0],
-    order_addresses: {
+    order_address: {
       address: orderParams[1],
-      address_id: orderParams[2],
+      addresses_id: orderParams[2],
       default: orderParams[3],
     },
   };
