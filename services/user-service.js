@@ -1,6 +1,6 @@
 const userRepo = require('../repositories/user-repository');
 
-const { constants, helpers, _ } = global;
+const { constants, helpers, _, logger } = global;
 
 exports.getOtherUserDetail = (myId, otherUserId, callback) => {
   let response;
@@ -37,7 +37,7 @@ exports.getOtherUserDetail = (myId, otherUserId, callback) => {
     };
     return callback(response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function getOtherUserDetail in user-service.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -74,7 +74,7 @@ exports.getMyDetail = (myId, callback) => {
     };
     return callback(response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function getMyDetail in user-service.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -104,7 +104,7 @@ exports.updateUser = (userId, updateData, options, callback) => {
     };
     return callback(response);
   }).catch((err) => {
-    console.log(err);
+    logger.error('Error at function updateUser in user-service.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -126,7 +126,51 @@ exports.getSetting = (userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getSetting.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.setUserInfo = (data, userId, callback) => {
+  const {
+    email, username, status, avatar, address, city,
+  } = data;
+  const updateData = {};
+
+  if (helpers.isExist(email)) {
+    updateData.email = email;
+  }
+  if (helpers.isExist(username)) {
+    updateData.username = username;
+  }
+  if (helpers.isExist(status)) {
+    updateData.status = helpers.validInteger(status);
+  }
+  if (helpers.isExist(avatar)) {
+    updateData.avatar = avatar;
+  }
+  if (helpers.isExist(address) && helpers.isExist(city)) {
+    updateData.addresses.push({
+      address,
+      city,
+    });
+  }
+  const promise = userRepo.findAndUpdateUser(userId, updateData, { new: true });
+  promise.then((newUser) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        avatar: newUser.avatar,
+      },
+    };
+
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function setUserInfo.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.setSetting = (data, userId, callback) => {
@@ -152,6 +196,9 @@ exports.setSetting = (data, userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function setSetting.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 

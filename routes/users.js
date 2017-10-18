@@ -8,4 +8,5 @@ const router = express.Router();
 router.post('/detail', auth.jwtAuthenticate(), userController.userDetail);
 router.post('/setting', auth.jwtAuthenticate(), userController.getSetting);
 router.post('/set-setting', auth.jwtAuthenticate(), userController.setSetting);
+router.post('/set-info', auth.jwtAuthenticate(), userController.setUserInfo);
 module.exports = router;
