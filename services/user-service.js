@@ -126,5 +126,49 @@ exports.getSetting = (userId, callback) => {
     };
 
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getSetting.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.setUserInfo = (data, userId, callback) => {
+  const {
+    email, username, status, avatar, address, city,
+  } = data;
+  const updateData = {};
+
+  if (helpers.isExist(email)) {
+    updateData.email = email;
+  }
+  if (helpers.isExist(username)) {
+    updateData.username = username;
+  }
+  if (helpers.isExist(status)) {
+    updateData.status = helpers.validInteger(status);
+  }
+  if (helpers.isExist(avatar)) {
+    updateData.avatar = avatar;
+  }
+  if (helpers.isExist(address) && helpers.isExist(city)) {
+    updateData.addresses.push({
+      address,
+      city,
+    });
+  }
+  const promise = userRepo.findAndUpdateUser(userId, updateData, { new: true });
+  promise.then((newUser) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        avatar: newUser.avatar,
+      },
+    };
+
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function setUserInfo.\n', err);
+    return callback(constants.response.systemError);
+  });
 };

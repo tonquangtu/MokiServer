@@ -27,3 +27,35 @@ exports.getSetting = (req, res) => {
   });
 };
 
+exports.setUserInfo = (req, res) => {
+  const data = req.body;
+  if (!data) {
+    helpers.sendResponse(
+      res, constants.statusCode.notFound,
+      constants.response.paramValueInvalid,
+    );
+  } else if (helpers.isExist(data.status)) {
+    const statusValid = helpers.validInteger(data.status);
+    if (statusValid === null) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramTypeInvalid,
+      );
+    } else if (statusValid !== 0 && statusValid !== 1) {
+      helpers.sendResponse(
+        res, constants.statusCode.notFound,
+        constants.response.paramValueInvalid,
+      );
+    }
+  }
+  userService.setUserInfo(
+    data, req.user.id,
+    (responseData) => {
+      helpers.sendResponse(
+        res, constants.statusCode.ok,
+        responseData,
+      );
+    },
+  );
+};
+
