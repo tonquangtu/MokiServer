@@ -5,9 +5,11 @@ const UserOrderAddressSchema = new Schema({
   user: {
     type: Schema.ObjectId, ref: 'users', required: true, unique: true,
   },
-  order_addresses: {
+  order_address: {
     address: { type: String, required: true },
-    address_id: { type: Array, required: true },
+    addresses_id: [
+      { type: Number },
+    ],
     default: { type: String },
   },
 });

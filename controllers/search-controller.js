@@ -2,39 +2,30 @@ const searchService = require('../services/search-service');
 
 const { constants, helpers } = global;
 
-exports.simpleSearchProducts = (req, res) => {
-  searchProducts(req, res, constants.search.simple);
-};
-
-exports.fullSearchProducts = (req, res) => {
-  searchProducts(req, res, constants.search.full);
-};
-
-
-function searchProducts(req, res, searchType) {
+exports.searchProducts = (req, res) => {
   let statusCode;
   const searchParams = req.body;
   if (!searchParams) {
-    statusCode = 404;
+    statusCode = constants.statusCode.notFound;
     helpers.sendResponse(res, statusCode, constants.response.paramValueInvalid);
   } else {
     const validSearchParams = validateSearchParams(searchParams);
     if (!validSearchParams) {
-      statusCode = 404;
+      statusCode = constants.statusCode.notFound;
       helpers.sendResponse(res, statusCode, constants.response.paramValueInvalid);
-    } else if (searchType === constants.search.simple) {
-      searchService.simpleSearchProducts(searchParams, (response) => {
-        statusCode = 200;
-        helpers.sendResponse(res, statusCode, response);
-      });
     } else {
-      searchService.searchProducts(searchParams, (response) => {
-        statusCode = 200;
+      searchService.searchProducts(validSearchParams, (response) => {
+        statusCode = constants.statusCode.ok;
+        if (response.code === constants.response.searchNotFound.code) {
+          statusCode = constants.statusCode.notFound;
+        } else if (response.code === constants.response.systemError.code){
+          statusCode = constants.statusCode.systemError;
+        }
         helpers.sendResponse(res, statusCode, response);
       });
     }
   }
-}
+};
 
 function validateSearchParams(searchParams) {
   const {
@@ -49,6 +40,7 @@ function validateSearchParams(searchParams) {
     index,
     count,
   } = searchParams;
+  const user = helpers.getUserFromToken(token);
   const validKeyword = helpers.validString(keyword);
   const isValidCategoryId = helpers.isValidId(categoryId);
   const isValidBrandId = helpers.isValidId(brandId);
@@ -58,16 +50,20 @@ function validateSearchParams(searchParams) {
   const validCondition = helpers.validString(condition);
   const validIndex = helpers.validNumber(index);
   const validCount = helpers.validNumber(count);
+  const userId = user ? user.id : null;
   let isValidPrice = false;
   if (validPriceMin && validPriceMax && validPriceMax >= validPriceMin) {
     isValidPrice = true;
   }
 
+  if ((!validIndex && validIndex !== 0) || !validCount) {
+    return null;
+  }
+
   if (validKeyword || isValidCategoryId || isValidBrandId
-  || isValidProductSizeId || isValidPrice || validCondition
-  || validIndex || validCount) {
+  || isValidProductSizeId || isValidPrice || validCondition) {
     return {
-      token,
+      userId,
       categoryId,
       brandId,
       productSizeId,
@@ -75,7 +71,7 @@ function validateSearchParams(searchParams) {
       priceMin: validPriceMin,
       priceMax: validPriceMax,
       condition: validCondition,
-      fromIndex: index,
+      fromIndex: validIndex,
       limit: validCount,
     };
   }
