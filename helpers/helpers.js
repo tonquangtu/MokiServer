@@ -39,19 +39,36 @@ exports.validString = (aString) => {
 };
 
 exports.validNumber = (aNumber) => {
-  if (!aNumber || Number.isNaN(aNumber)) {
+  if (!this.isExist(aNumber) || Number.isNaN(aNumber)) {
     return null;
   }
   return Number(aNumber);
 };
 
-exports.getUserIdFromToken = (token) => {
-  let userId;
-  if (token) {
-    const user = this.decodeToken(token);
-    userId = user ? user.user.id : 0;
-  } else {
-    userId = 0;
+exports.getUserFromToken = (token) => {
+  if (!token) {
+    return null;
   }
-  return userId;
+  const payload = this.decodeToken(token);
+  if (!payload || !payload.isLogin || !payload.user) {
+    return null;
+  }
+
+  // need to check this token is still valid or not ?
+  if (!this.isValidId(payload.user.id)) {
+    return null;
+  }
+  return payload.user;
+};
+
+exports.isExist = attribute => (attribute !== undefined) && (attribute !== null);
+
+exports.validInteger = (aNumber) => {
+  const number = this.validNumber(aNumber);
+
+  if (number === null || !Number.isInteger(number)) {
+    return null;
+  }
+
+  return number;
 };

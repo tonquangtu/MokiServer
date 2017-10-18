@@ -3,7 +3,7 @@ const likeRepo = require('../repositories/like-repository');
 const blockRepo = require('../repositories/block-repository');
 const reportRepo = require('../repositories/report-repository');
 
-const { constants } = global;
+const { constants, logger, helpers } = global;
 
 exports.getProductList = (data, callback) => {
   const {
@@ -21,22 +21,25 @@ exports.getProductList = (data, callback) => {
       return callback(constants.response.noDataOrEndListData);
     }
 
-    return productRepo.getNewItems(index, categoryId);
-  }).then((numNewItems) => {
+    return productRepo.getNewItemNum(index, categoryId);
+  }).then((newItemNum) => {
     getProductAttributes(products, userId, (productArr) => {
       response = {
         code: constants.response.ok.code,
         message: constants.response.ok.message,
         data: {
           products: productArr,
-          newItems: numNewItems,
+          newItems: newItemNum,
           lastId: products.slice(-1)[0].id,
         },
       };
 
       return callback(response);
     });
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getProductList.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.getProductDetail = (productId, userId, callback) => {
@@ -46,13 +49,15 @@ exports.getProductDetail = (productId, userId, callback) => {
     if (!product) {
       return callback(constants.response.productNotExist);
     }
-
     getResponseForProductDetail(product, userId, responseData => callback(responseData));
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getProductDetail.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
-exports.getCommentProduct = (productId, callback) => {
-  const promise = productRepo.getProductWithComment(productId);
+exports.getProductCommentList = (productId, userId, callback) => {
+  const promise = productRepo.getProductCommentList(productId);
   promise.then((product) => {
     if (!product) {
       return callback(constants.response.productNotExist);
@@ -77,19 +82,23 @@ exports.getCommentProduct = (productId, callback) => {
       };
     });
 
+    const isBlocked = (userId === 0) ? null : false;
     const response = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: commentResponse,
-      isBlocked: [],
+      isBlocked,
     };
 
     return callback(response);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getProductCommentList.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
-exports.addCommentProduct = (productId, comment, index, userId, callback) => {
-  const promise = productRepo.getProductWithComment(productId);
+exports.addProductComment = (productId, comment, index, userId, callback) => {
+  const promise = productRepo.getProductCommentList(productId);
   promise.then((product) => {
     if (!product) {
       return callback(constants.response.productNotExist);
@@ -97,15 +106,16 @@ exports.addCommentProduct = (productId, comment, index, userId, callback) => {
 
     const newProduct = product;
     const { comments } = newProduct;
+
     comments.push({
       content: comment,
       commenter: userId,
     });
     newProduct.comment += 1;
 
-    return productRepo.findAndUpdateCommentsProduct(product.id, newProduct, { new: true });
+    return productRepo.findAndUpdateProductCommentList(product.id, newProduct, { new: true });
   }).then((newProduct) => {
-    getCommentListNew(newProduct.comments, index, (data) => {
+    getNewCommentList(newProduct.comments, index, (data) => {
       if (!data) {
         return callback(constants.response.paramValueInvalid);
       }
@@ -118,7 +128,10 @@ exports.addCommentProduct = (productId, comment, index, userId, callback) => {
 
       return callback(response);
     });
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function addProductComment.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.deleteProduct = (productId, userId, callback) => {
@@ -135,7 +148,10 @@ exports.deleteProduct = (productId, userId, callback) => {
 
     return productRepo.deleteProduct(productId);
   }).then(data => callback(constants.response.ok))
-    .catch(err => callback(constants.response.systemError));
+    .catch((err) => {
+      logger.error('Error at function deleteProduct.\n', err);
+      return callback(constants.response.systemError);
+    });
 };
 
 exports.likeProduct = (productId, userId, callback) => {
@@ -156,7 +172,7 @@ exports.likeProduct = (productId, userId, callback) => {
       is_liked: 1,
     };
 
-    return likeRepo.findByIdAndUpdate(like, likeData);
+    return likeRepo.findAndUpdateLike(like, likeData);
   }).then((data) => {
     productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
 
@@ -172,7 +188,10 @@ exports.likeProduct = (productId, userId, callback) => {
 
     return callback(responseData);
   })
-    .catch(err => callback(constants.response.systemError));
+    .catch((err) => {
+      logger.error('Error at function likeProduct.\n', err);
+      return callback(constants.response.systemError);
+    });
 };
 
 exports.reportProduct = (productId, subject, details, userId, callback) => {
@@ -191,11 +210,14 @@ exports.reportProduct = (productId, subject, details, userId, callback) => {
 
     return reportRepo.saveReport(reportData);
   }).then(data => callback(constants.response.ok))
-    .catch(err => callback(constants.response.systemError));
+    .catch((err) => {
+      logger.error('Error at function reportProduct.\n', err);
+      return callback(constants.response.systemError);
+    });
 };
 
-exports.getProductListMyLike = (index, count, userId, callback) => {
-  const promise = likeRepo.getProductListMyLike(userId, count);
+exports.getMyLikeProductList = (index, count, userId, callback) => {
+  const promise = likeRepo.getMyLikeProductList(userId, count, index);
   promise.then((likes) => {
     const data = likes.map((like) => {
       return {
@@ -212,54 +234,64 @@ exports.getProductListMyLike = (index, count, userId, callback) => {
       data,
     };
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getMyLikeProductList.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
-exports.getNumberNewItems = (lastId, categoryId, callback) => {
-  const promise = productRepo.getNewItems(lastId, categoryId);
-  promise.then((numNewItem) => {
+exports.getNewItemNumber = (lastId, categoryId, callback) => {
+  const promise = productRepo.getNewItemNum(lastId, categoryId);
+  promise.then((newItemNum) => {
     const responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: {
-        newItems: numNewItem,
+        newItems: newItemNum,
       },
     };
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getNewItemNumber.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.addProduct = (data, userId, callback) => {
+  const {
+    price, name, categoryId, shipsFrom, shipsFromId, condition,
+    brandId, productSizeId, described, weight, dimension, image, video, thumb,
+  } = data;
   let media;
-  if (data.image === undefined) {
+  if (!helpers.isExist(image)) {
     media = {
       type: constants.product.media.type.video,
-      urls: [data.video],
-      thumb: data.thumb,
+      urls: [video],
+      thumb,
     };
   } else {
     media = {
       type: constants.product.media.type.image,
-      urls: data.image,
+      urls: image,
       thumb: null,
     };
   }
   const productData = {
-    name: data.name,
+    name,
     media,
     seller: userId,
-    price: data.price,
+    price,
     price_percent: 0,
-    description: data.described === undefined ? '' : data.described,
-    ships_from: data.shipsFrom,
-    ships_from_ids: data.shipsFromId,
-    condition: data.condition,
-    sizes: data.productSizeId === undefined ? [] : [data.productSizeId],
-    brands: data.brandId === undefined ? [] : [data.brandId],
-    categories: [data.categoryId],
+    description: !helpers.isExist(described) ? '' : described,
+    ships_from: shipsFrom,
+    ships_from_ids: shipsFromId,
+    condition,
+    sizes: !helpers.isExist(productSizeId) ? [] : [productSizeId],
+    brands: !helpers.isExist(brandId) ? [] : [brandId],
+    categories: [categoryId],
     url: '/products/detail',
-    weight: data.weight === undefined ? '' : data.weight,
-    dimension: data.dimension === undefined ? [] : data.dimension,
+    weight: !helpers.isExist(weight) ? '' : weight,
+    dimension: !helpers.isExist(dimension) ? [] : dimension,
     comments: [],
     campaigns: [],
   };
@@ -277,7 +309,7 @@ exports.addProduct = (data, userId, callback) => {
 
     return callback(responseData);
   }).catch((err) => {
-    console.log(err.message);
+    logger.error('Error at function addProduct.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -322,7 +354,7 @@ function getProductAttributes(products, userId, callback) {
           video: [],
           price: product.price,
           pricePercent: product.price_percent,
-          brand: getListItemOfProduct(product.brands),
+          brand: getProductItemList(product.brands),
           described: product.description,
           created: product.created_at,
           like: product.like,
@@ -376,12 +408,12 @@ function getResponseForProductDetail(product, userId, callback) {
   }
 
   const { seller } = product;
-  const numProductOfUser = productRepo.getProductOfUser(seller.id);
+  const productOfUserNum = productRepo.getProductOfUser(seller.id);
 
   Promise.all([
     isLiked,
     isBlocked,
-    numProductOfUser,
+    productOfUserNum,
   ]).then((data) => {
     let canEdit = false;
     let isUserLiked = false;
@@ -419,8 +451,8 @@ function getResponseForProductDetail(product, userId, callback) {
         isLiked: isUserLiked,
         image: [],
         video: [],
-        size: getListItemOfProduct(product.sizes),
-        brand: getListItemOfProduct(product.brands),
+        size: getProductItemList(product.sizes),
+        brand: getProductItemList(product.brands),
         seller: {
           id: seller.id,
           name: seller.name,
@@ -428,7 +460,7 @@ function getResponseForProductDetail(product, userId, callback) {
           score: Math.round(Math.random() * 5),
           listing: listingProduct,
         },
-        category: getListItemOfProduct(product.categories, 'category'),
+        category: getProductItemList(product.categories, 'category'),
         isBlocked: isUserBlocked,
         canEdit,
         banned: product.banned,
@@ -460,12 +492,15 @@ function getResponseForProductDetail(product, userId, callback) {
 
       callback(response);
     }
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getResponseForProductDetail in getProductDetail.\n', err);
+    return callback(constants.response.systemError);
+  });
 }
 
-function getListItemOfProduct(listItem, type = null) {
+function getProductItemList(itemList, type = null) {
   if (type === 'category') {
-    return listItem.map((item) => {
+    return itemList.map((item) => {
       return {
         id: item.id,
         name: item.name,
@@ -474,7 +509,7 @@ function getListItemOfProduct(listItem, type = null) {
       };
     });
   }
-  return listItem.map((item) => {
+  return itemList.map((item) => {
     return {
       id: item.id,
       name: item.name,
@@ -482,7 +517,7 @@ function getListItemOfProduct(listItem, type = null) {
   });
 }
 
-function getCommentListNew(comments, commentId, callback) {
+function getNewCommentList(comments, commentId, callback) {
   const commentIdList = comments.map(comment => comment.id);
   const tempComments = comments;
   let index = 0;

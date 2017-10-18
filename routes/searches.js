@@ -5,8 +5,6 @@ const { express } = global;
 const router = express.Router();
 
 // authenticate route
-router.post('/simple/products', searchController.simpleSearchProducts);
-
-router.post('/full/products', searchController.fullSearchProducts);
+router.post('/products', searchController.searchProducts);
 
 module.exports = router;

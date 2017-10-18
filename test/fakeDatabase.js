@@ -307,8 +307,8 @@ function userSettingCreate(userSettingParams, callback) {
     if (err) {
       console.log(err.message);
     } else {
-      callback(null, 'userSettingCreate');
-    }
+
+    }callback(null, 'userSettingCreate');
   });
 }
 

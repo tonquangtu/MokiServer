@@ -19,13 +19,13 @@ exports.ping = () => {
   });
 };
 
-exports.simpleSearchProducts = (keyword, fromIndex, limit) => {
+exports.simpleSearchProducts = (keyword, fromIndex, limit, selectFields) => {
   const searchQuery = {
     index: constants.dbName,
     type: constants.documents.product,
     from: fromIndex,
     size: limit,
-    _source: ['name', 'media', 'price', 'price_percent', 'like', 'comment'],
+    _source: selectFields,
     body: {
       query: { match: { name: keyword } },
     },
@@ -37,15 +37,15 @@ exports.searchProducts = (searchParams) => {
   const {
     fromIndex,
     limit,
+    selectFields,
   } = searchParams;
-
   const query = getSearchQuery(searchParams);
   const searchQuery = {
     index: constants.dbName,
     type: constants.documents.product,
     from: fromIndex,
     size: limit,
-    _source: ['name', 'media', 'price', 'price_percent', 'like', 'comment'],
+    _source: selectFields,
     body: { query },
   };
   return client.search(searchQuery);
