@@ -6,12 +6,12 @@ exports.getProductList = (req, res) => {
   const data = req.body;
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else if (!helpers.isExist(data.count) || !helpers.isExist(data.index)) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramNotEnough,
     );
   } else {
@@ -19,12 +19,12 @@ exports.getProductList = (req, res) => {
     const validValueParams = validValueProductsParams(data);
     if (count === null) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramTypeInvalid,
       );
     } else if (!validValueParams) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -56,19 +56,19 @@ exports.getProductDetail = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else if (!helpers.isExist(data.id)) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramNotEnough,
     );
   } else {
     const { id, token } = data;
     if (!helpers.isValidId(id)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -92,19 +92,19 @@ exports.getCommentProduct = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
     const { productId, token } = data;
     if (!helpers.isExist(productId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else if (!helpers.isValidId(productId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -128,7 +128,7 @@ exports.postCommentProduct = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
@@ -136,17 +136,17 @@ exports.postCommentProduct = (req, res) => {
     const validValueParams = validValueCommentParams(data);
     if (!helpers.isExist(productId) || !helpers.isExist(comment) || !helpers.isExist(index)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else if (typeof comment !== 'string' && !(comment instanceof String)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramTypeInvalid,
       );
     } else if (!validValueParams) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -168,7 +168,7 @@ exports.deleteProduct = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
@@ -176,12 +176,12 @@ exports.deleteProduct = (req, res) => {
 
     if (!helpers.isExist(productId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else if (!helpers.isValidId(productId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -203,7 +203,7 @@ exports.likeProduct = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
@@ -211,12 +211,12 @@ exports.likeProduct = (req, res) => {
 
     if (!helpers.isExist(productId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else if (!helpers.isValidId(productId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -238,7 +238,7 @@ exports.reportProduct = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
@@ -246,18 +246,18 @@ exports.reportProduct = (req, res) => {
 
     if (!helpers.isExist(productId) || !helpers.isExist(subject) || !helpers.isExist(details)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else if ((typeof subject !== 'string' && !(subject instanceof String))
     || (typeof details !== 'string' && !(details instanceof String))) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramTypeInvalid,
       );
     } else if (!validValueReportParams(data)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -281,7 +281,7 @@ exports.getProductListMyLike = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
@@ -289,7 +289,7 @@ exports.getProductListMyLike = (req, res) => {
 
     if (!helpers.isExist(count) || !helpers.isExist(index)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else {
@@ -298,12 +298,12 @@ exports.getProductListMyLike = (req, res) => {
 
       if (countValid === null || indexValid === null) {
         helpers.sendResponse(
-          res, constants.statusCode.notFound,
+          res, constants.statusCode.ok,
           constants.response.paramTypeInvalid,
         );
       } else if (indexValid < 0 || countValid <= 0) {
         helpers.sendResponse(
-          res, constants.statusCode.notFound,
+          res, constants.statusCode.ok,
           constants.response.paramValueInvalid,
         );
       } else {
@@ -326,7 +326,7 @@ exports.getNewItemNumber = (req, res) => {
 
   if (!data) {
     helpers.sendResponse(
-      res, constants.statusCode.notFound,
+      res, constants.statusCode.ok,
       constants.response.paramValueInvalid,
     );
   } else {
@@ -335,12 +335,12 @@ exports.getNewItemNumber = (req, res) => {
     const validValueParams = validValueCheckNewItemParams(data);
     if (!helpers.isExist(lastId)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else if (!validValueParams) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramValueInvalid,
       );
     } else {
@@ -362,7 +362,7 @@ exports.getNewItemNumber = (req, res) => {
 exports.addProduct = (req, res) => {
   const data = req.body;
   if (!data) {
-    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+    helpers.sendResponse(res, constants.statusCode.ok, constants.response.paramValueInvalid);
   } else {
     const {
       price, name, categoryId, shipsFrom, shipsFromId, image, video, thumb,
@@ -373,7 +373,7 @@ exports.addProduct = (req, res) => {
       || !helpers.isExist(categoryId) || !helpers.isExist(shipsFrom)
       || !helpers.isExist(shipsFromId) || !helpers.isExist(condition)) {
       helpers.sendResponse(
-        res, constants.statusCode.notFound,
+        res, constants.statusCode.ok,
         constants.response.paramNotEnough,
       );
     } else {
@@ -385,7 +385,7 @@ exports.addProduct = (req, res) => {
       if (priceValid === null || conditionValid === null
         || nameValid === null || shipsFromValid === null) {
         helpers.sendResponse(
-          res, constants.statusCode.notFound,
+          res, constants.statusCode.ok,
           constants.response.paramTypeInvalid,
         );
       } else if (!helpers.isValidId(categoryId)
@@ -393,7 +393,7 @@ exports.addProduct = (req, res) => {
         || (helpers.isExist(productSizeId) && !helpers.isValidId(productSizeId))
         || name.length > 30) {
         helpers.sendResponse(
-          res, constants.statusCode.notFound,
+          res, constants.statusCode.ok,
           constants.response.paramValueInvalid,
         );
       } else {
