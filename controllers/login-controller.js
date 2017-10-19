@@ -3,36 +3,20 @@ const loginService = require('../services/login-service');
 const { constants, helpers } = global;
 
 exports.login = (req, res) => {
-  let statusCode;
   const reqData = validateLoginData(req.body);
   if (reqData) {
     const { phoneNumber, password } = reqData;
     loginService.login(phoneNumber, password, (loginSuccess, response) => {
-      if (loginSuccess) {
-        statusCode = constants.statusCode.ok;
-      } else {
-        statusCode = constants.statusCode.notFound;
-        if (response.code === constants.response.systemError.code) {
-          statusCode = constants.statusCode.systemError;
-        }
-      }
-      helpers.sendResponse(res, statusCode, response);
+      helpers.sendResponse(res, response);
     });
   } else {
-    statusCode = constants.statusCode.notFound;
-    helpers.sendResponse(res, statusCode, constants.response.userNotFound);
+    helpers.sendResponse(res, constants.response.userNotFound);
   }
 };
 
 exports.logout = (req, res) => {
-  let statusCode = constants.statusCode.ok;
   loginService.logout(req.user.id, (response) => {
-    if (response.code === constants.response.userNotFound.code) {
-      statusCode = constants.statusCode.notFound;
-    } else if (response.code === constants.response.systemError.code) {
-      statusCode = constants.statusCode.systemError;
-    }
-    helpers.sendResponse(res, statusCode, response);
+    helpers.sendResponse(res, response);
   });
 };
 

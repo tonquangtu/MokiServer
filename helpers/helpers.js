@@ -15,7 +15,7 @@ exports.connectDb = () => {
   db.on('error', console.error.bind(console, 'MongoDB connection error'));
 };
 
-exports.sendResponse = (res, statusCode, response) => {
+exports.sendResponse = (res, response, statusCode = constants.statusCode.ok) => {
   res.status(statusCode).json(response);
 };
 
