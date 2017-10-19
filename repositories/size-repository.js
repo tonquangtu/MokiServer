@@ -1,3 +1,6 @@
 const Size = require('../models/size');
+const Category = require('../models/category');
 
-exports.getSizeById = sizeId => Size.findById(sizeId).exec();
+const { mongoose } = global;
+
+exports.getSizes = () => Size.find().exec();

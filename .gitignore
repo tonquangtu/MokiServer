@@ -4,4 +4,6 @@
 .eslintrc
 npm-debug.log
 package-lock.json
+.editorconfig
+
 error.log
