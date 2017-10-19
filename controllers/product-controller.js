@@ -436,7 +436,7 @@ function validValueProductsParams(productListParams) {
   if ((categoryId !== 0 && !helpers.isValidId(categoryId))
     || (campaignId !== 0 && !helpers.isValidId(campaignId))
     || (lastId !== 0 && !helpers.isValidId(lastId))
-    || !helpers.isValidId(index)
+    || (index !== '0' && !helpers.isValidId(index))
     || count <= 0) {
     return false;
   }
