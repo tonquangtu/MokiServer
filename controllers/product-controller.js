@@ -1,16 +1,17 @@
-const { helpers, constants } = global;
+const { helpers, constants, logger } = global;
 
 const productService = require('../services/product-service');
 
 exports.getProductList = (req, res) => {
   const data = req.body;
+  logger.info('getProductList\n', data);
 
   if (!data.count || !data.index) {
-    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramNotEnough);
+    helpers.sendResponse(res, constants.statusCode.ok, constants.response.paramNotEnough);
   } else if (!Number.isInteger(data.count)) {
-    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramTypeInvalid);
+    helpers.sendResponse(res, constants.statusCode.ok, constants.response.paramTypeInvalid);
   } else if (!validateValueProductListParams(data)) {
-    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+    helpers.sendResponse(res, constants.statusCode.ok, constants.response.paramValueInvalid);
   } else {
     const {
       categoryId, campaignId, lastId,

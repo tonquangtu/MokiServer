@@ -36,7 +36,10 @@ exports.getProductList = (data, callback) => {
 
       return callback(response);
     });
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    console.log(err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.getProductDetail = (productId, userId, callback) => {
