@@ -15,49 +15,31 @@ exports.userDetail = (req, res) => {
 
 exports.getSetting = (req, res) => {
   userService.getSetting(req.user.id, (responseData) => {
-    helpers.sendResponse(res, constants.statusCode.ok, responseData);
+    helpers.sendResponse(res, responseData);
   });
 };
 
 exports.setUserInfo = (req, res) => {
   const data = req.body;
   if (!data) {
-    helpers.sendResponse(
-      res, constants.statusCode.notFound,
-      constants.response.paramValueInvalid,
-    );
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else if (helpers.isExist(data.status)) {
     const statusValid = helpers.validInteger(data.status);
     if (statusValid === null) {
-      helpers.sendResponse(
-        res, constants.statusCode.notFound,
-        constants.response.paramTypeInvalid,
-      );
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
     } else if (statusValid !== 0 && statusValid !== 1) {
-      helpers.sendResponse(
-        res, constants.statusCode.notFound,
-        constants.response.paramValueInvalid,
-      );
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
     }
   }
-  userService.setUserInfo(
-    data, req.user.id,
-    (responseData) => {
-      helpers.sendResponse(
-        res, constants.statusCode.ok,
-        responseData,
-      );
-    },
-  );
+  userService.setUserInfo(data, req.user.id, (responseData) => {
+    helpers.sendResponse(res, responseData);
+  });
 };
 
 exports.setSetting = (req, res) => {
   const data = req.body;
   if (!data) {
-    helpers.sendResponse(
-      res, constants.statusCode.notFound,
-      constants.response.paramValueInvalid,
-    );
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else {
     const {
       likeValid, commentValid, announcementValid, soundOnValid, soundDefaultValid,
@@ -70,25 +52,16 @@ exports.setSetting = (req, res) => {
       soundDefault: soundDefaultValid,
     };
 
-    userService.setSetting(
-      dataValid, req.user.id,
-      (responseData) => {
-        helpers.sendResponse(
-          res, constants.statusCode.ok,
-          responseData,
-        );
-      },
-    );
+    userService.setSetting(dataValid, req.user.id, (responseData) => {
+      helpers.sendResponse(res, responseData);
+    });
   }
 };
 
 exports.getFollowList = (req, res, type) => {
   const data = req.body;
   if (!data) {
-    helpers.sendResponse(
-      res, constants.statusCode.notFound,
-      constants.response.paramValueInvalid,
-    );
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else {
     const {
       userId, index, count, token,
@@ -97,20 +70,11 @@ exports.getFollowList = (req, res, type) => {
     const indexValid = helpers.validInteger(index);
 
     if (!helpers.isExist(userId) || !helpers.isExist(index) || !helpers.isExist(count)) {
-      helpers.sendResponse(
-        res, constants.statusCode.notFound,
-        constants.response.paramNotEnough,
-      );
+      helpers.sendResponse(res, constants.response.paramNotEnough);
     } else if (countValid === null || indexValid === null) {
-      helpers.sendResponse(
-        res, constants.statusCode.notFound,
-        constants.response.paramTypeInvalid,
-      );
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
     } else if (!helpers.isValidId(userId) || countValid <= 0 || indexValid < 0) {
-      helpers.sendResponse(
-        res, constants.statusCode.notFound,
-        constants.response.paramValueInvalid,
-      );
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       const user = helpers.getUserFromToken(token);
       const myId = user ? user.id : 0;
@@ -122,10 +86,7 @@ exports.getFollowList = (req, res, type) => {
         count: countValid,
         type,
       }, (responseData) => {
-        helpers.sendResponse(
-          res, constants.statusCode.ok,
-          responseData,
-        );
+        helpers.sendResponse(res, responseData);
       });
     }
   }

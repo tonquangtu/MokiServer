@@ -18,7 +18,7 @@ exports.findAndUpdateUserSetting =
   (userId, userSettingData, options) => UserSetting.findOneAndUpdate(
     { user: userId },
     userSettingData,
-    options,
+    options
   ).exec();
 
 exports.getUserFollows = (userId, index, count, type) => {
