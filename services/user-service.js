@@ -111,20 +111,194 @@ exports.updateUser = (userId, updateData, options, callback) => {
 
 exports.getSetting = (userId, callback) => {
   const promise = userRepo.getPushSetting(userId);
-  promise.then((userSetting) => {
-    const pushSetting = userSetting[0].push_setting;
+  let pushSetting;
+
+  promise.then((userSettings) => {
+    if (userSettings.length > 0) {
+      pushSetting = userSettings[0].push_setting;
+      const responseData = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          like: pushSetting.like,
+          comment: pushSetting.comment,
+          announcement: pushSetting.announcement,
+          soundOn: pushSetting.sound_on,
+          soundDefault: pushSetting.sound_default,
+        },
+      };
+      return callback(responseData);
+    }
+
+    const { turnOn } = constants.pushSetting;
+    const pushSettingData = {
+      user: userId,
+      push_setting: {
+        like: turnOn,
+        comment: turnOn,
+        announcement: turnOn,
+        sound_on: turnOn,
+        sound_default: turnOn,
+      },
+    };
+    return userRepo.addPushSetting(pushSettingData);
+  }).then((newUserSetting) => {
+    const newPushSetting = newUserSetting.push_setting;
     const responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: {
-        like: pushSetting.like,
-        comment: pushSetting.comment,
-        announcement: pushSetting.announcement,
-        sound_on: pushSetting.sound_on,
-        sound_default: pushSetting.sound_default,
+        like: newPushSetting.like,
+        comment: newPushSetting.comment,
+        announcement: newPushSetting.announcement,
+        soundOn: newPushSetting.sound_on,
+        soundDefault: newPushSetting.sound_default,
+      },
+    };
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function getSetting.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.setUserInfo = (data, userId, callback) => {
+  const {
+    email, username, status, avatar, address, city,
+  } = data;
+  const updateData = {};
+
+  if (helpers.isExist(email)) {
+    updateData.email = email;
+  }
+  if (helpers.isExist(username)) {
+    updateData.username = username;
+  }
+  if (helpers.isExist(status)) {
+    updateData.status = helpers.validInteger(status);
+  }
+  if (helpers.isExist(avatar)) {
+    updateData.avatar = avatar;
+  }
+  if (helpers.isExist(address) && helpers.isExist(city)) {
+    updateData.addresses.push({
+      address,
+      city,
+    });
+  }
+  const promise = userRepo.findAndUpdateUser(userId, updateData, { new: true });
+  promise.then((newUser) => {
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        avatar: newUser.avatar,
       },
     };
 
     return callback(responseData);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function setUserInfo.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.setSetting = (data, userId, callback) => {
+  const {
+    like, comment, announcement, soundOn, soundDefault,
+  } = data;
+  const userSettingData = {
+    user: userId,
+    push_setting: {
+      like,
+      comment,
+      announcement,
+      sound_on: soundOn,
+      sound_default: soundDefault,
+    },
+  };
+  const promise = userRepo.findAndUpdateUserSetting(userId, userSettingData, { new: true });
+  promise.then((newUserSetting) => {
+    const newPushSetting = newUserSetting.push_setting;
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        like: newPushSetting.like,
+        comment: newPushSetting.comment,
+        announcement: newPushSetting.announcement,
+        soundOn: newPushSetting.sound_on,
+        soundDefault: newPushSetting.sound_default,
+      },
+    };
+
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function setSetting.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getFollowList = (data, callback) => {
+  const {
+    userId, myId, index, count, type,
+  } = data;
+  const promise = userRepo.getUserFollows(userId, index, count, type);
+  let followList;
+
+  promise.then((user) => {
+    if (!user) {
+      return callback(constants.response.userNotFound);
+    }
+
+    followList = (type === constants.followedField) ? user.follows_from : user.follows_to;
+    if (myId === 0) {
+      const followArray = [];
+
+      followList.forEach((follower) => {
+        if (follower.user) {
+          followArray.push({
+            id: follower.user.id,
+            username: follower.user.username,
+            avatar: follower.user.avatar,
+            followed: 0,
+          });
+        }
+      });
+      const responseData = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: followArray,
+      };
+
+      return callback(responseData);
+    }
+    return userRepo.getUserFollows(myId, 0, 0, constants.followingField);
+  }).then((myInfo) => {
+    const followArray = [];
+
+    followList.forEach((follower) => {
+      if (follower.user) {
+        const follow = _.find(myInfo.follows_to, user => user.user.id === follower.user.id);
+        const followed = follow ? 1 : 0;
+
+        followArray.push({
+          id: follower.user.id,
+          username: follower.user.username,
+          avatar: follower.user.avatar,
+          followed,
+        });
+      }
+    });
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: followArray,
+    };
+
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function getFollowList.\n', err);
+    return callback(constants.response.systemError);
+  });
 };

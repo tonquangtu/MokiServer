@@ -3,25 +3,16 @@ const searchService = require('../services/search-service');
 const { constants, helpers } = global;
 
 exports.searchProducts = (req, res) => {
-  let statusCode;
   const searchParams = req.body;
   if (!searchParams) {
-    statusCode = constants.statusCode.notFound;
-    helpers.sendResponse(res, statusCode, constants.response.paramValueInvalid);
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else {
     const validSearchParams = validateSearchParams(searchParams);
     if (!validSearchParams) {
-      statusCode = constants.statusCode.notFound;
-      helpers.sendResponse(res, statusCode, constants.response.paramValueInvalid);
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       searchService.searchProducts(validSearchParams, (response) => {
-        statusCode = constants.statusCode.ok;
-        if (response.code === constants.response.searchNotFound.code) {
-          statusCode = constants.statusCode.notFound;
-        } else if (response.code === constants.response.systemError.code){
-          statusCode = constants.statusCode.systemError;
-        }
-        helpers.sendResponse(res, statusCode, response);
+        helpers.sendResponse(res, response);
       });
     }
   }
