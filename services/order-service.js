@@ -8,20 +8,7 @@ exports.getOrderAddressList = (userId, callback) => {
     if (!order) {
       return callback(constants.response.noDataOrEndListData);
     }
-    const orderAddresses = order.order_addresses.map((orderAddress) => {
-      return {
-        id: orderAddress.id,
-        address: orderAddress.address,
-        addressId: orderAddress.addresses_id,
-        default: orderAddress.default,
-      };
-    });
-
-    const responseData = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: orderAddresses,
-    };
+    const responseData = getResponseData(order);
 
     return callback(responseData);
   }).catch((err) => {
@@ -47,20 +34,7 @@ exports.deleteOrderAddress = (orderAddressId, userId, callback) => {
 
     return orderRepo.findAndUpdateOrderAddress(userId, userOrderAddressData, { new: true });
   }).then((newOrder) => {
-    const orderAddresses = newOrder.order_addresses.map((orderAddress) => {
-      return {
-        id: orderAddress.id,
-        address: orderAddress.address,
-        addressId: orderAddress.addresses_id,
-        default: orderAddress.default,
-      };
-    });
-
-    const responseData = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: orderAddresses,
-    };
+    const responseData = getResponseData(newOrder);
 
     return callback(responseData);
   }).catch((err) => {
@@ -69,3 +43,58 @@ exports.deleteOrderAddress = (orderAddressId, userId, callback) => {
   });
 };
 
+exports.addOrderAddress = (address, addressId, isDefault, userId, callback) => {
+  const orderPromise = orderRepo.getOrderAddressList(userId);
+  orderPromise.then((order) => {
+    if (!order) {
+      const userOrderAddressData = {
+        user: userId,
+        order_addresses: [{
+          address,
+          addresses_id: addressId,
+          default: isDefault,
+        }],
+      };
+      return orderRepo.addUserOrderAddress(userOrderAddressData);
+    }
+
+    const orderAddresses = order.order_addresses;
+
+    orderAddresses.push({
+      address,
+      addresses_id: addressId,
+      default: isDefault,
+    });
+
+    const userOrderAddressData = {
+      user: userId,
+      order_addresses: orderAddresses,
+    };
+
+    return orderRepo.findAndUpdateOrderAddress(userId, userOrderAddressData, { new: true });
+  }).then((newOrder) => {
+    const responseData = getResponseData(newOrder);
+
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function addOrderAddress.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+function getResponseData(order) {
+  const orderAddresses = order.order_addresses.map((orderAddress) => {
+    return {
+      id: orderAddress.id,
+      address: orderAddress.address,
+      addressId: orderAddress.addresses_id,
+      default: orderAddress.default,
+    };
+  });
+
+  return {
+    code: constants.response.ok.code,
+    message: constants.response.ok.message,
+    data: orderAddresses,
+  };
+}
