@@ -1,4 +1,4 @@
-const Report = require('../models/report');
+const { Report } = global;
 
 exports.saveReport = (reportData) => {
   const report = new Report(reportData);

@@ -27,13 +27,13 @@ const UsersSchema = new Schema({
   default_address: { type: Schema.ObjectId },
   blocks: [
     {
-      user: { type: Schema.ObjectId, ref: 'User', required: true },
+      user: { type: Schema.ObjectId, ref: 'users', required: true },
       created_at: { type: Date, required: true, default: Date.now },
     },
   ],
   follows_to: [
     {
-      user: { type: Schema.ObjectId, ref: 'User', required: true },
+      user: { type: Schema.ObjectId, ref: 'users', required: true },
       created_at: { type: Date, required: true, default: Date.now },
     },
   ],

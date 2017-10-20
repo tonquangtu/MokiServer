@@ -32,6 +32,7 @@ const campaigns = require('./routes/campaigns');
 const sizes = require('./routes/sizes');
 const brands = require('./routes/brands');
 const searches = require('./routes/searches');
+const orders = require('./routes/orders');
 
 app.use('/', index);
 app.use('/users', users);
@@ -40,6 +41,7 @@ app.use('/campaigns', campaigns);
 app.use('/sizes', sizes);
 app.use('/brands', brands);
 app.use('/searches', searches);
+app.use('/orders', orders);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

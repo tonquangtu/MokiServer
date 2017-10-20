@@ -1,4 +1,4 @@
-const Product = require('../models/product');
+const { Product } = global;
 
 exports.getProductList = (categoryId, campaignId, lastId, count) => {
   const data = {};
@@ -34,6 +34,10 @@ exports.getProductList = (categoryId, campaignId, lastId, count) => {
 };
 
 exports.getNewItemNum = (index, categoryId) => {
+  if (index === '0') {
+    return 0;
+  }
+
   if (categoryId !== 0) {
     return Product.find({ categories: categoryId })
       .where('_id').gt(index)

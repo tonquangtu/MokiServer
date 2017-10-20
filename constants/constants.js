@@ -189,4 +189,6 @@ module.exports = {
     turnOn: 1,
     turnOff: 0,
   },
+  followedField: 'followed',
+  followingField: 'following',
 };

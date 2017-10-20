@@ -1,4 +1,4 @@
-const Brand = require('../models/brand');
+const { Brand } = global;
 
 const { mongoose } = global;
 

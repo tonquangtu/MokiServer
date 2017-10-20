@@ -24,6 +24,7 @@ const Category = require('../models/category');
 const Country = require('../models/country');
 const Report = require('../models/report');
 const Size = require('../models/size');
+const UserOrderAddress = require('../models/user-order-address');
 const UserSetting = require('../models/user-setting');
 
 
@@ -48,6 +49,7 @@ const maxReport = 100;
 const maxSize = 10;
 const maxCountry = 60;
 const maxUserSetting = 20;
+const maxOrderAddress = 30;
 
 deleteAllDocuments(() => {
   console.log('done');
@@ -307,8 +309,23 @@ function userSettingCreate(userSettingParams, callback) {
     if (err) {
       console.log(err.message);
     } else {
+    }
+    callback(null, 'userSettingCreate');
+  });
+}
+function userOrderAddressCreate(orderParams, callback) {
+  const orderDetail = {
+    user: orderParams[0],
+    order_addresses: orderParams[1],
+  };
 
-    }callback(null, 'userSettingCreate');
+  const order = new UserOrderAddress(orderDetail);
+  order.save((err) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+    }
+    callback(null, 'userOrder');
   });
 }
 
@@ -567,6 +584,36 @@ function userSettingFaker(cb) {
     },
   ], cb);
 }
+function userOrderAddressFaker(cb) {
+  async.parallel([
+    function (callback) {
+      const numLoop = randomInt(1, 3);
+      const orderAddresses = [];
+      const defaultAt = randomInt(1, numLoop) - 1;
+      for (let i = 0; i < numLoop; i += 1) {
+        let defaultValue = 0;
+        if (defaultAt === i) {
+          defaultValue = 1;
+        }
+        orderAddresses.push({
+          address: faker.address.streetName(),
+          addresses_id: [
+            randomInt(10, 99),
+            randomInt(100, 999),
+            randomInt(1000, 9999),
+          ],
+          default: defaultValue,
+        });
+      }
+      const orderParams = [
+        users[randomInt(0, users.length - 1)],
+        orderAddresses
+      ];
+
+      userOrderAddressCreate(orderParams, callback);
+    },
+  ], cb);
+}
 
 function deleteAllUser(cb) {
   User.remove({}, (err) => {
@@ -678,6 +725,16 @@ function deleteAllUserSetting(cb) {
     cb(null, 'deleteAllUserSetting');
   });
 }
+function deleteAllOrderAddress(cb) {
+  UserOrderAddress.remove({}, (err) => {
+    if (err) {
+      console.log('can not delete order address');
+    } else {
+      console.log('delete all order address');
+    }
+    cb(null, 'deleteAllOrderAddress');
+  });
+}
 
 function deleteAllDocuments(cb) {
   async.series(
@@ -686,6 +743,7 @@ function deleteAllDocuments(cb) {
       deleteAllLike,
       deleteAllProduct,
       deleteAllUserSetting,
+      deleteAllOrderAddress,
       deleteAllUser,
       deleteAllCampaign,
       deleteAllBrand,
@@ -738,6 +796,9 @@ for (let i = 0; i < maxCountry; i += 1) {
 }
 for (let i = 0; i < maxUserSetting; i += 1) {
   arrCalls.push(userSettingFaker);
+}
+for (let i = 0; i < maxOrderAddress; i += 1) {
+  arrCalls.push(userOrderAddressFaker);
 }
 async.series(
   arrCalls,
