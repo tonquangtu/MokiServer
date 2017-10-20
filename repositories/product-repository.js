@@ -1,4 +1,4 @@
-const Product = require('../models/product');
+const { Product } = global;
 
 exports.getProductList = (categoryId, campaignId, lastId, count) => {
   const data = {};

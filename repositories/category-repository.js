@@ -1,4 +1,4 @@
-const Category = require('../models/category');
+const { Category } = global;
 
 const { mongoose } = global;
 

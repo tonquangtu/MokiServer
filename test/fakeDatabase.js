@@ -316,11 +316,7 @@ function userSettingCreate(userSettingParams, callback) {
 function userOrderAddressCreate(orderParams, callback) {
   const orderDetail = {
     user: orderParams[0],
-    order_address: {
-      address: orderParams[1],
-      addresses_id: orderParams[2],
-      default: orderParams[3],
-    },
+    order_addresses: orderParams[1],
   };
 
   const order = new UserOrderAddress(orderDetail);
@@ -591,15 +587,27 @@ function userSettingFaker(cb) {
 function userOrderAddressFaker(cb) {
   async.parallel([
     function (callback) {
+      const numLoop = randomInt(1, 3);
+      const orderAddresses = [];
+      const defaultAt = randomInt(1, numLoop) - 1;
+      for (let i = 0; i < numLoop; i += 1) {
+        let defaultValue = 0;
+        if (defaultAt === i) {
+          defaultValue = 1;
+        }
+        orderAddresses.push({
+          address: faker.address.streetName(),
+          addresses_id: [
+            randomInt(10, 99),
+            randomInt(100, 999),
+            randomInt(1000, 9999),
+          ],
+          default: defaultValue,
+        });
+      }
       const orderParams = [
         users[randomInt(0, users.length - 1)],
-        faker.address.streetName(),
-        [
-          randomInt(10, 99),
-          randomInt(100, 999),
-          randomInt(1000, 9999),
-        ],
-        faker.address.streetName(),
+        orderAddresses
       ];
 
       userOrderAddressCreate(orderParams, callback);
