@@ -1,3 +1,3 @@
-const Brand = require('../models/brand');
+const { Brand } = global;
 
 exports.getBrandById = brandId => Brand.findById(brandId).exec();

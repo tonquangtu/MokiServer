@@ -1,3 +1,3 @@
-const Size = require('../models/size');
+const { Size } = global;
 
 exports.getSizeById = sizeId => Size.findById(sizeId).exec();
