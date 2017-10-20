@@ -276,6 +276,10 @@ exports.addProduct = (req, res) => {
   }
 };
 
+exports.editProduct = (req, res) => {
+
+};
+
 function validValueProductsParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;
