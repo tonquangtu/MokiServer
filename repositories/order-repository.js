@@ -7,3 +7,8 @@ exports.findAndUpdateOrderAddress =
   (userId, userOrderAddressData, options) => UserOrderAddress.findOneAndUpdate(
     { user: userId }, userOrderAddressData, options
   ).exec();
+
+exports.addUserOrderAddress = (userOrderAddressData) => {
+  const order = new UserOrderAddress(userOrderAddressData);
+  return order.save();
+};
