@@ -23,19 +23,21 @@ exports.getProductList = (data, callback) => {
 
     return productRepo.getNewItemNum(index, categoryId);
   }).then((newItemNum) => {
-    getProductAttributes(products, userId, (productArr) => {
-      response = {
-        code: constants.response.ok.code,
-        message: constants.response.ok.message,
-        data: {
-          products: productArr,
-          newItems: newItemNum,
-          lastId: products.slice(-1)[0].id,
-        },
-      };
+    if (newItemNum) {
+      getProductAttributes(products, userId, (productArr) => {
+        response = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: {
+            products: productArr,
+            newItems: newItemNum,
+            lastId: products.slice(-1)[0].id,
+          },
+        };
 
-      return callback(response);
-    });
+        return callback(response);
+      });
+    }
   }).catch((err) => {
     logger.error('Error at function getProductList.\n', err);
     return callback(constants.response.systemError);
@@ -115,19 +117,21 @@ exports.addProductComment = (productId, comment, index, userId, callback) => {
 
     return productRepo.findAndUpdateProductCommentList(product.id, newProduct, { new: true });
   }).then((newProduct) => {
-    getNewCommentList(newProduct.comments, index, (data) => {
-      if (!data) {
-        return callback(constants.response.paramValueInvalid);
-      }
+    if (newProduct) {
+      getNewCommentList(newProduct.comments, index, (data) => {
+        if (!data) {
+          return callback(constants.response.paramValueInvalid);
+        }
 
-      const response = {
-        code: constants.response.ok.code,
-        message: constants.response.ok.message,
-        data,
-      };
+        const response = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data,
+        };
 
-      return callback(response);
-    });
+        return callback(response);
+      });
+    }
   }).catch((err) => {
     logger.error('Error at function addProductComment.\n', err);
     return callback(constants.response.systemError);
@@ -147,11 +151,14 @@ exports.deleteProduct = (productId, userId, callback) => {
     }
 
     return productRepo.deleteProduct(productId);
-  }).then(data => callback(constants.response.ok))
-    .catch((err) => {
-      logger.error('Error at function deleteProduct.\n', err);
-      return callback(constants.response.systemError);
-    });
+  }).then((data) => {
+    if (data) {
+      return callback(constants.response.ok);
+    }
+  }).catch((err) => {
+    logger.error('Error at function deleteProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.likeProduct = (productId, userId, callback) => {
@@ -166,32 +173,37 @@ exports.likeProduct = (productId, userId, callback) => {
 
     return likeRepo.getLikeUserProduct(userId, productId);
   }).then((like) => {
-    const likeData = {
-      user: userId,
-      product: productId,
-      is_liked: 1,
-    };
+    if (like) {
+      const likeData = {
+        user: userId,
+        product: productId,
+        is_liked: 1,
+      };
 
-    return likeRepo.findAndUpdateLike(like, likeData);
+      return likeRepo.findAndUpdateLike(like, likeData);
+    }
   }).then((data) => {
-    productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
+    if (data) {
+      productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
 
-    return productRepo.findAndUpdateProduct(productId, productData, { new: true });
+      return productRepo.findAndUpdateProduct(productId, productData, { new: true });
+    }
   }).then((product) => {
-    const responseData = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: {
-        like: product.like,
-      },
-    };
+    if (product) {
+      const responseData = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          like: product.like,
+        },
+      };
 
-    return callback(responseData);
-  })
-    .catch((err) => {
-      logger.error('Error at function likeProduct.\n', err);
-      return callback(constants.response.systemError);
-    });
+      return callback(responseData);
+    }
+  }).catch((err) => {
+    logger.error('Error at function likeProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.reportProduct = (productId, subject, details, userId, callback) => {
@@ -209,11 +221,14 @@ exports.reportProduct = (productId, subject, details, userId, callback) => {
     };
 
     return reportRepo.saveReport(reportData);
-  }).then(data => callback(constants.response.ok))
-    .catch((err) => {
-      logger.error('Error at function reportProduct.\n', err);
-      return callback(constants.response.systemError);
-    });
+  }).then((data) => {
+    if (data) {
+      return callback(constants.response.ok);
+    }
+  }).catch((err) => {
+    logger.error('Error at function reportProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.getMyLikeProductList = (index, count, userId, callback) => {
