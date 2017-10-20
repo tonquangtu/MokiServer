@@ -1,5 +1,4 @@
-const Size = require('../models/size');
-const Category = require('../models/category');
+const { Size } = global;
 
 const { mongoose } = global;
 
