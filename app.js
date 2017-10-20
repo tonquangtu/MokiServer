@@ -30,12 +30,14 @@ const users = require('./routes/users');
 const products = require('./routes/products');
 const campaigns = require('./routes/campaigns');
 const searches = require('./routes/searches');
+const orders = require('./routes/orders');
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/products', products);
 app.use('/campaigns', campaigns);
 app.use('/searches', searches);
+app.use('/orders', orders);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
