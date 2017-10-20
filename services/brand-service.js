@@ -7,7 +7,6 @@ exports.getBrandsByCategoryId = (categoryId, callback) => {
   const promise = categoryRepo.getBrandByCategoryId(categoryId);
 
   promise.then((value) => {
-    console.log(value);
     const brandsGetFromRepo = value.brands;
     const data = brandsGetFromRepo.map(brand => ({
       id: brand.id,

@@ -6,13 +6,13 @@ exports.getBrands = (req, res) => {
   const categoryId = req.body.id;
   if (!categoryId || categoryId === '') {
     brandService.getBrands((responseData) => {
-      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+      helpers.sendResponse(res, responseData);
     });
   } if (categoryId && categoryId.length < 24) {
-    helpers.sendResponse(res, constants.statusCode.notFound, constants.response.paramValueInvalid);
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else {
     brandService.getBrandsByCategoryId(categoryId, (responseData) => {
-      helpers.sendResponse(res, constants.statusCode.ok, responseData);
+      helpers.sendResponse(res, responseData);
     });
   }
 
