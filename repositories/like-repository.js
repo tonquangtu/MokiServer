@@ -1,4 +1,4 @@
-const Like = require('../models/like');
+const { Like } = global;
 
 exports.getLikeUserProduct = (userId, productId) => Like.findOne({
   user: userId,

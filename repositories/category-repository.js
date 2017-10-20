@@ -1,3 +1,3 @@
-const Category = require('../models/category');
+const { Category } = global;
 
 exports.getCategoryById = categoryId => Category.findById(categoryId).exec();

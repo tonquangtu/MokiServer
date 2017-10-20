@@ -11,6 +11,7 @@ const SearchHistory = require('../models/search-history');
 const Size = require('../models/size');
 const User = require('../models/user');
 const UserSetting = require('../models/user-setting');
+const UserOrderAddress = require('../models/user-order-address');
 
 exports.initGlobalModels = () => {
   global.Block = Block;
@@ -26,4 +27,5 @@ exports.initGlobalModels = () => {
   global.Size = Size;
   global.User = User;
   global.UserSetting = UserSetting;
+  global.UserOrderAddress = UserOrderAddress;
 };
