@@ -1,11 +1,8 @@
 const { Category } = global;
 
-const { mongoose } = global;
-
 exports.getCategoryById = categoryId => Category.findById(categoryId).exec();
 
-exports.getSizeArrayByCategoryId = (index) => {
-  const categoryId = new mongoose.Types.ObjectId(index);
+exports.getSizeArrayByCategoryId = (categoryId) => {
   return Category
     .findById(categoryId)
     .populate({ path: 'sizes', select: 'name' })
