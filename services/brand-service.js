@@ -1,7 +1,7 @@
 const brandRepo = require('../repositories/brand-repository');
 const categoryRepo = require('../repositories/category-repository');
 
-const { constants } = global;
+const { constants, logger } = global;
 
 exports.getBrandsByCategoryId = (categoryId, callback) => {
   const promise = categoryRepo.getBrandByCategoryId(categoryId);
@@ -20,7 +20,10 @@ exports.getBrandsByCategoryId = (categoryId, callback) => {
     };
 
     return callback(response);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getBrandsByCategoryId.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.getBrands = (callback) => {
@@ -38,6 +41,9 @@ exports.getBrands = (callback) => {
     };
 
     return callback(response);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getBrands.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 

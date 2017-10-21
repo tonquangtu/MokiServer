@@ -1,7 +1,7 @@
 const sizeRepo = require('../repositories/size-repository');
 const categoryRepo = require('../repositories/category-repository');
 
-const { constants } = global;
+const { constants, logger } = global;
 
 exports.getSizesByCategoryId = (categoryId, callback) => {
   const promise = categoryRepo.getSizeArrayByCategoryId(categoryId);
@@ -20,7 +20,10 @@ exports.getSizesByCategoryId = (categoryId, callback) => {
     };
 
     return callback(response);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getSizesByCategoryId.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.getSizes = (callback) => {
@@ -29,7 +32,7 @@ exports.getSizes = (callback) => {
   promise.then((value) => {
     const data = value.map(size => ({
       id: size.id,
-      sizeName: size.name
+      sizeName: size.name,
     }));
     const response = {
       code: constants.response.ok.code,
@@ -38,6 +41,9 @@ exports.getSizes = (callback) => {
     };
 
     return callback(response);
-  }).catch(err => callback(constants.response.systemError));
+  }).catch((err) => {
+    logger.error('Error at function getSizes.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
