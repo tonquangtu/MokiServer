@@ -30,6 +30,7 @@ const users = require('./routes/users');
 const products = require('./routes/products');
 const campaigns = require('./routes/campaigns');
 const sizes = require('./routes/sizes');
+const brands = require('./routes/brands');
 const searches = require('./routes/searches');
 const orders = require('./routes/orders');
 
@@ -38,6 +39,7 @@ app.use('/users', users);
 app.use('/products', products);
 app.use('/campaigns', campaigns);
 app.use('/sizes', sizes);
+app.use('/brands', brands);
 app.use('/searches', searches);
 app.use('/orders', orders);
 
