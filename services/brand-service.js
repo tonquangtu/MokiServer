@@ -7,8 +7,8 @@ exports.getBrandsByCategoryId = (categoryId, callback) => {
   const promise = categoryRepo.getBrandByCategoryId(categoryId);
 
   promise.then((value) => {
-    const brandsGetFromRepo = value.brands;
-    const data = brandsGetFromRepo.map(brand => ({
+    const { brands } = value;
+    const data = brands.map(brand => ({
       id: brand.id,
       brandName: brand.name,
     }));
@@ -29,8 +29,8 @@ exports.getBrandsByCategoryId = (categoryId, callback) => {
 exports.getBrands = (callback) => {
   const promise = brandRepo.getBrands();
 
-  promise.then((value) => {
-    const data = value.map(brand => ({
+  promise.then((brands) => {
+    const data = brands.map(brand => ({
       id: brand.id,
       brandName: brand.name,
     }));
