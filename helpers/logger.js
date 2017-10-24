@@ -57,4 +57,10 @@ function getCustomColors() {
   };
 }
 
+logger.stream = {
+  write(message, encoding) {
+    logger.info(message);
+  },
+};
+
 module.exports = logger;

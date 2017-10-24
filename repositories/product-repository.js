@@ -82,3 +82,6 @@ exports.addProduct = (productData) => {
   return product.save();
 };
 
+exports.getProductWithOptionSelect =
+  (productId, select) => Product.findById(productId).select(select).exec();
+

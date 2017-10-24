@@ -11,6 +11,9 @@ const SearchHistory = require('../models/search-history');
 const Size = require('../models/size');
 const User = require('../models/user');
 const UserSetting = require('../models/user-setting');
+const Conversation = require('../models/conversation');
+const Message = require('../models/message');
+
 
 exports.initGlobalModels = () => {
   global.Block = Block;
@@ -26,4 +29,6 @@ exports.initGlobalModels = () => {
   global.Size = Size;
   global.User = User;
   global.UserSetting = UserSetting;
+  global.Conversation = Conversation;
+  global.Message = Message;
 };

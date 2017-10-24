@@ -1,6 +1,11 @@
 const userRepo = require('../repositories/user-repository');
 
-const { constants, helpers, _, logger } = global;
+const {
+  constants,
+  helpers,
+  _,
+  logger,
+} = global;
 
 exports.getOtherUserDetail = (myId, otherUserId, callback) => {
   let response;

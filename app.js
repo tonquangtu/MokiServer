@@ -4,10 +4,16 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const dotEnv = require('dotenv');
 
+
 dotEnv.config();
 require('./globals/global-module').initGlobalModules();
 
-const { auth, helpers, express } = global;
+const {
+  auth,
+  helpers,
+  express,
+  logger,
+} = global;
 const app = express();
 
 helpers.connectDb();
@@ -24,18 +30,22 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('morgan')('dev', { stream: logger.stream }));
+// app.use(require('morgan')('combined', { stream: logger.stream }));
 
 const index = require('./routes/index');
 const users = require('./routes/users');
 const products = require('./routes/products');
 const campaigns = require('./routes/campaigns');
 const searches = require('./routes/searches');
+const conversations = require('./routes/conversations');
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/products', products);
 app.use('/campaigns', campaigns);
 app.use('/searches', searches);
+app.use('/conversations', conversations);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
