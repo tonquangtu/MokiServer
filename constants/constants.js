@@ -145,6 +145,21 @@ module.exports = {
       message: 'Not found items in system',
       data: null,
     },
+    conversationNotFound: {
+      code: 1020,
+      message: 'Not found conversation of user in system',
+      data: null,
+    },
+    noSendPermission: {
+      code: 1021,
+      message: 'You have not permission to send this message',
+      data: null,
+    },
+    sendError: {
+      code: 1022,
+      message: 'Have error while send message, please try again',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -176,6 +191,8 @@ module.exports = {
     size: 'sizes',
     user: 'users',
     userSetting: 'user_settings',
+    conversation: 'conversations',
+    message: 'messages',
   },
   search: {
     simple: 'simple',
@@ -191,4 +208,24 @@ module.exports = {
   },
   followedField: 'followed',
   followingField: 'following',
+  conversation: {
+    sender: {
+      partner: 1,
+      user: 2,
+    },
+    status: {
+      unread: 1,
+      read: 0,
+    },
+    partnerRole: {
+      user: 0,
+      seller: 1,
+      admin: 2,
+    },
+  },
+  role: {
+    user: 0,
+    admin: 1,
+  },
+
 };
