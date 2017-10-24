@@ -9,5 +9,7 @@ const CategoriesSchema = new Schema({
   has_child: { type: String, required: true, default: 0 },
   has_size: { type: String, required: true, default: 0 },
   created_at: { type: Date, required: true, default: Date.now },
+  sizes: [{ type: Schema.ObjectId, ref: 'sizes', required: true }],
+  brands: [{ type: Schema.ObjectId, ref: 'brands', required: true }],
 });
 module.exports = mongoose.model('categories', CategoriesSchema);

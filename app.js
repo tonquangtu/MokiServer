@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const dotEnv = require('dotenv');
 
-
 dotEnv.config();
 require('./globals/global-module').initGlobalModules();
 
@@ -37,15 +36,21 @@ const index = require('./routes/index');
 const users = require('./routes/users');
 const products = require('./routes/products');
 const campaigns = require('./routes/campaigns');
+const sizes = require('./routes/sizes');
+const brands = require('./routes/brands');
 const searches = require('./routes/searches');
 const conversations = require('./routes/conversations');
+const orders = require('./routes/orders');
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/products', products);
 app.use('/campaigns', campaigns);
+app.use('/sizes', sizes);
+app.use('/brands', brands);
 app.use('/searches', searches);
 app.use('/conversations', conversations);
+app.use('/orders', orders);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
