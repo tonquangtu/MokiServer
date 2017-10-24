@@ -49,7 +49,7 @@ exports.getConversation = (conversationId, fromIndex, limit) => {
 
 // paging for array embedded into object
 // to paging, we need created_at of last message before
-exports.getConversation2 = (conversationId, fromIndex, limit) => {
+exports.getConversationWithPaging = (conversationId, fromIndex, limit) => {
   Message
     .aggregate([
       { $match: { conversation: new mongoose.mongo.ObjectId(conversationId) } },
@@ -59,7 +59,6 @@ exports.getConversation2 = (conversationId, fromIndex, limit) => {
       { $limit: limit }, // get limit item
       { $skip: fromIndex }, // skip from
       { $group: { _id: '$conversation', contents: { $push: '$contents' } } }, // group into object contains
-
     ], (err, results) => {
       console.log(results);
       console.log(err);

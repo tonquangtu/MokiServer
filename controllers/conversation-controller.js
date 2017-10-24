@@ -7,30 +7,39 @@ exports.getConversations = (req, res) => {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const reqBody = req.body;
-    const validIndex = helpers.validNumber(reqBody.index);
-    const validCount = helpers.validNumber(reqBody.count);
-    const userId = req.user.id;
-    if (!helpers.isExist(validIndex) ||
-      validIndex < 0 ||
-      !helpers.isExist(validCount) ||
-      validCount < 1) {
-      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    if (!helpers.isExist(reqBody.index) || !helpers.isExist(reqBody.count)) {
+      helpers.sendResponse(res, constants.response.paramNotEnough);
     } else {
-      consService.getConversations(userId, validIndex, validCount, (response) => {
-        helpers.sendResponse(res, response);
-      });
+      const validIndex = helpers.validNumber(reqBody.index);
+      const validCount = helpers.validNumber(reqBody.count);
+      const userId = req.user.id;
+
+      if (!helpers.isExist(validIndex) ||
+        validIndex < 0 ||
+        !helpers.isExist(validCount) ||
+        validCount < 1) {
+        helpers.sendResponse(res, constants.response.paramValueInvalid);
+      } else {
+        consService.getConversations(userId, validIndex, validCount, (response) => {
+          helpers.sendResponse(res, response);
+        });
+      }
     }
   }
 };
 
 exports.getConversationDetail = (req, res) => {
-  if (!req.body) {
+  if (!req.body || !isEnoughtConsParam(req.body)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const validParam = validConsParam(req.body, req.user.id);
-    consService.getConversationDetail(validParam, (response) => {
-      helpers.sendResponse(res, response);
-    });
+    if (!validParam) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      consService.getConversationDetail(validParam, (response) => {
+        helpers.sendResponse(res, response);
+      });
+    }
   }
 };
 
@@ -67,4 +76,23 @@ function validConsParam(consParam, userId) {
     fromIndex: validIndex,
     limit: validCount,
   };
+}
+
+function isEnoughtConsParam(consParam) {
+  const {
+    partnerId,
+    productId,
+    conversationId,
+    index,
+    count,
+  } = consParam;
+
+  if (!helpers.isExist(partnerId)
+    || !helpers.isExist(productId)
+    || !helpers.isExist(conversationId)
+    || !helpers.isExist(index)
+    || !helpers.isExist(count)) {
+    return false;
+  }
+  return true;
 }

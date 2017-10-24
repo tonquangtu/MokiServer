@@ -36,7 +36,6 @@ exports.getConversationDetail = (conversationInfo, callback) => {
   conversationRepo
     .getConversation(conversationId, fromIndex, limit)
     .then((consRaw) => {
-      console.log(consRaw);
       const response = getConsDetailResponse(userId1, userId2, productId, consRaw);
       return callback(response);
     })
