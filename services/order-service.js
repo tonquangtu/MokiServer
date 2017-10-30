@@ -34,9 +34,11 @@ exports.deleteOrderAddress = (orderAddressId, userId, callback) => {
 
     return orderRepo.findAndUpdateOrderAddress(userId, userOrderAddressData, { new: true });
   }).then((newOrder) => {
-    const responseData = getResponseData(newOrder);
+    if (newOrder) {
+      const responseData = getResponseData(newOrder);
 
-    return callback(responseData);
+      return callback(responseData);
+    }
   }).catch((err) => {
     logger.error('Error at function deleteOrderAddress.\n', err);
     return callback(constants.response.systemError);
@@ -78,6 +80,51 @@ exports.addOrderAddress = (address, addressId, isDefault, userId, callback) => {
     return callback(responseData);
   }).catch((err) => {
     logger.error('Error at function addOrderAddress.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.editOrderAddress = (address, addressId, isDefault, orderAddressId, userId, callback) => {
+  const orderPromise = orderRepo.getOrderAddressList(userId);
+  orderPromise.then((order) => {
+    if (!order) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    const orderAddresses = order.order_addresses;
+
+    const index = _.findIndex(orderAddresses, { id: orderAddressId });
+
+    if (index === -1) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    const orderAddress = orderAddresses[index];
+
+    const newAddress = (address === null) ? orderAddress.address : address;
+    const newAddressesId = (addressId === null) ? orderAddress.addresses_id : addressId;
+    const newDefault = (isDefault === null) ? orderAddress.default : isDefault;
+
+    orderAddresses.splice(index, 1, {
+      address: newAddress,
+      addresses_id: newAddressesId,
+      default: newDefault,
+    });
+
+    const userOrderAddressData = {
+      user: userId,
+      order_addresses: orderAddresses,
+    };
+
+    return orderRepo.findAndUpdateOrderAddress(userId, userOrderAddressData, { new: true });
+  }).then((newOrder) => {
+    if (newOrder) {
+      const responseData = getResponseData(newOrder);
+
+      return callback(responseData);
+    }
+  }).catch((err) => {
+    logger.error('Error at function editOrderAddress.\n', err);
     return callback(constants.response.systemError);
   });
 };
