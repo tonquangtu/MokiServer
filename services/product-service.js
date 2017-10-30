@@ -11,33 +11,35 @@ exports.getProductList = (data, callback) => {
   } = data;
 
   let response = {};
-  let products = [];
+  let products = null;
 
   const promise = productRepo.getProductList(categoryId, campaignId, lastId, count);
   promise.then((productList) => {
     products = productList;
 
     if (!products || products.length === 0) {
-      return callback(constants.response.noDataOrEndListData);
+      return null;
     }
 
     return productRepo.getNewItemNum(index, categoryId);
   }).then((newItemNum) => {
-    if (newItemNum) {
-      getProductAttributes(products, userId, (productArr) => {
-        response = {
-          code: constants.response.ok.code,
-          message: constants.response.ok.message,
-          data: {
-            products: productArr,
-            newItems: newItemNum,
-            lastId: products.slice(-1)[0].id,
-          },
-        };
-
-        return callback(response);
-      });
+    if (!products || products.length === 0) {
+      return callback(constants.response.noDataOrEndListData);
     }
+
+    getProductAttributes(products, userId, (productArr) => {
+      response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          products: productArr,
+          newItems: newItemNum,
+          lastId: products.slice(-1)[0].id,
+        },
+      };
+
+      return callback(response);
+    });
   }).catch((err) => {
     logger.error('Error at function getProductList.\n', err);
     return callback(constants.response.systemError);
@@ -101,9 +103,11 @@ exports.getProductCommentList = (productId, userId, callback) => {
 
 exports.addProductComment = (productId, comment, index, userId, callback) => {
   const promise = productRepo.getProductCommentList(productId);
-  promise.then((product) => {
+  let product = null;
+  promise.then((productData) => {
+    product = productData;
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
 
     const newProduct = product;
@@ -117,21 +121,23 @@ exports.addProductComment = (productId, comment, index, userId, callback) => {
 
     return productRepo.findAndUpdateProductCommentList(product.id, newProduct, { new: true });
   }).then((newProduct) => {
-    if (newProduct) {
-      getNewCommentList(newProduct.comments, index, (data) => {
-        if (!data) {
-          return callback(constants.response.paramValueInvalid);
-        }
-
-        const response = {
-          code: constants.response.ok.code,
-          message: constants.response.ok.message,
-          data,
-        };
-
-        return callback(response);
-      });
+    if (!product) {
+      return callback(constants.response.productNotExist);
     }
+
+    getNewCommentList(newProduct.comments, index, (data) => {
+      if (!data) {
+        return callback(constants.response.paramValueInvalid);
+      }
+
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data,
+      };
+
+      return callback(response);
+    });
   }).catch((err) => {
     logger.error('Error at function addProductComment.\n', err);
     return callback(constants.response.systemError);
@@ -140,21 +146,32 @@ exports.addProductComment = (productId, comment, index, userId, callback) => {
 
 exports.deleteProduct = (productId, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
-  promiseProduct.then((product) => {
+  let product = null;
+  let isSeller = false;
+  promiseProduct.then((productData) => {
+    product = productData;
+
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
 
     const { seller } = product;
     if (seller.id !== userId) {
+      return null;
+    }
+
+    isSeller = true;
+    return productRepo.deleteProduct(productId);
+  }).then((data) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+
+    if (!isSeller) {
       return callback(constants.response.notAccess);
     }
 
-    return productRepo.deleteProduct(productId);
-  }).then((data) => {
-    if (data) {
-      return callback(constants.response.ok);
-    }
+    return callback(constants.response.ok);
   }).catch((err) => {
     logger.error('Error at function deleteProduct.\n', err);
     return callback(constants.response.systemError);
@@ -163,43 +180,49 @@ exports.deleteProduct = (productId, userId, callback) => {
 
 exports.likeProduct = (productId, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
-  let productData;
+  let product;
 
-  promiseProduct.then((product) => {
+  promiseProduct.then((productData) => {
+    product = productData;
+
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
-    productData = product;
 
     return likeRepo.getLikeUserProduct(userId, productId);
   }).then((like) => {
-    if (like) {
-      const likeData = {
-        user: userId,
-        product: productId,
-        is_liked: 1,
-      };
-
-      return likeRepo.findAndUpdateLike(like, likeData);
+    if (!product) {
+      return null;
     }
+
+    const likeData = {
+      user: userId,
+      product: productId,
+      is_liked: 1,
+    };
+
+    return likeRepo.findAndUpdateLike(like, likeData);
   }).then((data) => {
-    if (data) {
-      productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
-
-      return productRepo.findAndUpdateProduct(productId, productData, { new: true });
+    if (!product) {
+      return null;
     }
-  }).then((product) => {
-    if (product) {
-      const responseData = {
-        code: constants.response.ok.code,
-        message: constants.response.ok.message,
-        data: {
-          like: product.like,
-        },
-      };
 
-      return callback(responseData);
+    product.like = (data.is_liked === 1) ? (product.like + 1) : (product.like - 1);
+
+    return productRepo.findAndUpdateProduct(productId, product, { new: true });
+  }).then((productData) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
     }
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        like: productData.like,
+      },
+    };
+
+    return callback(responseData);
   }).catch((err) => {
     logger.error('Error at function likeProduct.\n', err);
     return callback(constants.response.systemError);
@@ -208,9 +231,13 @@ exports.likeProduct = (productId, userId, callback) => {
 
 exports.reportProduct = (productId, subject, details, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
-  promiseProduct.then((product) => {
+  let product = null;
+
+  promiseProduct.then((productData) => {
+    product = productData;
+
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
 
     const reportData = {
@@ -222,9 +249,11 @@ exports.reportProduct = (productId, subject, details, userId, callback) => {
 
     return reportRepo.saveReport(reportData);
   }).then((data) => {
-    if (data) {
-      return callback(constants.response.ok);
+    if (!product) {
+      return callback(constants.response.productNotExist);
     }
+
+    return callback(constants.response.ok);
   }).catch((err) => {
     logger.error('Error at function reportProduct.\n', err);
     return callback(constants.response.systemError);
