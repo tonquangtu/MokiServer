@@ -21,10 +21,12 @@
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "mongoose": "^4.11.12",
+    "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.0",
     "passport-local": "^1.0.0",
     "serve-favicon": "~2.4.2",
+    "socket.io": "^2.0.3",
     "winston": "^2.4.0"
   },
   "devDependencies": {

@@ -3,10 +3,11 @@ const faker = require('faker');
 const dotEnv = require('dotenv');
 // const config = require('../config/configurations');
 const globalModule = require('../globals/global-module');
+// const constants = require('../constants/constants');
 
 dotEnv.config();
 globalModule.initGlobalModules();
-const { mongoose, helpers } = global;
+const { mongoose, helpers, constants } = global;
 
 const dbUrl = process.env.DB_URL;
 const conn = mongoose.connect(dbUrl);
@@ -26,6 +27,8 @@ const Report = require('../models/report');
 const Size = require('../models/size');
 const UserOrderAddress = require('../models/user-order-address');
 const UserSetting = require('../models/user-setting');
+const Conversation = require('../models/conversation');
+const Message = require('../models/message');
 
 
 const users = [];
@@ -38,6 +41,9 @@ const categories = [];
 const countries = [];
 const reports = [];
 const sizes = [];
+const conversations = [];
+const messages = [];
+
 const maxUser = 100;
 const maxProduct = 10000;
 const maxLike = 1000;
@@ -50,6 +56,11 @@ const maxSize = 10;
 const maxCountry = 60;
 const maxUserSetting = 20;
 const maxOrderAddress = 30;
+const maxConversation = 3;
+const maxMessage = 3;
+
+let countCons = 0;
+let countMsg = 0;
 
 deleteAllDocuments(() => {
   console.log('done');
@@ -95,6 +106,7 @@ function userCreate(userParams, callback) {
       console.log(`User create error ${err.message}`);
     } else {
       users.push(user);
+      console.log(user.id);
       callback(null, 'userCreate');
     }
   });
@@ -328,6 +340,10 @@ function userOrderAddressCreate(orderParams, callback) {
     callback(null, 'userOrder');
   });
 }
+
+
+
+
 
 function usersFaker(cb) {
   console.log('vao user');
@@ -615,6 +631,111 @@ function userOrderAddressFaker(cb) {
   ], cb);
 }
 
+function conversationCreate(consParams, callback) {
+  const consDetail = {
+    user: consParams[0],
+    partner: consParams[1],
+    product: consParams[2],
+    partner_role: consParams[3],
+    last_message: {
+      message: consParams[4],
+      unread: consParams[5],
+      created_at: consParams[6],
+    },
+    num_unread_message: consParams[7],
+    deleted_at: null,
+  };
+  const cons = new Conversation(consDetail);
+  cons.save((err, conversation) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      conversations.push(conversation);
+      callback(null, 'conversationCreate');
+    }
+  });
+}
+
+function conversationFaker(cb) {
+  console.log('conversation faker');
+  async.parallel([
+    function (callback) {
+      const now = new Date();
+      const fakeMsg = faker.lorem.words();
+      const numUnread = 1;
+
+      const consParams = [
+        users[10],
+        products[countCons].seller,
+        products[countCons],
+        constants.conversation.partnerRole.seller,
+        fakeMsg,
+        constants.conversation.status.unread,
+        now,
+        numUnread,
+        now,
+      ];
+
+      conversationCreate(consParams, callback);
+      countCons += 1;
+    },
+  ], cb);
+}
+
+function messageCreate(msgParams, callback) {
+  const { conversation, contents } = msgParams;
+  const msgList = contents.map((item) => {
+    return {
+      message: item.message,
+      sender_type: item.senderType,
+      unread: item.unread,
+      deleted_at: null,
+    };
+  });
+
+  const msgDetail = {
+    conversation,
+    contents: msgList,
+  };
+
+  const msg = new Message(msgDetail);
+  msg.save((err, addedMsg) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      messages.push(addedMsg);
+      callback(null, 'messageCreate');
+    }
+  });
+}
+
+function messageFaker(cb) {
+  console.log('message faker');
+  async.parallel([
+
+    function (callback) {
+      const now = new Date();
+      const contents = [];
+      for (let i = 0; i < 10; i++) {
+        contents.push({
+          message: faker.lorem.words(),
+          senderType: constants.conversation.sender.user,
+          unread: constants.conversation.status.read,
+          createdAt: now,
+        });
+      }
+
+      const msgParams = {
+        conversation: conversations[countMsg],
+        contents,
+      };
+
+      countMsg += 1;
+      messageCreate(msgParams, callback);
+    },
+  ], cb);
+}
+
 function deleteAllUser(cb) {
   User.remove({}, (err) => {
     if (err) {
@@ -736,6 +857,28 @@ function deleteAllOrderAddress(cb) {
   });
 }
 
+function deleteAllCons(cb) {
+  Conversation.remove({}, (err) => {
+    if (err) {
+      console.log('can not delete conversation');
+    } else {
+      console.log('delete all conversation');
+    }
+    cb(null, 'deleteAllCons');
+  });
+}
+
+function deleteAllMsg(cb) {
+  Message.remove({}, (err) => {
+    if (err) {
+      console.log('can not delete messages');
+    } else {
+      console.log('delete all messages');
+    }
+    cb(null, 'deleteAllMsg');
+  });
+}
+
 function deleteAllDocuments(cb) {
   async.series(
     [
@@ -751,6 +894,8 @@ function deleteAllDocuments(cb) {
       deleteAllReport,
       deleteAllSize,
       deleteAllCountry,
+      deleteAllCons,
+      deleteAllMsg,
     ],
     (err, result) => {
       if (err) {
@@ -800,6 +945,15 @@ for (let i = 0; i < maxUserSetting; i += 1) {
 for (let i = 0; i < maxOrderAddress; i += 1) {
   arrCalls.push(userOrderAddressFaker);
 }
+
+for (let i = 0; i < maxConversation; i++) {
+  arrCalls.push(conversationFaker);
+}
+
+for (let i = 0; i < maxMessage; i++) {
+  arrCalls.push(messageFaker);
+}
+
 async.series(
   arrCalls,
 

@@ -33,3 +33,6 @@ exports.getUserFollows = (userId, index, count, type) => {
     }).select(typeFollow)
     .exec();
 };
+
+exports.getUserWithOptionSelect =
+  (userId, select) => User.findById(userId).select(select).exec();
