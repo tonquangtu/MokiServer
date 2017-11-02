@@ -3,9 +3,7 @@ const loginService = require('../services/login-service');
 const { constants, helpers } = global;
 
 exports.login = (req, res) => {
-  console.log(req.body);
   const reqData = validateLoginData(req.body);
-  console.log(reqData);
   if (reqData) {
     const { phoneNumber, password } = reqData;
     loginService.login(phoneNumber, password, (loginSuccess, response) => {
