@@ -8,4 +8,6 @@ router.post('/', auth.jwtAuthenticate(), consController.getConversations);
 
 router.post('/detail', auth.jwtAuthenticate(), consController.getConversationDetail);
 
+router.post('/set', auth.jwtAuthenticate(), consController.setConversation);
+
 module.exports = router;
