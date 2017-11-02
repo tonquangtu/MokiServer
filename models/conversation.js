@@ -12,14 +12,13 @@ const ConversationsSchema = Schema({
     enum: [0, 1, 2],
   },
   last_message: {
-    message: { type: String, required: true },
+    message: { type: String },
     unread: {
       type: Number,
-      required: true,
       default: 1,
       enum: [0, 1],
     },
-    created_at: { type: Date, required: true, default: Date.now },
+    created_at: { type: Date },
   },
   num_unread_message: {
     type: Number,

@@ -29,7 +29,7 @@ exports.getConversations = (req, res) => {
 };
 
 exports.getConversationDetail = (req, res) => {
-  if (!req.body || !isEnoughtConsParam(req.body)) {
+  if (!req.body || !isEnoughConsParam(req.body)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const validParam = validConsParam(req.body, req.user.id);
@@ -37,6 +37,21 @@ exports.getConversationDetail = (req, res) => {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       consService.getConversationDetail(validParam, (response) => {
+        helpers.sendResponse(res, response);
+      });
+    }
+  }
+};
+
+exports.setConversation = (req, res) => {
+  if (!req.body || !isEnoughSetConsParam(req.body)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const validParam = validSetConsParam(req.body, req.user.id, req.user.role);
+    if (!validParam) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      consService.setConversation(validParam, (response) => {
         helpers.sendResponse(res, response);
       });
     }
@@ -78,7 +93,32 @@ function validConsParam(consParam, userId) {
   };
 }
 
-function isEnoughtConsParam(consParam) {
+
+function validSetConsParam(setConsParam, senderId, senderRole) {
+  const {
+    toId,
+    productId,
+    message,
+  } = setConsParam;
+
+  const isValidToId = helpers.isValidId(toId);
+  const isValidProductId = helpers.isValidId(productId);
+  const validMessage = helpers.validString(message);
+
+  if (!isValidToId || !isValidProductId || !validMessage) {
+    return null;
+  }
+
+  return {
+    senderId,
+    senderRole,
+    productId,
+    receiverId: toId,
+    message: validMessage,
+  };
+}
+
+function isEnoughConsParam(consParam) {
   const {
     partnerId,
     productId,
@@ -87,12 +127,21 @@ function isEnoughtConsParam(consParam) {
     count,
   } = consParam;
 
-  if (!helpers.isExist(partnerId)
-    || !helpers.isExist(productId)
-    || !helpers.isExist(conversationId)
-    || !helpers.isExist(index)
-    || !helpers.isExist(count)) {
-    return false;
-  }
-  return true;
+  return (helpers.isExist(partnerId)
+    && helpers.isExist(productId)
+    && helpers.isExist(conversationId)
+    && helpers.isExist(index)
+    && helpers.isExist(count));
+}
+
+function isEnoughSetConsParam(setConsParam) {
+  const {
+    toId,
+    productId,
+    message,
+  } = setConsParam;
+
+  return (helpers.isExist(toId)
+    && helpers.isExist(productId)
+    && helpers.isExist(message));
 }

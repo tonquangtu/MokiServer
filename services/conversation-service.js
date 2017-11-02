@@ -57,6 +57,8 @@ exports.setConversation = (consContent, callback) => {
   let joiner = null;
   let receiver = null;
   let isExistCons = false;
+  let conversation = null;
+  let now = null;
 
   userRepo
     .getUserWithOptionSelect(receiverId, userFieldsSelect)
@@ -79,7 +81,7 @@ exports.setConversation = (consContent, callback) => {
       }
 
       if (!joiner) {
-        return Promise.reject(new Error(null, constants.response.noSendPermission.code));
+        return Promise.reject(constants.response.noSendPermission.code);
       }
 
       return conversationRepo.findConversation(joiner.userId, joiner.partnerId, productId);
@@ -93,10 +95,10 @@ exports.setConversation = (consContent, callback) => {
       isExistCons = false;
       const consInfo = {
         productId,
-        message,
         userId: joiner.userId,
         partnerId: joiner.partnerId,
         partnerRole: joiner.partnerRole,
+        now,
       };
 
       return conversationRepo.addConversation(consInfo);
@@ -106,8 +108,11 @@ exports.setConversation = (consContent, callback) => {
         return null;
       }
 
+      conversation = consRaw;
+      now = new Date();
       const msgContent = {
         message,
+        now,
         conversationId: consRaw.id,
         senderType: joiner.senderType,
       };
@@ -119,8 +124,24 @@ exports.setConversation = (consContent, callback) => {
     })
     .then((newAddedMsg) => {
       if (!newAddedMsg) {
-        return Promise.reject(new Error(null, constants.response.sendError.code));
+        return Promise.reject(constants.response.sendError.code);
       }
+
+      // update last message
+      conversation.last_message = {
+        message,
+        unread: constants.conversation.status.unread,
+        created_at: now,
+      };
+      conversation.num_unread_message += 1;
+
+      return conversationRepo.saveConversation(conversation);
+    })
+    .then((savedCons) => {
+      if (!savedCons) {
+        return Promise.reject(constants.response.sendError.code);
+      }
+
       const response = {
         code: constants.response.ok.code,
         message: constants.response.ok.message,
@@ -289,7 +310,7 @@ function checkSendPermissionWithAdmin(senderId, senderRole, receiver) {
 
 function checkSendPermissionWithSeller(senderId, receiver, product) {
   let joiner = null;
-  const sellerId = product.seller.str;
+  const sellerId = product.seller.toString();
 
   if (receiver.id === sellerId) {
     joiner = {
@@ -311,14 +332,11 @@ function checkSendPermissionWithSeller(senderId, receiver, product) {
 }
 
 function handleSendError(err, callback) {
-  if (err.id) {
-    logger.info('Function setConversation in conversation-service\n', err);
-    const code = err.id;
-    if (code === constants.response.noSendPermission.code) {
-      return callback(constants.response.noSendPermission);
-    } else if (code === constants.response.sendError.code) {
-      return callback(constants.response.sendError);
-    }
+  if (err === constants.response.noSendPermission.code) {
+    return callback(constants.response.noSendPermission);
+  }
+  if (err === constants.response.sendError.code) {
+    return callback(constants.response.sendError);
   }
   logger.error('Error at setConversation in conversation-service\n', err);
   return callback(constants.response.systemError);

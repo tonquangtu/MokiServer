@@ -92,17 +92,25 @@ exports.addConversation = (consInfo) => {
   }
 
   const { unread } = constants.conversation.status;
+  let lastMessage = null;
+  let numUnreadMessage = 0;
+
+  if (message) {
+    lastMessage = {
+      message,
+      unread,
+      created_at: now,
+    };
+    numUnreadMessage = 1;
+  }
+
   const conversation = new Conversation({
     user: userId,
     partner: partnerId,
     product: productId,
     partner_role: partnerRole,
-    last_message: {
-      message,
-      unread,
-      created_at: now,
-    },
-    num_unread_message: 1,
+    last_message: lastMessage,
+    num_unread_message: numUnreadMessage,
     created_at: now,
   });
 

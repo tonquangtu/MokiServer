@@ -34,7 +34,7 @@ exports.validString = (aString) => {
   if (!aString) {
     return null;
   }
-  const trimString = aString.trim();
+  const trimString = aString.toString().trim();
   return trimString.length > 0 ? trimString : null;
 };
 
