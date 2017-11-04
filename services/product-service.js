@@ -91,7 +91,7 @@ exports.getProductCommentList = (productId, userId, callback) => {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: commentResponse,
-      isBlocked,
+      isBlocked: isBlocked ? 1 : 0,
     };
 
     return callback(response);
@@ -156,7 +156,7 @@ exports.deleteProduct = (productId, userId, callback) => {
     }
 
     const { seller } = product;
-    if (seller.id !== userId) {
+    if (!seller || seller.id !== userId) {
       return null;
     }
 
@@ -201,7 +201,7 @@ exports.likeProduct = (productId, userId, callback) => {
       is_liked: 1,
     };
 
-    return likeRepo.findAndUpdateLike(like, likeData);
+    return likeRepo.findAndUpdateLike(like, likeData, { new: true });
   }).then((data) => {
     if (!product) {
       return null;
@@ -403,9 +403,9 @@ function getProductAttributes(products, userId, callback) {
           created: product.created_at,
           like: product.like,
           comment: product.comment,
-          isLiked: isUserLiked,
-          isBlocked: isUserBlocked,
-          canEdit,
+          isLiked: isUserLiked ? 1 : 0,
+          isBlocked: isUserBlocked ? 1 : 0,
+          canEdit: canEdit ? 1 : 0,
           banned: product.banned,
           seller: {
             id: seller.id,
@@ -416,9 +416,7 @@ function getProductAttributes(products, userId, callback) {
 
         if (product.media.type === constants.product.media.type.image) {
           product.media.urls.forEach((item) => {
-            oneProduct.image.push({
-              url: item,
-            });
+            oneProduct.image.push(item);
           });
         } else {
           product.media.urls.forEach((item) => {
@@ -492,7 +490,7 @@ function getResponseForProductDetail(product, userId, callback) {
         created: product.created_at,
         like: product.like,
         comment: product.comment,
-        isLiked: isUserLiked,
+        isLiked: isUserLiked ? 1 : 0,
         image: [],
         video: [],
         size: getProductItemList(product.sizes),
@@ -505,8 +503,8 @@ function getResponseForProductDetail(product, userId, callback) {
           listing: listingProduct,
         },
         category: getProductItemList(product.categories, 'category'),
-        isBlocked: isUserBlocked,
-        canEdit,
+        isBlocked: isUserBlocked ? 1 : 0,
+        canEdit: canEdit ? 1 : 0,
         banned: product.banned,
         url: product.url,
         weight: product.weight,

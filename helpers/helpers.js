@@ -28,7 +28,7 @@ exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genS
 exports.validPassword =
   (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
 
-exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
+exports.isValidId = id => id && id.toString().match(/^[0-9a-fA-F]{24}$/);
 
 exports.validString = (aString) => {
   if (!aString) {
