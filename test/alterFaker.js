@@ -13,11 +13,11 @@ mongoose.connection.on('open', () => {
 });
 const { helpers } = global;
 
-const User = require('../models/user');
-const Product = require('../models/product');
-const Size = require('../models/size');
-const Category = require('../models/category');
-const Brand = require('../models/brand');
+const User = require('../models/persistence-models/user');
+const Product = require('../models/persistence-models/product');
+const Size = require('../models/persistence-models/size');
+const Category = require('../models/persistence-models/category');
+const Brand = require('../models/persistence-models/brand');
 
 const promiseUser = User.find({}).exec();
 

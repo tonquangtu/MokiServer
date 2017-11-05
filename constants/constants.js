@@ -160,6 +160,11 @@ module.exports = {
       message: 'Have error while send message, please try again',
       data: null,
     },
+    sendTokenInvalid: {
+      code: 1023,
+      message: 'Send token invalid',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -223,9 +228,17 @@ module.exports = {
       admin: 2,
     },
   },
+  socketEvent: {
+    connection: 'connection',
+    disconnection: 'disconnection',
+    message: 'message',
+    joinRoomRequest: 'join_room_request',
+    joinRoomResponse: 'join_room_response',
+    updateMsgStatus: 'update_message_status',
+  },
   role: {
     user: 0,
     admin: 1,
   },
-
+  tokenExpired: 1,
 };

@@ -1,4 +1,10 @@
-const { Conversation, Message, constants, mongoose } = global;
+const {
+  Conversation,
+  Message,
+  constants,
+  mongoose,
+  logger,
+} = global;
 
 exports.getConversations = (userId, fromIndex, limit) =>
   Conversation
@@ -60,8 +66,11 @@ exports.getConversationWithPaging = (conversationId, fromIndex, limit) => {
       { $skip: fromIndex }, // skip from
       { $group: { _id: '$conversation', contents: { $push: '$contents' } } }, // group into object contains
     ], (err, results) => {
-      console.log(results);
-      console.log(err);
+      if (err) {
+        logger.error('Error at getConversationWithPaging in conversation-repository\n', err);
+      } else {
+        logger.info(results);
+      }
     });
 };
 
@@ -168,4 +177,10 @@ exports.addMessage = (msgContent) => {
 
   return Message
     .update({ conversation: conversationId }, { $push: { contents: msgItem } });
+};
+
+exports.updateMessageStatus = (consId, msgId, status) => {
+  const where = { conversation_id: consId, 'contents._id': msgId };
+  const set = { $set: { 'contents.$.unread': status } };
+  return Message.update(where, set);
 };

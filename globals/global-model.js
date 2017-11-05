@@ -1,19 +1,19 @@
-const Block = require('../models/block');
-const Brand = require('../models/brand');
-const Campaign = require('../models/campaign');
-const Category = require('../models/category');
-const Country = require('../models/country');
-const Like = require('../models/like');
-const Notification = require('../models/notificartion');
-const Product = require('../models/product');
-const Report = require('../models/report');
-const SearchHistory = require('../models/search-history');
-const Size = require('../models/size');
-const User = require('../models/user');
-const UserSetting = require('../models/user-setting');
-const Conversation = require('../models/conversation');
-const Message = require('../models/message');
-const UserOrderAddress = require('../models/user-order-address');
+const Block = require('../models/persistence-models/block');
+const Brand = require('../models/persistence-models/brand');
+const Campaign = require('../models/persistence-models/campaign');
+const Category = require('../models/persistence-models/category');
+const Country = require('../models/persistence-models/country');
+const Like = require('../models/persistence-models/like');
+const Notification = require('../models/persistence-models/notificartion');
+const Product = require('../models/persistence-models/product');
+const Report = require('../models/persistence-models/report');
+const SearchHistory = require('../models/persistence-models/search-history');
+const Size = require('../models/persistence-models/size');
+const User = require('../models/persistence-models/user');
+const UserSetting = require('../models/persistence-models/user-setting');
+const Conversation = require('../models/persistence-models/conversation');
+const Message = require('../models/persistence-models/message');
+const UserOrderAddress = require('../models/persistence-models/user-order-address');
 
 exports.initGlobalModels = () => {
   global.Block = Block;

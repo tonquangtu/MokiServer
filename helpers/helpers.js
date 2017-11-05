@@ -72,3 +72,9 @@ exports.validInteger = (aNumber) => {
 
   return number;
 };
+
+exports.getExpiredDate = (long) => {
+  const expiredDate = new Date();
+  expiredDate.setDate(expiredDate.getDate() + long);
+  return expiredDate;
+};

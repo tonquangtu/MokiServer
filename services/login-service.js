@@ -24,6 +24,7 @@ exports.login = (phoneNumber, password, callback) => {
         phoneNumber: user.phone_number,
         role: user.role,
         url: user.url,
+        avatar: user.avatar,
       },
     };
     const token = helpers.encodeToken(payload);
