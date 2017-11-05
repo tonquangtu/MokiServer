@@ -4,6 +4,7 @@ const jwtConfig = require('../config/jwt-config');
 const dotEnv = require('dotenv');
 const bcrypt = require('bcrypt-nodejs');
 const constants = require('../constants/constants');
+const moment = require('moment');
 
 dotEnv.config();
 
@@ -77,4 +78,21 @@ exports.getExpiredDate = (long) => {
   const expiredDate = new Date();
   expiredDate.setDate(expiredDate.getDate() + long);
   return expiredDate;
+};
+
+exports.isValidExpiredDate = (expiredDateString) => {
+  if (!this.isExist(expiredDateString)) {
+    return false;
+  }
+
+  const expiredDate = new Date(expiredDateString);
+  const now = moment(new Date());
+  const expired = moment(expiredDate);
+
+  const diff = now.diff(expired);
+  if (Number.isNaN(diff)) {
+    return false;
+  }
+
+  return diff < 0;
 };

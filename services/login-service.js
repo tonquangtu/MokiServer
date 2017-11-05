@@ -16,6 +16,7 @@ exports.login = (phoneNumber, password, callback) => {
       response = constants.response.wrongPassword;
       return null;
     }
+    const expiredDate = helpers.getExpiredDate(2);
     const payload = {
       isLogin: true,
       user: {
@@ -26,6 +27,7 @@ exports.login = (phoneNumber, password, callback) => {
         url: user.url,
         avatar: user.avatar,
       },
+      expiredAt: expiredDate,
     };
     const token = helpers.encodeToken(payload);
     return userRepo.findAndUpdateUser(user.id, { token }, { new: true });
