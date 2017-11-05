@@ -14,12 +14,10 @@ exports.addPushSetting = (pushSettingData) => {
   return pushSetting.save();
 };
 
-exports.findAndUpdateUserSetting =
-  (userId, userSettingData, options) => UserSetting.findOneAndUpdate(
-    { user: userId },
-    userSettingData,
-    options
-  ).exec();
+exports.findAndUpdateUserSetting = (userId, userSettingData, options) =>
+  UserSetting
+    .findOneAndUpdate({ user: userId }, userSettingData, options)
+    .exec();
 
 exports.getUserFollows = (userId, index, count, type) => {
   const typeFollow = (type === constants.followedField) ? 'follows_from' : 'follows_to';

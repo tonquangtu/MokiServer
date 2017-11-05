@@ -15,20 +15,20 @@ mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection 
 mongoose.connection.on('open', () => {
 });
 
-const User = require('../models/user');
-const Product = require('../models/product');
-const Like = require('../models/like');
-const Block = require('../models/block');
-const Campaign = require('../models/campaign');
-const Brand = require('../models/brand');
-const Category = require('../models/category');
-const Country = require('../models/country');
-const Report = require('../models/report');
-const Size = require('../models/size');
-const UserOrderAddress = require('../models/user-order-address');
-const UserSetting = require('../models/user-setting');
-const Conversation = require('../models/conversation');
-const Message = require('../models/message');
+const User = require('../models/persistence-models/user');
+const Product = require('../models/persistence-models/product');
+const Like = require('../models/persistence-models/like');
+const Block = require('../models/persistence-models/block');
+const Campaign = require('../models/persistence-models/campaign');
+const Brand = require('../models/persistence-models/brand');
+const Category = require('../models/persistence-models/category');
+const Country = require('../models/persistence-models/country');
+const Report = require('../models/persistence-models/report');
+const Size = require('../models/persistence-models/size');
+const UserOrderAddress = require('../models/persistence-models/user-order-address');
+const UserSetting = require('../models/persistence-models/user-setting');
+const Conversation = require('../models/persistence-models/conversation');
+const Message = require('../models/persistence-models/message');
 
 
 const users = [];
@@ -639,7 +639,6 @@ function conversationCreate(consParams, callback) {
     partner_role: consParams[3],
     last_message: {
       message: consParams[4],
-      unread: consParams[5],
       created_at: consParams[6],
     },
     num_unread_message: consParams[7],

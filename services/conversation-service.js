@@ -53,37 +53,18 @@ exports.setConversation = (consContent, callback) => {
     senderRole,
     message,
   } = consContent;
-  const userFieldsSelect = 'role active blocks';
   let joiner = null;
-  let receiver = null;
   let isExistCons = false;
   let conversation = null;
-  let now = null;
+  const now = new Date();
 
-  userRepo
-    .getUserWithOptionSelect(receiverId, userFieldsSelect)
-    .then((receiverRaw) => {
-      receiver = checkSendPermission(senderId, receiverRaw);
-      if (!receiver) {
-        return null;
+  this.checkSendPermission(senderId, senderRole, receiverId, productId)
+    .then((joinerWithPermission) => {
+      if (!joinerWithPermission) {
+        return Promise.reject(constants.response.noSendPermission);
       }
 
-      if (!productId) {
-        joiner = checkSendPermissionWithAdmin(senderId, senderRole, receiver);
-        return null;
-      }
-
-      return productRepo.getProductWithOptionSelect(productId, 'seller');
-    })
-    .then((product) => {
-      if (product) {
-        joiner = checkSendPermissionWithSeller(senderId, receiver, product);
-      }
-
-      if (!joiner) {
-        return Promise.reject(constants.response.noSendPermission.code);
-      }
-
+      joiner = joinerWithPermission;
       return conversationRepo.findConversation(joiner.userId, joiner.partnerId, productId);
     })
     .then((consRaw) => {
@@ -109,7 +90,6 @@ exports.setConversation = (consContent, callback) => {
       }
 
       conversation = consRaw;
-      now = new Date();
       const msgContent = {
         message,
         now,
@@ -124,13 +104,12 @@ exports.setConversation = (consContent, callback) => {
     })
     .then((newAddedMsg) => {
       if (!newAddedMsg) {
-        return Promise.reject(constants.response.sendError.code);
+        return Promise.reject(constants.response.sendError);
       }
 
       // update last message
       conversation.last_message = {
         message,
-        unread: constants.conversation.status.unread,
         created_at: now,
       };
       conversation.num_unread_message += 1;
@@ -139,7 +118,7 @@ exports.setConversation = (consContent, callback) => {
     })
     .then((savedCons) => {
       if (!savedCons) {
-        return Promise.reject(constants.response.sendError.code);
+        return Promise.reject(constants.response.sendError);
       }
 
       const response = {
@@ -147,6 +126,7 @@ exports.setConversation = (consContent, callback) => {
         message: constants.response.ok.message,
         data: {
           unread: constants.conversation.status.unread,
+          createdAt: now,
         },
       };
 
@@ -155,20 +135,149 @@ exports.setConversation = (consContent, callback) => {
     .catch(err => handleSendError(err, callback));
 };
 
+exports.setConsHavePermission = (consContent, callback) => {
+  const {
+    userId,
+    partnerId,
+    partnerRole,
+    senderType,
+    productId,
+    message,
+  } = consContent;
+  let isExistCons = false;
+  let conversation = null;
+  let addedMsgId = null;
+  const now = new Date();
+
+  return conversationRepo
+    .findConversation(userId, partnerId, productId)
+    .then((consRaw) => {
+      if (consRaw) {
+        isExistCons = true;
+        return consRaw;
+      }
+
+      isExistCons = false;
+      const consInfo = {
+        userId,
+        partnerId,
+        partnerRole,
+        productId,
+        now,
+      };
+
+      return conversationRepo.addConversation(consInfo);
+    })
+    .then((consRaw) => {
+      if (!consRaw) {
+        return null;
+      }
+
+      conversation = consRaw;
+      const msgContent = {
+        message,
+        now,
+        senderType,
+        conversationId: consRaw.id,
+      };
+      if (isExistCons) {
+        return conversationRepo.addMessage(msgContent);
+      }
+
+      return conversationRepo.createMessage(msgContent);
+    })
+    .then((newAddedMsg) => {
+      if (!newAddedMsg) {
+        return Promise.reject(constants.response.sendError);
+      }
+
+      // update last message
+      addedMsgId = newAddedMsg.id;
+      conversation.last_message = {
+        message,
+        created_at: now,
+      };
+      conversation.num_unread_message += 1;
+
+      return conversationRepo.saveConversation(conversation);
+    })
+    .then((savedCons) => {
+      if (!savedCons) {
+        return Promise.reject(constants.response.sendError);
+      }
+
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          messageId: addedMsgId,
+          unread: constants.conversation.status.unread,
+          createdAt: now,
+        },
+      };
+
+      return callback(response);
+    })
+    .catch(err => handleSendError(err, callback));
+};
+
+exports.checkSendPermission = (senderId, senderRole, receiverId, productId) => {
+  const userFieldsSelect = 'role active blocks';
+  let joiner = null;
+  let receiver = null;
+
+  return new Promise((resolve, reject) => {
+    userRepo
+      .getUserWithOptionSelect(receiverId, userFieldsSelect)
+      .then((receiverRaw) => {
+        receiver = isBlockedSender(senderId, receiverRaw);
+        if (!receiver) {
+          return null;
+        }
+
+        if (!productId) {
+          joiner = checkSendPermissionWithAdmin(senderId, senderRole, receiver);
+          return null;
+        }
+
+        return productRepo.getProductWithOptionSelect(productId, 'seller');
+      })
+      .then((product) => {
+        if (product) {
+          joiner = checkSendPermissionWithSeller(senderId, receiver, product);
+        }
+
+        if (!joiner) {
+          return reject(constants.response.noSendPermission);
+        }
+
+        return resolve(joiner);
+      })
+      .catch((err) => {
+        logger.error('Error at isSendPermission in conversation-service\n', err);
+        return reject(constants.response.systemError);
+      });
+  });
+};
+
 function conversationsToResponse(userId, conversations) {
   if (!conversations || conversations.length < 1) {
     return constants.response.conversationNotFound;
   }
 
-  const data = [];
-  conversations.forEach((conversation) => {
+  const data = conversations.map((conversation) => {
     const {
       user,
       partner,
       product,
     } = conversation;
+
     const lastMessage = conversation.last_message;
     const countUnreadMes = conversation.num_unread_message;
+    let unreadLastMes = constants.conversation.status.unread;
+    if (countUnreadMes < 1) {
+      unreadLastMes = constants.conversation.status.read;
+    }
 
     let resPartner;
     if (userId === user.id) {
@@ -186,11 +295,11 @@ function conversationsToResponse(userId, conversations) {
     }
 
     let productImage = null;
-    if (product.media.type === constants.product.media.image) {
+    if (product.media.type === constants.product.media.type.image) {
       productImage = product.media.urls[0];
     }
 
-    data.push({
+    return {
       id: conversation.id,
       partner: resPartner,
       product: {
@@ -202,10 +311,10 @@ function conversationsToResponse(userId, conversations) {
       lastMessage: {
         message: lastMessage.message,
         created: lastMessage.created_at,
-        unread: lastMessage.unread,
+        unread: unreadLastMes,
       },
       numNewMessage: countUnreadMes,
-    });
+    };
   });
 
   return {
@@ -227,11 +336,11 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
       || (user.id === userId2 && partner.id === userId1))
     && product.id === productId) {
     let productImage = null;
-    if (product.media.type === constants.product.media.image) {
+    if (product.media.type === constants.product.media.type.image) {
       productImage = product.media.urls[0];
     }
 
-    const conversation = [];
+    const chats = [];
     for (let i = msgContents.length - 1; i >= 0; i -= 1) {
       const content = msgContents[i];
       let sender;
@@ -247,7 +356,7 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
         };
       }
 
-      conversation.push({
+      chats.push({
         message: content.message,
         unread: content.unread,
         created: content.created_at,
@@ -256,7 +365,7 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
     }
 
     return {
-      conversation,
+      conversation: chats,
       product: {
         name: product.name,
         price: product.price,
@@ -269,7 +378,7 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
   return constants.response.conversationNotFound;
 }
 
-function checkSendPermission(senderId, receiverRaw) {
+function isBlockedSender(senderId, receiverRaw) {
   if (!receiverRaw || !receiverRaw.active) {
     return null;
   }
@@ -288,16 +397,16 @@ function checkSendPermission(senderId, receiverRaw) {
 }
 
 function checkSendPermissionWithAdmin(senderId, senderRole, receiver) {
-  let joinerId = null;
+  let joiner = null;
   if (senderRole === constants.role.user && receiver.role === constants.role.admin) {
-    joinerId = {
+    joiner = {
       userId: senderId,
       partnerId: receiver.id,
       senderType: constants.conversation.sender.user,
       partnerRole: constants.conversation.partnerRole.admin,
     };
   } else if (senderRole === constants.role.admin) {
-    joinerId = {
+    joiner = {
       userId: receiver.id,
       partnerId: senderId,
       senderType: constants.conversation.sender.partner,
@@ -305,7 +414,7 @@ function checkSendPermissionWithAdmin(senderId, senderRole, receiver) {
     };
   }
 
-  return joinerId;
+  return joiner;
 }
 
 function checkSendPermissionWithSeller(senderId, receiver, product) {
@@ -332,12 +441,10 @@ function checkSendPermissionWithSeller(senderId, receiver, product) {
 }
 
 function handleSendError(err, callback) {
-  if (err === constants.response.noSendPermission.code) {
-    return callback(constants.response.noSendPermission);
+  if (err === constants.response.noSendPermission || err === constants.response.sendError) {
+    return callback(err);
   }
-  if (err === constants.response.sendError.code) {
-    return callback(constants.response.sendError);
-  }
+
   logger.error('Error at setConversation in conversation-service\n', err);
   return callback(constants.response.systemError);
 }
