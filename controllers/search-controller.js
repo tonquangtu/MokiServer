@@ -18,6 +18,23 @@ exports.searchProducts = (req, res) => {
   }
 };
 
+exports.deleteSaveSearch = (req, res) => {
+  const data = req.body;
+  if (!data || !helpers.isExist(data.searchId)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const { searchId } = data;
+
+    if (!helpers.isValidId(searchId)) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      searchService.deleteSaveSearch(searchId, req.user.id, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
+    }
+  }
+};
+
 function validateSearchParams(searchParams) {
   const {
     token,
