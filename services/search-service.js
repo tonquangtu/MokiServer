@@ -1,4 +1,5 @@
 const likeRepo = require('../repositories/like-repository');
+const searchHistoryRepo = require('../repositories/search-history-repository');
 const searcher = require('../searches/elasticsearch');
 
 const { constants, logger } = global;
@@ -52,6 +53,38 @@ exports.searchProducts = (searchParams, callback) => {
       logger.error('Error at function searchProducts in search-service.\n', err);
       return callback(constants.response.systemError);
     });
+};
+
+exports.deleteSaveSearch = (searchId, userId, callback) => {
+  const promise = searchHistoryRepo.getSearchHistoryById(searchId);
+  let searchHistory = null;
+  let isUser = false;
+  promise.then((searchHistoryData) => {
+    searchHistory = searchHistoryData;
+    if (!searchHistory) {
+      return null;
+    }
+
+    if (searchHistory.user.toString() !== userId) {
+      return null;
+    }
+
+    isUser = true;
+    return searchHistoryRepo.deleteSearchHistory(searchId);
+  }).then((data) => {
+    if (!searchHistory) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    if (!isUser) {
+      return callback(constants.response.notAccess);
+    }
+
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function deleteSaveSearch.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 function getProdsFromESResponse(esResponse) {
