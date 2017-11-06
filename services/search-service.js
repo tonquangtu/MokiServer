@@ -87,6 +87,49 @@ exports.deleteSaveSearch = (searchId, userId, callback) => {
   });
 };
 
+exports.saveSearch = (validSaveSearchParams, userId, callback) => {
+  const {
+    keywordValid,
+    categoryIdValid,
+    brandIdValid,
+    productSizeIdValid,
+    priceMaxValid,
+    priceMinValid,
+    conditionValid,
+  } = validSaveSearchParams;
+  const searchHistoryData = {
+    user: userId,
+  };
+  if (keywordValid !== 0) {
+    searchHistoryData.keyword = keywordValid;
+  }
+  if (categoryIdValid !== 0) {
+    searchHistoryData.category = categoryIdValid;
+  }
+  if (brandIdValid !== 0) {
+    searchHistoryData.brand = brandIdValid;
+  }
+  if (productSizeIdValid !== 0) {
+    searchHistoryData.product_size = productSizeIdValid;
+  }
+  if (priceMinValid !== '') {
+    searchHistoryData.price_min = priceMinValid;
+  }
+  if (priceMaxValid !== '') {
+    searchHistoryData.price_max = priceMaxValid;
+  }
+  if (conditionValid !== '') {
+    searchHistoryData.condition = conditionValid;
+  }
+  const promise = searchHistoryRepo.saveSearchHistory(searchHistoryData);
+  promise.then((searchHistory) => {
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function saveSearch.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
 function getProdsFromESResponse(esResponse) {
   if (!esResponse || !esResponse.hits || esResponse.hits.total < 1) {
     return null;
