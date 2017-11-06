@@ -358,6 +358,40 @@ exports.addProduct = (data, userId, callback) => {
   });
 };
 
+exports.getUserListing = (userListingParams, callback) => {
+
+  const { myId } = userListingParams;
+  const promise = productRepo.getProductOfUser(userListingParams);
+
+  promise.then((products) => {
+    if (!products || products.length === 0) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    getProductAttributes(products, myId, (productArr) => {
+      const data = productArr.map((product) => {
+        delete product.isBlocked;
+        delete product.seller;
+        delete product.canEdit;
+        delete product.brand;
+        delete product.described;
+        return product;
+      });
+
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data,
+      };
+
+      return callback(response);
+    });
+  }).catch((err) => {
+    logger.error('Error at function getUserListing.\n', err);
+    callback(constants.response.systemError);
+  });
+};
+
 function getProductAttributes(products, userId, callback) {
   const productArr = [];
   let count = 0;
@@ -450,7 +484,7 @@ function getResponseForProductDetail(product, userId, callback) {
   }
 
   const { seller } = product;
-  const productOfUserNum = productRepo.getProductOfUser(seller.id);
+  const productOfUserNum = productRepo.getProductOfUserById(seller.id);
 
   Promise.all([
     isLiked,
