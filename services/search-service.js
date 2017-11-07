@@ -1,4 +1,5 @@
 const likeRepo = require('../repositories/like-repository');
+const searchHistoryRepo = require('../repositories/search-history-repository');
 const searcher = require('../searches/elasticsearch');
 
 const { constants, logger } = global;
@@ -52,6 +53,81 @@ exports.searchProducts = (searchParams, callback) => {
       logger.error('Error at function searchProducts in search-service.\n', err);
       return callback(constants.response.systemError);
     });
+};
+
+exports.deleteSaveSearch = (searchId, userId, callback) => {
+  const promise = searchHistoryRepo.getSearchHistoryById(searchId);
+  let searchHistory = null;
+  let isUser = false;
+  promise.then((searchHistoryData) => {
+    searchHistory = searchHistoryData;
+    if (!searchHistory) {
+      return null;
+    }
+
+    if (searchHistory.user.toString() !== userId) {
+      return null;
+    }
+
+    isUser = true;
+    return searchHistoryRepo.deleteSearchHistory(searchId);
+  }).then((data) => {
+    if (!searchHistory) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    if (!isUser) {
+      return callback(constants.response.notAccess);
+    }
+
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function deleteSaveSearch.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.saveSearch = (validSaveSearchParams, userId, callback) => {
+  const {
+    keywordValid,
+    categoryIdValid,
+    brandIdValid,
+    productSizeIdValid,
+    priceMaxValid,
+    priceMinValid,
+    conditionValid,
+  } = validSaveSearchParams;
+  const searchHistoryData = {
+    user: userId,
+  };
+  if (keywordValid !== 0) {
+    searchHistoryData.keyword = keywordValid;
+  }
+  if (categoryIdValid !== 0) {
+    searchHistoryData.category = categoryIdValid;
+  }
+  if (brandIdValid !== 0) {
+    searchHistoryData.brand = brandIdValid;
+  }
+  if (productSizeIdValid !== 0) {
+    searchHistoryData.product_size = productSizeIdValid;
+  }
+  if (priceMinValid !== '') {
+    searchHistoryData.price_min = priceMinValid;
+  }
+  if (priceMaxValid !== '') {
+    searchHistoryData.price_max = priceMaxValid;
+  }
+  if (conditionValid !== '') {
+    searchHistoryData.condition = conditionValid;
+  }
+  const promise = searchHistoryRepo.saveSearchHistory(searchHistoryData);
+  promise.then((searchHistory) => {
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function saveSearch.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 function getProdsFromESResponse(esResponse) {

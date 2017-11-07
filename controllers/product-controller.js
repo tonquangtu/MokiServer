@@ -264,6 +264,56 @@ exports.addProduct = (req, res) => {
   }
 };
 
+exports.getUserListing = (req, res) => {
+  const data = req.body;
+
+  if (!data
+    || !helpers.isExist(data.index)
+    || !helpers.isExist(data.count)
+    || (!helpers.isExist(data.token) && !helpers.isExist(data.userId))) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const {
+      token, index, count, userId, keyword, categoryId,
+    } = data;
+
+    let myId = 0;
+    const indexValid = helpers.validInteger(index);
+    const countValid = helpers.validInteger(count);
+
+    if (helpers.isExist(token)) {
+      const user = helpers.getUserFromToken(token);
+      myId = user ? user.id : 0;
+    }
+
+    if (indexValid === null || countValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (indexValid < 0
+      || countValid < 0
+      || (helpers.isExist(userId) && !helpers.isValidId(userId))
+      || (helpers.isExist(categoryId) && !helpers.isValidId(categoryId))) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      const userIdValid = helpers.isExist(userId) ? userId : 0;
+      const categoryIdValid = helpers.isExist(categoryId) ? categoryId : 0;
+      const keywordValid = helpers.isExist(keyword) ? keyword : 0;
+
+      const userListingParams = {
+        myId,
+        indexValid,
+        countValid,
+        userIdValid,
+        keywordValid,
+        categoryIdValid,
+      };
+
+      productService.getUserListing(userListingParams, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
+    }
+  }
+};
+
 function validValueProductsParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;
