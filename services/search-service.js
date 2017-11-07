@@ -2,7 +2,7 @@ const likeRepo = require('../repositories/like-repository');
 const searchHistoryRepo = require('../repositories/search-history-repository');
 const searcher = require('../searches/elasticsearch');
 
-const { constants, logger } = global;
+const { constants, logger, helpers } = global;
 
 exports.searchProducts = (searchParams, callback) => {
   const selectFields = ['name', 'media', 'price', 'price_percent', 'like', 'comment'];
@@ -126,6 +126,74 @@ exports.saveSearch = (validSaveSearchParams, userId, callback) => {
     return callback(constants.response.ok);
   }).catch((err) => {
     logger.error('Error at function saveSearch.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getSaveSearchList = (indexValid, countValid, userId, callback) => {
+  const promise = searchHistoryRepo.getSearchHistoryList(indexValid, countValid, userId);
+  promise.then((searchHistoryList) => {
+    if (searchHistoryList.length === 0) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    const data = searchHistoryList.map((searchHistory) => {
+      const {
+        id, keyword, category, brand, product_size, price_min, price_max, condition,
+      } = searchHistory;
+
+      const oneData = {
+        id,
+      };
+
+      if (helpers.isExist(keyword)) {
+        oneData.keyword = keyword;
+      }
+
+      if (helpers.isExist(category)) {
+        oneData.category = {
+          id: searchHistory.category.id,
+          name: searchHistory.category.name,
+        };
+      }
+
+      if (helpers.isExist(brand)) {
+        oneData.brand = {
+          id: searchHistory.brand.id,
+          brandName: searchHistory.brand.name,
+        };
+      }
+
+      if (helpers.isExist(product_size)) {
+        oneData.productSize = {
+          id: searchHistory.product_size.id,
+          sizeName: searchHistory.product_size.name,
+        };
+      }
+
+      if (helpers.isExist(price_min)) {
+        oneData.priceMin = price_min;
+      }
+
+      if (helpers.isExist(price_max)) {
+        oneData.priceMax = price_max;
+      }
+
+      if (helpers.isExist(condition)) {
+        oneData.condtion = condition;
+      }
+      return oneData;
+    });
+
+    const responseData = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data,
+    };
+
+    return callback(responseData);
+  }).catch((err) => {
+    logger.error('Error at function getSaveSearchList.\n', err);
     return callback(constants.response.systemError);
   });
 };

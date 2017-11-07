@@ -77,6 +77,26 @@ exports.saveSearch = (req, res) => {
   }
 };
 
+exports.getSaveSearchList = (req, res) => {
+  const data = req.body;
+  if (!data || !helpers.isExist(data.index) || !helpers.isExist(data.count)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const indexValid = helpers.validInteger(data.index);
+    const countValid = helpers.validInteger(data.count);
+
+    if (indexValid === null || countValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (indexValid < 0 || countValid < 0) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      searchService.getSaveSearchList(indexValid, countValid, req.user.id, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
+    }
+  }
+};
+
 function validateSearchParams(searchParams) {
   const {
     token,
