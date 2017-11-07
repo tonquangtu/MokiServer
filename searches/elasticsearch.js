@@ -1,6 +1,6 @@
 const elasticsearch = require('elasticsearch');
 
-const { constants } = global;
+const { constants, mongoose } = global;
 
 const client = new elasticsearch.Client({
   host: 'localhost:9200',

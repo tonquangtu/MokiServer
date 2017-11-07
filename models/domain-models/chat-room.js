@@ -33,6 +33,10 @@ module.exports = class ChatRoom {
     }
   }
 
+  get numJoiner() {
+    return this.joiners.length;
+  }
+
   static getRoomId(roomParam) {
     const {
       userId,

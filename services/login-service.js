@@ -1,5 +1,7 @@
 const userRepo = require('../repositories/user-repository');
+const deviceRepo = require('../repositories/device-repository');
 const userService = require('../services/user-service');
+// const pushNotificationService = require('../services/push-notification-service');
 
 const { constants, helpers, logger } = global;
 
@@ -53,6 +55,26 @@ exports.login = (phoneNumber, password, callback) => {
   });
 };
 
-exports.logout =
-  (userId, callback) => userService.updateUser(userId, { token: null }, null, callback);
+exports.logout = (userId, callback) => {
+  if (!helpers.isValidId(userId)) {
+    callback(constants.response.paramValueInvalid);
+    return;
+  }
 
+  const updateUserPromise = userRepo.findAndUpdateUser(userId, { token: null }, null);
+  const updateDevicePromise = deviceRepo.findAndUpdateDevice(userId, { device_token: null }, null);
+
+  Promise
+    .all([updateUserPromise, updateDevicePromise])
+    .then((results) => {
+      if (results && results.length > 0 && results[0]) {
+        return callback(constants.response.ok);
+      }
+
+      return callback(constants.response.userNotFound);
+    })
+    .catch((err) => {
+      logger.error('Error at function logout in login-service.\n', err);
+      return callback(constants.response.systemError);
+    });
+};
