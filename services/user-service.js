@@ -102,12 +102,8 @@ exports.updateUser = (userId, updateData, options, callback) => {
     if (!user) {
       return callback(constants.response.userNotFound);
     }
-    const response = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: null,
-    };
-    return callback(response);
+
+    return callback(constants.response.ok);
   }).catch((err) => {
     logger.error('Error at function updateUser in user-service.\n', err);
     return callback(constants.response.systemError);

@@ -241,4 +241,5 @@ module.exports = {
     admin: 1,
   },
   tokenExpired: 1,
+  appName: 'MOKI',
 };
