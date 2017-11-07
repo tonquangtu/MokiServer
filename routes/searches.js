@@ -8,5 +8,6 @@ const router = express.Router();
 router.post('/products', searchController.searchProducts);
 router.post('/delete', auth.jwtAuthenticate(), searchController.deleteSaveSearch);
 router.post('/save', auth.jwtAuthenticate(), searchController.saveSearch);
+router.post('/', auth.jwtAuthenticate(), searchController.getSaveSearchList);
 
 module.exports = router;

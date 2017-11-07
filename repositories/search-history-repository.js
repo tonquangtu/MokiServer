@@ -9,3 +9,12 @@ exports.saveSearchHistory = (searchHistoryData) => {
 
   return searchHistory.save();
 };
+
+exports.getSearchHistoryList = (skip, count, userId) =>
+  SearchHistory.find({ user: userId })
+    .skip(skip)
+    .limit(count)
+    .populate({ path: 'category', select: 'name' })
+    .populate({ path: 'brand', select: 'name' })
+    .populate({ path: 'product_size', select: 'name' })
+    .exec();
