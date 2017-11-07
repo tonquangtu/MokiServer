@@ -16,6 +16,7 @@ const activeUsers = [];
 const rooms = [];
 
 exports.initSocketIo = (server) => {
+  console.log('init socketio');
   io = socketIo(server);
   initSocketEvent();
 };
