@@ -165,6 +165,11 @@ module.exports = {
       message: 'Send token invalid',
       data: null,
     },
+    deviceNotFound: {
+      code: 1024,
+      message: 'Not found device in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,

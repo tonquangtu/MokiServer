@@ -1,6 +1,6 @@
 const deviceRepo = require('../repositories/device-repository');
 
-const { helpers, logger } = global;
+const { constants, helpers, logger } = global;
 
 exports.updateOrAddDevice = (newDeviceParam) => {
   const {
@@ -65,4 +65,38 @@ exports.updateOrAddDevice = (newDeviceParam) => {
         return reject(err);
       });
   });
+};
+
+exports.setDeviceToken = (deviceParam, callback) => {
+  const {
+    userId,
+    deviceToken,
+    deviceType,
+  } = deviceParam;
+
+  deviceRepo
+    .findDeviceByUserId(userId)
+    .then((device) => {
+      if (!device) {
+        return Promise.reject(constants.response.deviceNotFound);
+      }
+
+      if (device.device_token !== deviceToken || device.device_type !== deviceType) {
+        const updateData = {
+          device_token: deviceToken,
+          device_type: deviceType,
+        };
+        device.set(updateData);
+        return deviceRepo.saveDevice(device);
+      }
+      return device;
+    })
+    .then(savedDevice => callback(constants.response.ok))
+    .catch((err) => {
+      let errResponse = err;
+      if (err !== constants.response.deviceNotFound) {
+        errResponse = constants.response.systemError;
+      }
+      return callback(errResponse);
+    });
 };

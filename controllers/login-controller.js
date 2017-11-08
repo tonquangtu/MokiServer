@@ -38,7 +38,7 @@ function validateLoginData(loginData) {
 
 function validateDeviceInfo(deviceId, deviceType) {
   const validDeviceType = helpers.validNumber(deviceType);
-  if (!validDeviceType) {
+  if (!helpers.isExist(validDeviceType)) {
     return null;
   }
 

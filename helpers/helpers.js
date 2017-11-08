@@ -119,3 +119,4 @@ exports.isValidExpiredDate = (expiredDate) => {
 
 exports.isValidDeviceId = deviceId => !(deviceId && deviceId.length < 10);
 
+exports.getObjectType = aObject => Object.prototype.toString.call(aObject);
