@@ -135,7 +135,7 @@ exports.setConversation = (consContent, callback) => {
     .catch(err => handleSendError(err, callback));
 };
 
-exports.setConsHavePermission = (consContent, callback) => {
+exports.setConversationCheckedPermission = (consContent, callback) => {
   const {
     userId,
     partnerId,

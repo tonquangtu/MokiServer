@@ -661,7 +661,7 @@ function conversationFaker(cb) {
     function (callback) {
       const now = new Date();
       const fakeMsg = faker.lorem.words();
-      const numUnread = 1;
+      const numUnread = 0;
 
       const consParams = [
         users[10],
@@ -669,7 +669,7 @@ function conversationFaker(cb) {
         products[countCons],
         constants.conversation.partnerRole.seller,
         fakeMsg,
-        constants.conversation.status.unread,
+        constants.conversation.status.read,
         now,
         numUnread,
         now,

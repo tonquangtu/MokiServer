@@ -242,4 +242,25 @@ module.exports = {
   },
   tokenExpired: 1,
   appName: 'MOKI',
+  push: {
+    otherPersonLogin: {
+      title: 'MOKI',
+      body: 'Có ai đó đã đăng nhập tài khoản bạn trên 1 thiết bị khác',
+      code: 1,
+    },
+    message: {
+      title: 'MOKI',
+      body: null,
+      code: 2,
+    },
+  },
+  device: {
+    type: {
+      ios: 0,
+      android: 1,
+    },
+    deviceIdHeader: 'deviceId',
+    deviceTypeHeader: 'deviceType',
+  },
 };
+
