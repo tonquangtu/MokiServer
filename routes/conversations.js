@@ -10,4 +10,6 @@ router.post('/detail', auth.jwtAuthenticate(), consController.getConversationDet
 
 router.post('/set', auth.jwtAuthenticate(), consController.setConversation);
 
+router.post('/set-read-messages', auth.jwtAuthenticate(), consController.setReadMessages);
+
 module.exports = router;

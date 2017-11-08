@@ -194,3 +194,11 @@ exports.getNewConversations = userId =>
     .populate({ path: 'partner', select: 'username avatar' })
     .populate({ path: 'product', select: 'name media price' })
     .exec();
+
+exports.setReadMessages = (conversationId) => {
+  const unreadStatus = constants.conversation.status.unread;
+  const readStatus = constants.conversation.status.read;
+  const where = { conversation_id: conversationId, 'contents.unread': unreadStatus };
+  const set = { $set: { 'contents.$.unread': readStatus } };
+  return Message.update(where, set);
+};
