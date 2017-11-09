@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const NotificationsSchema = new Schema({
   user: { type: Schema.ObjectId, ref: 'users', required: true },
-  badge: { type: String },
+  badge: { type: Number },
   contents: [{
     object_type: { type: Number },
     object_id: { type: Schema.ObjectId },

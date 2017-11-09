@@ -6,4 +6,6 @@ const router = express.Router();
 
 router.post('/', auth.jwtAuthenticate(), notifyController.getNotifications);
 
+router.post('/set-read-notification', auth.jwtAuthenticate(), notifyController.setReadNotification);
+
 module.exports = router;

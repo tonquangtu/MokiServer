@@ -765,7 +765,7 @@ function notificationFaker(cb) {
       const notifiParam = {
         user: user._id,
         contents,
-        badge: 'abc',
+        badge: 0,
       };
 
       notificationCreate(notifiParam, callback);

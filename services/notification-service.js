@@ -1,6 +1,11 @@
 const notificationRepo = require('../repositories/notification-repository');
 
-const { constants, logger } = global;
+const {
+  constants,
+  logger,
+  _,
+  mongoose,
+} = global;
 
 exports.getNotifications = (notifyParam, callback) => {
   const {
@@ -20,6 +25,7 @@ exports.getNotifications = (notifyParam, callback) => {
       const { contents, badge } = notification;
       const list = contents.map((item) => {
         return {
+          id: item.id,
           type: item.object_type,
           objectId: item.object_id.toString(),
           title: item.title,
@@ -50,4 +56,53 @@ exports.getNotifications = (notifyParam, callback) => {
 
       return callback(errResponse);
     });
+};
+
+exports.setReadNotification = (userId, notificationId, callback) => {
+  notificationRepo
+    .getNotification(userId)
+    .then((notification) => {
+      if (!notification || !notification.contents || notification.contents.length < 1) {
+        return Promise.reject(constants.response.notificationNotFound);
+      }
+
+      const { badge, contents } = notification;
+      const notificationIdObj = new mongoose.mongo.ObjectId(notificationId);
+      const index = _.findIndex(contents, { _id: notificationIdObj });
+      if (index === -1) {
+        return Promise.reject(constants.response.notificationNotFound);
+      }
+
+      if (badge < 1) {
+        return notification;
+      }
+
+      if (contents[index].read === constants.notification.unread) {
+        contents[index].read = constants.notification.read;
+        notification.set({ badge: badge - 1 });
+        return notificationRepo.saveNotification(notification);
+      }
+
+      return notification;
+    })
+    .then((notification) => {
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: {
+          badge: notification.badge,
+        },
+      };
+      return callback(response);
+    })
+    .catch((err) => {
+      let errResponse = err;
+      if (err !== constants.response.notificationNotFound) {
+        errResponse = constants.response.systemError;
+        logger.error('Error in function setReadNotification at notification-service\n', err);
+      }
+
+      return callback(errResponse);
+    });
+
 };
