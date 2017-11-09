@@ -34,3 +34,5 @@ exports.getUserFollows = (userId, index, count, type) => {
 
 exports.getUserWithOptionSelect =
   (userId, select) => User.findById(userId).select(select).exec();
+
+exports.saveUser = user => user.save();

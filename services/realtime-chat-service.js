@@ -78,7 +78,7 @@ function receiveMessage(socket, data) {
     senderType: sender.type,
   };
 
-  consService.setConsHavePermission(consParam, (response) => {
+  consService.setConversationCheckedPermission(consParam, (response) => {
     if (response.code !== constants.response.code.ok) {
       resendMessage(socket, response);
       return;
@@ -287,10 +287,14 @@ function pushNotification(receiverId, pushContent) {
     .findDeviceByUserId(receiverId)
     .then((device) => {
       if (device && device.device_token) {
-        doPush(device.device_token, pushContent);
-      } else {
-        logger.info(`No device token attached with user: ${receiverId}`);
+        const expiredDateString = device.expired_at.toISOString();
+        if (helpers.isValidExpiredDate(expiredDateString)) {
+          doPush(device.device_token, pushContent);
+          return null;
+        }
       }
+
+      logger.info(`No device token attached with user: ${receiverId}`);
       return null;
     })
     .catch((err) => {

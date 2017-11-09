@@ -58,6 +58,24 @@ exports.setConversation = (req, res) => {
   }
 };
 
+exports.setReadMessages = (req, res) => {
+  const reqData = req.body;
+  if (!isEnoughSetReadMsgParam(reqData)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else if (!isValidSetReadMsgParam(reqData)) {
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  } else {
+    const param = {
+      userId: req.user.id,
+      partnerId: reqData.partnerId,
+      productId: reqData.productId,
+    };
+    consService.setReadMessages(param, (response) => {
+      helpers.sendResponse(res, response);
+    });
+  }
+};
+
 function validConsParam(consParam, userId) {
   const {
     partnerId,
@@ -118,6 +136,15 @@ function validSetConsParam(setConsParam, senderId, senderRole) {
   };
 }
 
+function isValidSetReadMsgParam(setReadMsgParam) {
+  const {
+    partnerId,
+    productId,
+  } = setReadMsgParam;
+
+  return helpers.isValidId(partnerId) && helpers.isValidId(productId);
+}
+
 function isEnoughConsParam(consParam) {
   const {
     partnerId,
@@ -144,4 +171,17 @@ function isEnoughSetConsParam(setConsParam) {
   return (helpers.isExist(toId)
     && helpers.isExist(productId)
     && helpers.isExist(message));
+}
+
+function isEnoughSetReadMsgParam(setReadMsgParam) {
+  if (!setReadMsgParam) {
+    return false;
+  }
+
+  const {
+    partnerId,
+    productId,
+  } = setReadMsgParam;
+
+  return (helpers.isExist(partnerId) && helpers.isExist(productId));
 }

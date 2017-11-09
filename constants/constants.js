@@ -165,6 +165,16 @@ module.exports = {
       message: 'Send token invalid',
       data: null,
     },
+    deviceNotFound: {
+      code: 1024,
+      message: 'Not found device in system',
+      data: null,
+    },
+    notificationNotFound: {
+      code: 1025,
+      message: 'Not found notification in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -242,4 +252,33 @@ module.exports = {
   },
   tokenExpired: 1,
   appName: 'MOKI',
+  push: {
+    otherPersonLogin: {
+      title: 'MOKI',
+      body: 'Có ai đó đã đăng nhập tài khoản bạn trên 1 thiết bị khác',
+      code: 1,
+    },
+    message: {
+      title: 'MOKI',
+      body: null,
+      code: 2,
+    },
+  },
+  device: {
+    type: {
+      ios: 0,
+      android: 1,
+    },
+    deviceIdHeader: 'deviceId',
+    deviceTypeHeader: 'deviceType',
+  },
+  notification: {
+    group: {
+      normal: 0,
+      transaction: 1,
+    },
+    unread: 0,
+    read: 1,
+  },
 };
+
