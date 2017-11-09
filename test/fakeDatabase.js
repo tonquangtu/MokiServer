@@ -29,7 +29,7 @@ const UserOrderAddress = require('../models/persistence-models/user-order-addres
 const UserSetting = require('../models/persistence-models/user-setting');
 const Conversation = require('../models/persistence-models/conversation');
 const Message = require('../models/persistence-models/message');
-
+const Notification = require('../models/persistence-models/notification');
 
 const users = [];
 const products = [];
@@ -58,9 +58,11 @@ const maxUserSetting = 20;
 const maxOrderAddress = 30;
 const maxConversation = 3;
 const maxMessage = 3;
+const maxNotifi = 10;
 
-let countCons = 0;
+let countCons = 10;
 let countMsg = 0;
+let countNotify = 0;
 
 deleteAllDocuments(() => {
   console.log('done');
@@ -106,7 +108,7 @@ function userCreate(userParams, callback) {
       console.log(`User create error ${err.message}`);
     } else {
       users.push(user);
-      console.log(user.id);
+      // console.log(user.id);
       callback(null, 'userCreate');
     }
   });
@@ -341,10 +343,6 @@ function userOrderAddressCreate(orderParams, callback) {
   });
 }
 
-
-
-
-
 function usersFaker(cb) {
   console.log('vao user');
   const pass = '123456789';
@@ -468,6 +466,7 @@ function likesFaker(cb) {
     },
   ], cb);
 }
+
 function blocksFaker(cb) {
   console.log('block faker');
   async.parallel([
@@ -735,6 +734,45 @@ function messageFaker(cb) {
   ], cb);
 }
 
+function notificationCreate(notiParams, callback) {
+  const notification = new Notification(notiParams);
+  notification.save((err, savedNoti) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      callback(null, 'NotificationCreate');
+    }
+  });
+}
+
+function notificationFaker(cb) {
+  console.log('NotificationFaker');
+  countNotify += 1;
+  async.parallel([
+    function (callback) {
+      const user = users[countNotify];
+      const contents = [];
+      for (let j = 0; j < 20; j += 1) {
+        contents.push({
+          object_type: 1,
+          object_id: products[j]._id,
+          title: faker.lorem.words(),
+          avatar: faker.image.avatar(),
+          group: constants.notification.group.normal,
+          read: constants.notification.read,
+        });
+      }
+      const notifiParam = {
+        user: user._id,
+        contents,
+        badge: 'abc',
+      };
+
+      notificationCreate(notifiParam, callback);
+    },
+  ], cb);
+}
+
 function deleteAllUser(cb) {
   User.remove({}, (err) => {
     if (err) {
@@ -878,6 +916,17 @@ function deleteAllMsg(cb) {
   });
 }
 
+function deleteAllNotification(cb) {
+  Notification.remove({}, (err) => {
+    if (err) {
+      console.log('can not delete notification');
+    } else {
+      console.log('delete all notification');
+    }
+    cb(null, 'deleteAllNotification');
+  });
+}
+
 function deleteAllDocuments(cb) {
   async.series(
     [
@@ -895,6 +944,7 @@ function deleteAllDocuments(cb) {
       deleteAllCountry,
       deleteAllCons,
       deleteAllMsg,
+      deleteAllNotification,
     ],
     (err, result) => {
       if (err) {
@@ -951,6 +1001,10 @@ for (let i = 0; i < maxConversation; i++) {
 
 for (let i = 0; i < maxMessage; i++) {
   arrCalls.push(messageFaker);
+}
+
+for (let i = 0; i < maxNotifi; i++) {
+  arrCalls.push(notificationFaker);
 }
 
 async.series(

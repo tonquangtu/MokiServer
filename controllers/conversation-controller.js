@@ -62,7 +62,7 @@ exports.setReadMessages = (req, res) => {
   const reqData = req.body;
   if (!isEnoughSetReadMsgParam(reqData)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
-  } else if (!isValidSetReadMsgParam(reqData)){
+  } else if (!isValidSetReadMsgParam(reqData)) {
     helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else {
     const param = {

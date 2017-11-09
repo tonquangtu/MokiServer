@@ -170,6 +170,11 @@ module.exports = {
       message: 'Not found device in system',
       data: null,
     },
+    notificationNotFound: {
+      code: 1025,
+      message: 'Not found notification in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -266,6 +271,14 @@ module.exports = {
     },
     deviceIdHeader: 'deviceId',
     deviceTypeHeader: 'deviceType',
+  },
+  notification: {
+    group: {
+      normal: 0,
+      transaction: 1,
+    },
+    unread: 0,
+    read: 1,
   },
 };
 
