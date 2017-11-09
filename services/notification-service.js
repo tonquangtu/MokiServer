@@ -73,14 +73,12 @@ exports.setReadNotification = (userId, notificationId, callback) => {
         return Promise.reject(constants.response.notificationNotFound);
       }
 
-      console.log(index);
-
       if (badge < 1) {
         return notification;
       }
 
-      if (contents[index] === constants.notification.unread) {
-        contents[index].read = contents.notification.read;
+      if (contents[index].read === constants.notification.unread) {
+        contents[index].read = constants.notification.read;
         notification.set({ badge: badge - 1 });
         return notificationRepo.saveNotification(notification);
       }
