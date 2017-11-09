@@ -1,4 +1,9 @@
-const { Notification, mongoose, logger } = global;
+const {
+  Notification,
+  mongoose,
+  logger,
+  constants,
+} = global;
 
 exports.getNotificationsWithRealPaging = (userId, group, fromIndex, limit) => {
   const userIdObj = new mongoose.mongo.ObjectId(userId);
@@ -22,20 +27,24 @@ exports.getNotificationsWithRealPaging = (userId, group, fromIndex, limit) => {
   });
 };
 
-exports.getNotifications = (userId, group, fromIndex, limit) => {
-  let sliceOption;
-  if (fromIndex === 0) {
-    sliceOption = {
-      $slice: -limit,
-    };
-  } else {
-    const fromLastIndex = fromIndex + limit;
-    sliceOption = {
-      $slice: [-fromLastIndex, limit],
-    };
-  }
-
-  return Notification
-    .findOne({ user: userId, 'contents.group': group }, { contents: sliceOption })
+// return a object notification only have 1 item content.
+// but returned object is not mongoose object
+exports.getNotification = userId =>
+  Notification
+    .findOne({ user: userId })
     .exec();
+
+exports.getNotificationWithSelect = (userId, select) =>
+  Notification
+    .findOne({ user: userId })
+    .select(select)
+    .exec();
+
+exports.setReadNotification = (userId, notificationId) => {
+  const where = { user: userId, 'contents._id': notificationId };
+  const set = { $set: { 'contents.$.read': constants.notification.read }, $inc: { badge: -1 } };
+
+  return Notification.update(where, set).exec();
 };
+
+exports.saveNotification = notification => notification.save();

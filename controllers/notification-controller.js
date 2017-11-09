@@ -20,6 +20,19 @@ exports.getNotifications = (req, res) => {
   }
 };
 
+exports.setReadNotification = (req, res) => {
+  const reqData = req.body;
+  if (!reqData || !helpers.isExist(reqData.notificationId)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else if (!helpers.isValidId(reqData.notificationId)) {
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  } else {
+    notificationService.setReadNotification(req.user.id, reqData.notificationId, (response) => {
+      helpers.sendResponse(res, response);
+    });
+  }
+};
+
 function isEnoughNotifyParam(reqData) {
   if (!reqData) {
     return false;
