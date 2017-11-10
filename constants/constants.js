@@ -251,6 +251,11 @@ module.exports = {
     admin: 1,
   },
   tokenExpired: 1,
+  googleDriver: {
+    version: 'v3',
+    folderShare: '1vb-Lnf5M7O7AEoxUpvkDfYmBASg3X6lb',
+    pathFile: 'https://drive.google.com/file/d/fileId/view',
+  },
   appName: 'MOKI',
   push: {
     otherPersonLogin: {
@@ -281,4 +286,3 @@ module.exports = {
     read: 1,
   },
 };
-

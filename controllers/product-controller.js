@@ -218,7 +218,8 @@ exports.addProduct = (req, res) => {
   const data = req.body;
   if (!data || !helpers.isExist(data.price) || !helpers.isExist(data.name)
     || !helpers.isExist(data.categoryId) || !helpers.isExist(data.shipsFrom)
-    || !helpers.isExist(data.shipsFromId) || !helpers.isExist(data.condition)) {
+    || !helpers.isExist(data.shipsFromId) || !helpers.isExist(data.condition)
+    || (!helpers.isExist(data.image) && !helpers.isExist(data.video))) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const {
@@ -238,7 +239,6 @@ exports.addProduct = (req, res) => {
       || (helpers.isExist(brandId) && !helpers.isValidId(brandId))
       || (helpers.isExist(productSizeId) && !helpers.isValidId(productSizeId))
       || name.length > 30) {
-      console.log((helpers.isExist(productSizeId) && !helpers.isValidId(productSizeId)));
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       const dataValid = {
@@ -314,6 +314,80 @@ exports.getUserListing = (req, res) => {
   }
 };
 
+exports.editProduct = (req, res) => {
+  const data = req.body;
+
+  if (!data
+    || !helpers.isExist(data.id)
+    || !helpers.isExist(data.name)
+    || !helpers.isExist(data.price)
+    || !helpers.isExist(data.productSizeId)
+    || !helpers.isExist(data.brandId)
+    || !helpers.isExist(data.categoryId)
+    || !helpers.isExist(data.shipsFromId)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const validParams = validEditProductParams(data);
+
+    const {
+      nameValid,
+      priceValid,
+      describedValid,
+      shipsFromValid,
+      conditionValid,
+      weightValid,
+    } = validParams;
+    const {
+      id,
+      productSizeId,
+      brandId,
+      categoryId,
+      shipsFromId,
+      dimension,
+      image,
+      imageDel,
+      video,
+      thumb,
+    } = data;
+    if (nameValid === null
+      || priceValid === null
+      || describedValid === null
+      || shipsFromValid === null
+      || conditionValid === null
+      || weightValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (priceValid < 0
+      || !helpers.isValidId(productSizeId)
+      || !helpers.isValidId(brandId)
+      || !helpers.isValidId(categoryId)
+      || shipsFromId.length !== 3) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      const dataValid = {
+        productId: id,
+        price: priceValid,
+        name: nameValid,
+        categoryId,
+        shipsFrom: shipsFromValid,
+        shipsFromId,
+        condition: conditionValid,
+        brandId,
+        productSizeId,
+        described: describedValid,
+        weight: weightValid,
+        dimension,
+        image,
+        imageDel,
+        video,
+        thumb,
+      };
+      productService.editProduct(dataValid, req.user.id, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
+    }
+  }
+};
+
 function validValueProductsParams(productListParams) {
   const categoryId = productListParams.categoryId ? productListParams.categoryId : 0;
   const campaignId = productListParams.campaignId ? productListParams.campaignId : 0;
@@ -381,3 +455,24 @@ function validValueCheckNewItemParams(checkNewItemParams) {
   };
 }
 
+function validEditProductParams(editProductParams) {
+  const {
+    name, price, described, shipsFrom,
+    condition, weight,
+  } = editProductParams;
+
+  const nameValid = helpers.validString(name);
+  const priceValid = helpers.validInteger(price);
+  const describedValid = helpers.isExist(described) ? helpers.validString(described) : 0;
+  const shipsFromValid = helpers.isExist(shipsFrom) ? helpers.validString(shipsFrom) : 0;
+  const conditionValid = helpers.isExist(condition) ? helpers.validInteger(condition) : '';
+  const weightValid = helpers.isExist(weight) ? helpers.validString(weight) : 0;
+  return {
+    nameValid,
+    priceValid,
+    describedValid,
+    shipsFromValid,
+    conditionValid,
+    weightValid,
+  };
+}

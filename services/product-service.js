@@ -2,8 +2,11 @@ const productRepo = require('../repositories/product-repository');
 const likeRepo = require('../repositories/like-repository');
 const blockRepo = require('../repositories/block-repository');
 const reportRepo = require('../repositories/report-repository');
+const mime = require('mime');
 
-const { constants, logger, helpers } = global;
+const {
+  constants, logger, helpers, googleDriver,
+} = global;
 
 exports.getProductList = (data, callback) => {
   const {
@@ -308,17 +311,23 @@ exports.addProduct = (data, userId, callback) => {
   } = data;
   let media;
   if (!helpers.isExist(image)) {
-    media = {
-      type: constants.product.media.type.video,
-      urls: [video],
-      thumb,
-    };
+    saveAllFile([video], (videoUrl) => {
+      saveAllFile([thumb], (thumbUrl) => {
+        media = {
+          type: constants.product.media.type.video,
+          urls: videoUrl,
+          thumb: thumbUrl[0],
+        };
+      });
+    });
   } else {
-    media = {
-      type: constants.product.media.type.image,
-      urls: image,
-      thumb: null,
-    };
+    saveAllFile(image, (imageIdList) => {
+      media = {
+        type: constants.product.media.type.image,
+        urls: imageIdList,
+        thumb: null,
+      };
+    });
   }
   const productData = {
     name,
@@ -389,6 +398,91 @@ exports.getUserListing = (userListingParams, callback) => {
   }).catch((err) => {
     logger.error('Error at function getUserListing.\n', err);
     callback(constants.response.systemError);
+  });
+};
+
+exports.editProduct = (data, userId, callback) => {
+  const {
+    productId, price, name, categoryId, shipsFrom, shipsFromId, condition, brandId,
+    productSizeId, described, weight, dimension, image, imageDel, video, thumb,
+  } = data;
+
+  const select = '';
+  const promise = productRepo.getProductWithOptionSelect(productId, select);
+  let product = null;
+  let isSeller = false;
+  promise.then((productData) => {
+    product = productData;
+    if (!product) {
+      return null;
+    }
+    if (product.seller.toString() !== userId) {
+      return null;
+    }
+
+    isSeller = true;
+    let { media } = product;
+    if (helpers.isExist(imageDel) && imageDel.length > 0) {
+      if (media.type === 0) {
+        deleteFile(imageDel, imageDel, () => {
+          logger.success('Delete success image product.\n');
+        });
+      }
+    }
+
+    if (helpers.isExist(video)) {
+      saveAllFile([video], (videoUrl) => {
+        saveAllFile([thumb], (thumbUrl) => {
+          media = {
+            type: constants.product.media.type.video,
+            urls: videoUrl,
+            thumb: thumbUrl[0],
+          };
+        });
+      });
+    } else if (helpers.isExist(image)) {
+      saveAllFile(image, (imageUrlList) => {
+        media = {
+          type: constants.product.media.type.image,
+          urls: imageUrlList,
+          thumb: null,
+        };
+      });
+    }
+    const productNewData = {
+      name,
+      media,
+      seller: userId,
+      price,
+      price_percent: product.price_percent,
+      description: described === 0 ? product.description : described,
+      ships_from: shipsFrom === 0 ? product.ships_from : shipsFrom,
+      ships_from_ids: shipsFromId,
+      condition: condition === '' ? product.condition : condition,
+      sizes: [productSizeId],
+      brands: [brandId],
+      categories: [categoryId],
+      url: product.url,
+      weight: weight === 0 ? product.weight : weight,
+      dimension: !helpers.isExist(dimension) ? product.dimension : dimension,
+      comments: product.comments,
+      campaigns: product.campaigns,
+    };
+
+    return productRepo.findAndUpdateProduct(productId, productNewData, { new: true });
+  }).then((newProduct) => {
+    if (!product) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    if (!isSeller) {
+      return callback(constants.response.notAccess);
+    }
+
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function editProduct.\n', err);
+    return callback(constants.response.systemError);
   });
 };
 
@@ -617,4 +711,23 @@ function getNewCommentList(comments, commentId, callback) {
     return callback(newComments);
   }
   return callback(null);
+}
+
+function saveAllFile(files, callback) {
+  const fileList = files.map((file) => {
+    return {
+      fileName: `${file.name}_${new Date().getTime()}`,
+      type: mime.getType(file.path),
+      pathFile: file.path,
+    };
+  });
+  googleDriver.authDriver((auth) => {
+    helpers.uploadFile(auth, fileList, callback);
+  });
+}
+
+function deleteFile(fileIds, callback) {
+  googleDriver.authDriver((auth) => {
+    helpers.deleteFile(auth, fileIds, callback);
+  });
 }

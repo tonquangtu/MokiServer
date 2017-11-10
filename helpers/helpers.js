@@ -5,6 +5,9 @@ const dotEnv = require('dotenv');
 const bcrypt = require('bcrypt-nodejs');
 const constants = require('../constants/constants');
 const moment = require('moment');
+const google = require('googleapis');
+const fs = require('fs');
+const logger = require('./logger');
 
 dotEnv.config();
 
@@ -120,3 +123,84 @@ exports.isValidExpiredDate = (expiredDate) => {
 exports.isValidDeviceId = deviceId => !(deviceId && deviceId.length < 10);
 
 exports.getObjectType = aObject => Object.prototype.toString.call(aObject);
+
+exports.uploadFile = (auth, files, callback) => {
+  const service = google.drive(constants.googleDriver.version);
+  const fileUrlList = [];
+  let count = 0;
+  files.forEach((file) => {
+    service.files.create({
+      resource: {
+        name: file.fileName,
+        mimeType: file.type,
+        parents: [
+          constants.googleDriver.folderShare
+        ],
+      },
+      media: {
+        mimeType: file.type,
+        body: fs.createReadStream(file.path),
+      },
+      auth,
+    }, (err, response) => {
+      if (err) {
+        logger.error('Error when save image to driver.\n', err);
+      }
+      count += 1;
+      fileUrlList.push(constants.googleDriver.pathFile.replace('fileId', response.id));
+      if (count === files.length) {
+        return callback(fileUrlList);
+      }
+    });
+  });
+};
+
+exports.uploadFileWithBase64 = (auth, files, type, callback) => {
+  const service = google.drive(constants.googleDriver.version);
+  const fileUrlList = [];
+  let count = 0;
+  files.forEach((file) => {
+    const buf = Buffer.from(file, 'base64');
+    service.files.create({
+      resource: {
+        name: `img_${new Date().getTime()}`,
+        mimeType: type,
+        parents: [
+          constants.googleDriver.folderShare
+        ],
+      },
+      media: {
+        mimeType: type,
+        body: buf,
+      },
+      auth,
+    }, (err, response) => {
+      if (err) {
+        logger.error('Error when save image to driver.\n', err);
+      }
+      count += 1;
+      fileUrlList.push(constants.googleDriver.pathFile.replace('fileId', response.id));
+      if (count === files.length) {
+        return callback(fileUrlList);
+      }
+    });
+  });
+};
+
+exports.deleteFile = (auth, fileIds, callback) => {
+  let count = 0;
+  const service = google.drive(constants.googleDriver.version);
+  fileIds.forEach((fileId) => {
+    service.files.delete({
+      fileId,
+    }, (err, response) => {
+      count += 1;
+      if (err) {
+        logger.error('Error when save image to driver.\n', err);
+      }
+    });
+    if (count === fileIds.length) {
+      callback();
+    }
+  });
+};
