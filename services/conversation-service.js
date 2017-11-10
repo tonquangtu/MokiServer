@@ -135,7 +135,7 @@ exports.setConversation = (consContent, callback) => {
     .catch(err => handleSendError(err, callback));
 };
 
-exports.setConsHavePermission = (consContent, callback) => {
+exports.setConversationCheckedPermission = (consContent, callback) => {
   const {
     userId,
     partnerId,
@@ -258,6 +258,35 @@ exports.checkSendPermission = (senderId, senderRole, receiverId, productId) => {
         return reject(constants.response.systemError);
       });
   });
+};
+
+exports.setReadMessages = (consParam, callback) => {
+  const { userId, partnerId, productId } = consParam;
+  let consTemp = null;
+
+  conversationRepo
+    .findConversation(userId, partnerId, productId)
+    .then((conversation) => {
+      if (!conversation) {
+        return Promise.reject(constants.response.conversationNotFound);
+      }
+
+      consTemp = conversation;
+      return conversationRepo.setReadMessages(conversation.id);
+    })
+    .then(() => {
+      consTemp.set({ num_unread_message: 0 });
+      return conversationRepo.saveConversation(consTemp);
+    })
+    .then(() => callback(constants.response.ok))
+    .catch((err) => {
+      let errResponse = err;
+      if (err !== constants.response.conversationNotFound) {
+        errResponse = constants.response.systemError;
+      }
+
+      return callback(errResponse);
+    });
 };
 
 function conversationsToResponse(userId, conversations) {

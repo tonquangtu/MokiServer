@@ -1,6 +1,8 @@
 const socketIo = require('socket.io');
 const consRepo = require('../repositories/conversation-repository');
+const deviceRepo = require('../repositories/device-repository');
 const consService = require('../services/conversation-service');
+const pushService = require('../services/push-notification-service');
 const ChatRoom = require('../models/domain-models/chat-room');
 const SendToken = require('../models/domain-models/send-token');
 
@@ -16,6 +18,7 @@ const activeUsers = [];
 const rooms = [];
 
 exports.initSocketIo = (server) => {
+  logger.info('Server start listening on socket');
   io = socketIo(server);
   initSocketEvent();
 };
@@ -75,7 +78,7 @@ function receiveMessage(socket, data) {
     senderType: sender.type,
   };
 
-  consService.setConsHavePermission(consParam, (response) => {
+  consService.setConversationCheckedPermission(consParam, (response) => {
     if (response.code !== constants.response.code.ok) {
       resendMessage(socket, response);
       return;
@@ -99,8 +102,8 @@ function receiveMessage(socket, data) {
 
     forwardMessage(socket, roomId, forwardContent);
 
-    if (!isJoinRoom(receiverId)) {
-      pushNotification(socket, roomId, forwardContent);
+    if (!isJoinRoom(roomId, receiverId)) {
+      pushNotification(receiverId, forwardContent);
     }
   });
 }
@@ -168,7 +171,19 @@ function updateMsgStatus(socket, data) {
     });
 }
 
-function disconnectSocket(socket) {}
+function disconnectSocket(socket) {
+  const socketId = socket.id;
+  for (let i = rooms.length; i >= 0; i -= 1) {
+    const joiner = rooms[i].findJoinerBySocketId(socketId);
+    if (joiner) {
+      rooms[i].removeJoiner(socketId);
+      if (rooms[i].numJoiner < 1) {
+        rooms.splice(i, 1);
+      }
+      break;
+    }
+  }
+}
 
 function joinRoom(socket, data) {
   const {
@@ -256,12 +271,48 @@ function sendJoinRoomResponse(err, socket, sendToken) {
   socket.emit(constants.socketEvent.joinRoomResponse, response);
 }
 
-function isJoinRoom(socket, roomId) {
+// not check web user
+function isJoinRoom(roomId, receiverId) {
+  const room = _.find(rooms, { id: roomId });
+  if (room) {
+    const joiners = room.findJoinerByUserId(receiverId);
+    return joiners && joiners.length > 0;
+  }
+
   return false;
 }
 
-function pushNotification(socket, roomId, sendContent) {
-  logger.info(`Push notification: ${sendContent.receiverId}`);
+function pushNotification(receiverId, pushContent) {
+  deviceRepo
+    .findDeviceByUserId(receiverId)
+    .then((device) => {
+      if (device && device.device_token) {
+        const expiredDateString = device.expired_at.toISOString();
+        if (helpers.isValidExpiredDate(expiredDateString)) {
+          doPush(device.device_token, pushContent);
+          return null;
+        }
+      }
+
+      logger.info(`No device token attached with user: ${receiverId}`);
+      return null;
+    })
+    .catch((err) => {
+      logger.error('Error at function pushNotification in realtime-chat-system\n', err);
+    });
+}
+
+function doPush(deviceToken, pushContent) {
+  const title = constants.appName;
+  const body = pushContent.message.content;
+  const pushParam = {
+    deviceToken,
+    title,
+    body,
+    payload: pushContent,
+  };
+
+  pushService.pushNotification(deviceToken, pushParam);
 }
 
 function validMsgParam(sender, receiverId, productId, message) {

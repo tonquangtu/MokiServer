@@ -184,3 +184,21 @@ exports.updateMessageStatus = (consId, msgId, status) => {
   const set = { $set: { 'contents.$.unread': status } };
   return Message.update(where, set);
 };
+
+exports.getNewConversations = userId =>
+  Conversation
+    .find({ $or: [{ user: userId }, { partner: userId }] })
+    .where('num_unread_message').gt(0)
+    .sort({ 'last_message.created_at': -1 })
+    .populate({ path: 'user', select: 'username avatar' })
+    .populate({ path: 'partner', select: 'username avatar' })
+    .populate({ path: 'product', select: 'name media price' })
+    .exec();
+
+exports.setReadMessages = (conversationId) => {
+  const unreadStatus = constants.conversation.status.unread;
+  const readStatus = constants.conversation.status.read;
+  const where = { conversation_id: conversationId, 'contents.unread': unreadStatus };
+  const set = { $set: { 'contents.$.unread': readStatus } };
+  return Message.update(where, set);
+};

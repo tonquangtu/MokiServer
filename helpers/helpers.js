@@ -83,12 +83,32 @@ exports.getExpiredDate = (long) => {
   return expiredDate;
 };
 
-exports.isValidExpiredDate = (expiredDateString) => {
-  if (!this.isExist(expiredDateString)) {
+exports.isValidExpiredDate = (expiredDate) => {
+  if (!this.isExist(expiredDate)) {
     return false;
   }
 
-  const expiredDate = new Date(expiredDateString);
+  let expiredAt = expiredDate;
+  if (Object.prototype.toString.call(expiredDate) !== '[object Date]') {
+    expiredAt = new Date(expiredDate);
+  }
+
+  const now = moment(new Date());
+  const expired = moment(expiredAt);
+
+  const diff = now.diff(expired);
+  if (Number.isNaN(diff)) {
+    return false;
+  }
+
+  return diff < 0;
+};
+
+exports.isValidExpiredDate = (expiredDate) => {
+  if (!this.isExist(expiredDate)) {
+    return false;
+  }
+
   const now = moment(new Date());
   const expired = moment(expiredDate);
 
@@ -99,6 +119,10 @@ exports.isValidExpiredDate = (expiredDateString) => {
 
   return diff < 0;
 };
+
+exports.isValidDeviceId = deviceId => !(deviceId && deviceId.length < 10);
+
+exports.getObjectType = aObject => Object.prototype.toString.call(aObject);
 
 exports.uploadFile = (auth, files, callback) => {
   const service = google.drive(constants.googleDriver.version);

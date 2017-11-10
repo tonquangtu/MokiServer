@@ -4,7 +4,7 @@ const Campaign = require('../models/persistence-models/campaign');
 const Category = require('../models/persistence-models/category');
 const Country = require('../models/persistence-models/country');
 const Like = require('../models/persistence-models/like');
-const Notification = require('../models/persistence-models/notificartion');
+const Notification = require('../models/persistence-models/notification');
 const Product = require('../models/persistence-models/product');
 const Report = require('../models/persistence-models/report');
 const SearchHistory = require('../models/persistence-models/search-history');
@@ -14,6 +14,7 @@ const UserSetting = require('../models/persistence-models/user-setting');
 const Conversation = require('../models/persistence-models/conversation');
 const Message = require('../models/persistence-models/message');
 const UserOrderAddress = require('../models/persistence-models/user-order-address');
+const Device = require('../models/persistence-models/device');
 
 exports.initGlobalModels = () => {
   global.Block = Block;
@@ -32,4 +33,5 @@ exports.initGlobalModels = () => {
   global.Conversation = Conversation;
   global.Message = Message;
   global.UserOrderAddress = UserOrderAddress;
+  global.Device = Device;
 };
