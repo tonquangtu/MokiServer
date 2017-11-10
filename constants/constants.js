@@ -145,6 +145,26 @@ module.exports = {
       message: 'Not found items in system',
       data: null,
     },
+    conversationNotFound: {
+      code: 1020,
+      message: 'Not found conversation of user in system',
+      data: null,
+    },
+    noSendPermission: {
+      code: 1021,
+      message: 'You have not permission to send this message',
+      data: null,
+    },
+    sendError: {
+      code: 1022,
+      message: 'Have error while send message, please try again',
+      data: null,
+    },
+    sendTokenInvalid: {
+      code: 1023,
+      message: 'Send token invalid',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -176,6 +196,8 @@ module.exports = {
     size: 'sizes',
     user: 'users',
     userSetting: 'user_settings',
+    conversation: 'conversations',
+    message: 'messages',
   },
   search: {
     simple: 'simple',
@@ -191,4 +213,37 @@ module.exports = {
   },
   followedField: 'followed',
   followingField: 'following',
+  conversation: {
+    sender: {
+      partner: 1,
+      user: 2,
+    },
+    status: {
+      unread: 1,
+      read: 0,
+    },
+    partnerRole: {
+      user: 0,
+      seller: 1,
+      admin: 2,
+    },
+  },
+  socketEvent: {
+    connection: 'connection',
+    disconnection: 'disconnection',
+    message: 'message',
+    joinRoomRequest: 'join_room_request',
+    joinRoomResponse: 'join_room_response',
+    updateMsgStatus: 'update_message_status',
+  },
+  role: {
+    user: 0,
+    admin: 1,
+  },
+  tokenExpired: 1,
+  googleDriver: {
+    version: 'v3',
+    folderShare: '1vb-Lnf5M7O7AEoxUpvkDfYmBASg3X6lb',
+    pathFile: 'https://drive.google.com/file/d/fileId/view',
+  },
 };

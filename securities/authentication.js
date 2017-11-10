@@ -2,6 +2,8 @@ const passport = require('passport');
 const passportJWT = require('passport-jwt');
 const passportLocal = require('passport-local');
 const constants = require('../constants/constants');
+const helpers = require('../helpers/helpers');
+const logger = require('../helpers/logger');
 const jwtConfig = require('../config/jwt-config');
 
 const { ExtractJwt } = passportJWT;
@@ -14,8 +16,8 @@ exports.setupTokenBaseAuth = () => {
     jwtFromRequest: ExtractJwt.fromBodyField(constants.tokenField),
   };
   const strategy = new JwtStrategy(options, (payload, done) => {
-    const { isLogin, user } = payload;
-    if (isLogin && user) {
+    const { isLogin, user, expiredAt } = payload;
+    if (isLogin && user && helpers.isValidExpiredDate(expiredAt)) {
       return done(null, user);
     }
     return done(null, false, constants.response.tokenInvalid);

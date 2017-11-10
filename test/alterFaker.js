@@ -13,79 +13,77 @@ mongoose.connection.on('open', () => {
 });
 const { helpers } = global;
 
-const User = require('../models/user');
-const Product = require('../models/product');
-const Size = require('../models/size');
-const Category = require('../models/category');
-const Brand = require('../models/brand');
+const User = require('../models/persistence-models/user');
+const Product = require('../models/persistence-models/product');
+const Size = require('../models/persistence-models/size');
+const Category = require('../models/persistence-models/category');
+const Brand = require('../models/persistence-models/brand');
+
+const promiseUser = User.find({}).exec();
 
 changeAllToken();
 addAttributeProduct();
-setTimeout(() => { addAttributeUser(0); }, 0);
-setTimeout(() => { addAttributeUser(1); }, 5000);
-setTimeout(() => { addAttributeUser(2); }, 10000);
+addAttributeUser();
+
+
 function changeAllToken() {
-  User.find({}, (err, users) => {
-    if (err) {
-      console.log(err.message);
-    } else {
-      users.forEach((user) => {
-        user.token = helpers.encodeToken({
-          isLogin: true,
-          user: {
-            id: user.id,
-            username: user.username,
-            phoneNumber: user.phone_number,
-            role: user.role,
-            url: user.url,
-          },
-        });
-        user.save((error) => {
-          if (error) {
-            console.log(error);
-          }
-        });
+  promiseUser.then((users) => {
+    users.forEach((user) => {
+      user.token = helpers.encodeToken({
+        isLogin: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          phoneNumber: user.phone_number,
+          role: user.role,
+          url: user.url,
+        },
       });
-    }
+      user.save((error) => {
+        if (error) {
+          console.log(error);
+        }
+      });
+    });
+  }).catch((err) => {
+    console.log(err.message);
   });
 }
-function addAttributeUser(type) {
-  User.find({}, (err, users) => {
-    if (err) {
-      console.log(`One: ${err.message}`);
-    } else {
-      const userIdList = [];
-      users.forEach((user) => {
-        userIdList.push(user.id);
+function addAttributeUser() {
+  promiseUser.then((users) => {
+    const userIdList = [];
+    users.forEach((user) => {
+      userIdList.push(user.id);
+    });
+    let count = 0;
+    users.forEach((user) => {
+      user.follows_from = getRandomUserList(userIdList, user.id);
+      user.follows_to = getRandomUserList(userIdList, user.id);
+      user.blocks = getRandomUserList(userIdList, user.id);
+      user.save((error) => {
+        count += 1;
+        if (error) {
+          console.log(`Two: ${error.message}`);
+        } if (count === users.length) {
+          console.log('Done add property for users');
+        }
       });
-
-      users.forEach((user) => {
-        const userList = [];
-        for (let i = 0; i < randomInt(0, 5); i += 1) {
-          const choose = userIdList[randomInt(0, userIdList.length - 1)];
-          if (choose !== user.id) {
-            userList.push({
-              user: choose,
-            });
-          }
-        }
-        if (type === 0) {
-          user.follows_from = userList;
-        } else if (type === 1) {
-          user.follows_to = userList;
-        } else {
-          user.blocks = userList;
-        }
-        user.save((error) => {
-          if (error) {
-            console.log(`Two: ${error.message}`);
-          } else {
-            console.log('done');
-          }
-        });
+    });
+  }).catch((err) => {
+    console.log(err.message);
+  });
+}
+function getRandomUserList(userIdList, userId) {
+  const userList = [];
+  for (let i = 0; i < randomInt(0, 5); i += 1) {
+    const choose = userIdList[randomInt(0, userIdList.length - 1)];
+    if (choose !== userId) {
+      userList.push({
+        user: choose,
       });
     }
-  });
+  }
+  return userList;
 }
 function addAttributeProduct() {
   const sizeList = Size.find({}).exec().then((sizes) => {
@@ -128,6 +126,7 @@ function addAttributeProduct() {
             }
             if (count === products.length) {
               console.log('Done add property for product');
+              mongoose.connection.close();
             }
           });
         });

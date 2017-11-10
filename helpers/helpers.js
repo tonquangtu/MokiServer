@@ -4,6 +4,10 @@ const jwtConfig = require('../config/jwt-config');
 const dotEnv = require('dotenv');
 const bcrypt = require('bcrypt-nodejs');
 const constants = require('../constants/constants');
+const moment = require('moment');
+const google = require('googleapis');
+const fs = require('fs');
+const logger = require('./logger');
 
 dotEnv.config();
 
@@ -28,13 +32,13 @@ exports.generateHashPassword = password => bcrypt.hashSync(password, bcrypt.genS
 exports.validPassword =
   (reqPassword, hashPassword) => bcrypt.compareSync(reqPassword, hashPassword);
 
-exports.isValidId = id => id && id.match(/^[0-9a-fA-F]{24}$/);
+exports.isValidId = id => id && id.toString().match(/^[0-9a-fA-F]{24}$/);
 
 exports.validString = (aString) => {
   if (!aString) {
     return null;
   }
-  const trimString = aString.trim();
+  const trimString = aString.toString().trim();
   return trimString.length > 0 ? trimString : null;
 };
 
@@ -71,4 +75,108 @@ exports.validInteger = (aNumber) => {
   }
 
   return number;
+};
+
+exports.getExpiredDate = (long) => {
+  const expiredDate = new Date();
+  expiredDate.setDate(expiredDate.getDate() + long);
+  return expiredDate;
+};
+
+exports.isValidExpiredDate = (expiredDateString) => {
+  if (!this.isExist(expiredDateString)) {
+    return false;
+  }
+
+  const expiredDate = new Date(expiredDateString);
+  const now = moment(new Date());
+  const expired = moment(expiredDate);
+
+  const diff = now.diff(expired);
+  if (Number.isNaN(diff)) {
+    return false;
+  }
+
+  return diff < 0;
+};
+
+exports.uploadFile = (auth, files, callback) => {
+  const service = google.drive(constants.googleDriver.version);
+  const fileUrlList = [];
+  let count = 0;
+  files.forEach((file) => {
+    service.files.create({
+      resource: {
+        name: file.fileName,
+        mimeType: file.type,
+        parents: [
+          constants.googleDriver.folderShare
+        ],
+      },
+      media: {
+        mimeType: file.type,
+        body: fs.createReadStream(file.path),
+      },
+      auth,
+    }, (err, response) => {
+      if (err) {
+        logger.error('Error when save image to driver.\n', err);
+      }
+      count += 1;
+      fileUrlList.push(constants.googleDriver.pathFile.replace('fileId', response.id));
+      if (count === files.length) {
+        return callback(fileUrlList);
+      }
+    });
+  });
+};
+
+exports.uploadFileWithBase64 = (auth, files, type, callback) => {
+  const service = google.drive(constants.googleDriver.version);
+  const fileUrlList = [];
+  let count = 0;
+  files.forEach((file) => {
+    const buf = Buffer.from(file, 'base64');
+    service.files.create({
+      resource: {
+        name: `img_${new Date().getTime()}`,
+        mimeType: type,
+        parents: [
+          constants.googleDriver.folderShare
+        ],
+      },
+      media: {
+        mimeType: type,
+        body: buf,
+      },
+      auth,
+    }, (err, response) => {
+      if (err) {
+        logger.error('Error when save image to driver.\n', err);
+      }
+      count += 1;
+      fileUrlList.push(constants.googleDriver.pathFile.replace('fileId', response.id));
+      if (count === files.length) {
+        return callback(fileUrlList);
+      }
+    });
+  });
+};
+
+exports.deleteFile = (auth, fileIds, callback) => {
+  let count = 0;
+  const service = google.drive(constants.googleDriver.version);
+  fileIds.forEach((fileId) => {
+    service.files.delete({
+      fileId,
+    }, (err, response) => {
+      count += 1;
+      if (err) {
+        logger.error('Error when save image to driver.\n', err);
+      }
+    });
+    if (count === fileIds.length) {
+      callback();
+    }
+  });
 };

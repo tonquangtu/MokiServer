@@ -6,6 +6,7 @@ const auth = require('../securities/authentication');
 const jwtConfig = require('../config/jwt-config');
 const _ = require('lodash');
 const logger = require('../helpers/logger');
+const googleDriver = require('../config/google-driver-config');
 
 exports.initGlobalModules = () => {
   global.express = express;
@@ -17,5 +18,6 @@ exports.initGlobalModules = () => {
   global.auth = auth;
   global._ = _;
   global.logger = logger;
+  global.googleDriver = googleDriver;
 };
 
