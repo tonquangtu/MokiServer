@@ -122,6 +122,7 @@ function productCreate(productParams, callback) {
       thumb: productParams[3],
     },
     seller: productParams[4],
+    seller_username: productParams[22],
     price: productParams[5],
     price_percent: productParams[6],
     description: productParams[7],
@@ -403,7 +404,9 @@ function productsFaker(cb) {
       const mediaType = 0;
       const mediaUrlArr = faker.image.imageUrl();
       const mediaThumb = '';
-      const seller = users[randomInt(0, users.length - 1)];
+      const userIndex = randomInt(0, users.length - 1);
+      const seller = users[userIndex];
+      const sellerUsername = users[userIndex].username;
       const price = faker.random.number();
       const pricePercent = 0;
       const description = faker.lorem.paragraph();
@@ -444,6 +447,7 @@ function productsFaker(cb) {
         commentsContent,
         commenter,
         campaignArr,
+        sellerUsername,
       ];
 
       productCreate(productParams, callback);
