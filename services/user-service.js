@@ -1,6 +1,9 @@
 const userRepo = require('../repositories/user-repository');
+const countryRepo = require('../repositories/country-repository');
 
-const { constants, helpers, _, logger } = global;
+const {
+  constants, helpers, _, logger,
+} = global;
 
 exports.getOtherUserDetail = (myId, otherUserId, callback) => {
   let response;
@@ -299,6 +302,59 @@ exports.getFollowList = (data, callback) => {
     return callback(responseData);
   }).catch((err) => {
     logger.error('Error at function getFollowList.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getListProvince = (callback) => {
+  const promise = countryRepo.getProvinces();
+
+  promise.then((provinces) => {
+    const responseProvinces = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: provinces.provinces,
+    };
+    return callback(responseProvinces);
+  }).catch((err) => {
+    logger.error('Error at function getListProvince.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getListDist = (callback) => {
+  const promise = countryRepo.getDistricts();
+  const distArray = [];
+
+  console.log('Zo getListDist');
+
+  promise.then((dists) => {
+    const responseDist = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: dists[0].districts,
+    };
+    return callback(responseDist);
+  }).catch((err) => {
+    logger.error('Error at function getListDist.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getListDistByParentId = (parentIdValid, callback) => {
+  console.log('ParentId : ', parentIdValid);
+
+  const promise = countryRepo.getListDistrictByParentId(parentIdValid);
+
+  promise.then((listDistByParentId) => {
+    const responseDistByParentId = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: listDistByParentId[0].provinces.districts,
+    };
+    return callback(responseDistByParentId);
+  }).catch((err) => {
+    logger.error('Error at function getListDistByParentId.\n', err);
     return callback(constants.response.systemError);
   });
 };

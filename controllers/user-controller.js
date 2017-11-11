@@ -108,3 +108,41 @@ function validateSettingParams(data) {
   };
 }
 
+exports.getShipForm = (req, res) => {
+  const reqData = req.body;
+
+  if (!reqData) {
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  } else {
+    const { level, parentId } = reqData;
+
+    if (!helpers.isExist(level)) {
+      helpers.sendResponse(res, constants.response.paramNotEnough);
+    } else {
+      const levelValid = helpers.validInteger(level);
+
+      if (levelValid === null) {
+        helpers.sendResponse(res, constants.response.paramTypeInvalid);
+      } else if (levelValid === 1) {
+        userService.getListProvince((responseData) => {
+          helpers.sendResponse(res, responseData);
+        });
+      } else if (levelValid === 2) {
+        if (!helpers.isExist(parentId)) {
+          userService.getListDist((responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        } else {
+          userService.getListDistByParentId(helpers.validInteger(parentId), (responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        }
+      } else if (levelValid === 3) {
+        console.log('Get list xa');
+      } else {
+        helpers.sendResponse(res, constants.response.paramTypeInvalid);
+      }
+    }
+  }
+};
+
