@@ -324,9 +324,6 @@ exports.getListProvince = (callback) => {
 
 exports.getListDist = (callback) => {
   const promise = countryRepo.getDistricts();
-  const distArray = [];
-
-  console.log('Zo getListDist');
 
   promise.then((dists) => {
     const responseDist = {
@@ -342,8 +339,6 @@ exports.getListDist = (callback) => {
 };
 
 exports.getListDistByParentId = (parentIdValid, callback) => {
-  console.log('ParentId : ', parentIdValid);
-
   const promise = countryRepo.getListDistrictByParentId(parentIdValid);
 
   promise.then((listDistByParentId) => {
@@ -355,6 +350,38 @@ exports.getListDistByParentId = (parentIdValid, callback) => {
     return callback(responseDistByParentId);
   }).catch((err) => {
     logger.error('Error at function getListDistByParentId.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getListWard = (callback) => {
+  const promise = countryRepo.getWards();
+
+  promise.then((wards) => {
+    const responseWards = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: wards[0].winds,
+    };
+    return callback(responseWards);
+  }).catch((err) => {
+    logger.error('Error at function getListWard.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getListWardByParentId = (parentIdValid, callback) => {
+  const promise = countryRepo.getListWardByParentId(parentIdValid);
+
+  promise.then((listWardByParentId) => {
+    const responseWardByParentId = {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: listWardByParentId[0].provinces.districts.towns,
+    };
+    return callback(responseWardByParentId);
+  }).catch((err) => {
+    logger.error('Error at function getListWardByParentId.\n', err);
     return callback(constants.response.systemError);
   });
 };

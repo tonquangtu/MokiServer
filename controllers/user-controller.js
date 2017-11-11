@@ -138,7 +138,15 @@ exports.getShipForm = (req, res) => {
           });
         }
       } else if (levelValid === 3) {
-        console.log('Get list xa');
+        if (!helpers.isExist(parentId)) {
+          userService.getListWard((responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        } else {
+          userService.getListWardByParentId(helpers.validInteger(parentId), (responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        }
       } else {
         helpers.sendResponse(res, constants.response.paramTypeInvalid);
       }
