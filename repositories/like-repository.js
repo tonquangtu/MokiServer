@@ -5,7 +5,7 @@ exports.getLikeUserProduct = (userId, productId) => Like.findOne({
   product: productId,
 }).exec();
 
-exports.findAndUpdateLike = (like, likeData) => {
+exports.findAndUpdateLike = (like, likeData, options) => {
   if (!like) {
     const newLike = new Like(likeData);
     return newLike.save();
@@ -13,7 +13,7 @@ exports.findAndUpdateLike = (like, likeData) => {
 
   const newLike = like;
   newLike.is_liked = !like.is_liked;
-  return Like.findByIdAndUpdate(like.id, newLike).exec();
+  return Like.findByIdAndUpdate(like.id, newLike, options).exec();
 };
 
 exports.getMyLikeProductList = (userId, count, index) => Like.find({

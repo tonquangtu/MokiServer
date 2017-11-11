@@ -4,9 +4,9 @@ const productService = require('../services/product-service');
 
 exports.getProductList = (req, res) => {
   const data = req.body;
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
-  } else if (!helpers.isExist(data.count) || !helpers.isExist(data.index)) {
+
+  console.log(data);
+  if (!data || !helpers.isExist(data.count) || !helpers.isExist(data.index)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const count = helpers.validInteger(data.count);
@@ -31,6 +31,7 @@ exports.getProductList = (req, res) => {
         index,
         userId,
       }, (responseData) => {
+        console.log(responseData);
         helpers.sendResponse(res, responseData);
       });
     }
@@ -40,9 +41,7 @@ exports.getProductList = (req, res) => {
 exports.getProductDetail = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
-  } else if (!helpers.isExist(data.id)) {
+  if (!data || !helpers.isExist(data.id)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const { id, token } = data;
@@ -61,13 +60,11 @@ exports.getProductDetail = (req, res) => {
 exports.getCommentProduct = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data || !helpers.isExist(data.productId)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const { productId, token } = data;
-    if (!helpers.isExist(productId)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
-    } else if (!helpers.isValidId(productId)) {
+    if (!helpers.isValidId(productId)) {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       const user = helpers.getUserFromToken(token);
@@ -82,15 +79,16 @@ exports.getCommentProduct = (req, res) => {
 exports.postCommentProduct = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data
+    || !helpers.isExist(data.productId)
+    || !helpers.isExist(data.comment)
+    || !helpers.isExist(data.index)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const { productId, comment, index } = data;
     const validValueParams = validValueCommentParams(data);
 
-    if (!helpers.isExist(productId) || !helpers.isExist(comment) || !helpers.isExist(index)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
-    } else if (typeof comment !== 'string' && !(comment instanceof String)) {
+    if (typeof comment !== 'string' && !(comment instanceof String)) {
       helpers.sendResponse(res, constants.response.paramTypeInvalid);
     } else if (!validValueParams) {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
@@ -108,14 +106,12 @@ exports.postCommentProduct = (req, res) => {
 exports.deleteProduct = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data || !helpers.isExist(data.id)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const productId = data.id;
 
-    if (!helpers.isExist(productId)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
-    } else if (!helpers.isValidId(productId)) {
+    if (!helpers.isValidId(productId)) {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       productService.deleteProduct(productId, req.user.id, (responseData) => {
@@ -128,14 +124,12 @@ exports.deleteProduct = (req, res) => {
 exports.likeProduct = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data || !helpers.isExist(data.productId)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const { productId } = data;
 
-    if (!helpers.isExist(productId)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
-    } else if (!helpers.isValidId(productId)) {
+    if (!helpers.isValidId(productId)) {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       productService.likeProduct(productId, req.user.id, (responseData) => {
@@ -148,20 +142,22 @@ exports.likeProduct = (req, res) => {
 exports.reportProduct = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data
+    || !helpers.isExist(data.productId)
+    || !helpers.isExist(data.subject)
+    || !helpers.isExist(data.details)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const { productId, subject, details } = data;
+    const validValueParams = validValueReportParams(data);
 
-    if (!helpers.isExist(productId) || !helpers.isExist(subject) || !helpers.isExist(details)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
-    } else if ((typeof subject !== 'string' && !(subject instanceof String))
+    if ((typeof subject !== 'string' && !(subject instanceof String))
       || (typeof details !== 'string' && !(details instanceof String))) {
       helpers.sendResponse(res, constants.response.paramTypeInvalid);
-    } else if (!validValueReportParams(data)) {
+    } else if (!validValueParams) {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
-      const { subjectValid, detailsValid } = validValueReportParams(data);
+      const { subjectValid, detailsValid } = validValueParams;
 
       productService.reportProduct(
         productId, subjectValid, detailsValid, req.user.id,
@@ -176,26 +172,21 @@ exports.reportProduct = (req, res) => {
 exports.getProductListMyLike = (req, res) => {
   const data = req.body;
 
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data || !helpers.isExist(data.count) || !helpers.isExist(data.index)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const { count, index } = data;
+    const countValid = helpers.validInteger(count);
+    const indexValid = helpers.validInteger(index);
 
-    if (!helpers.isExist(count) || !helpers.isExist(index)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
+    if (countValid === null || indexValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (indexValid < 0 || countValid <= 0) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
-      const countValid = helpers.validInteger(count);
-      const indexValid = helpers.validInteger(index);
-
-      if (countValid === null || indexValid === null) {
-        helpers.sendResponse(res, constants.response.paramTypeInvalid);
-      } else if (indexValid < 0 || countValid <= 0) {
-        helpers.sendResponse(res, constants.response.paramValueInvalid);
-      } else {
-        productService.getMyLikeProductList(index, countValid, req.user.id, (responseData) => {
-          helpers.sendResponse(res, responseData);
-        });
-      }
+      productService.getMyLikeProductList(index, countValid, req.user.id, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
     }
   }
 };
@@ -225,53 +216,174 @@ exports.getNewItemNumber = (req, res) => {
 
 exports.addProduct = (req, res) => {
   const data = req.body;
-  if (!data) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!data || !helpers.isExist(data.price) || !helpers.isExist(data.name)
+    || !helpers.isExist(data.categoryId) || !helpers.isExist(data.shipsFrom)
+    || !helpers.isExist(data.shipsFromId) || !helpers.isExist(data.condition)
+    || (!helpers.isExist(data.image) && !helpers.isExist(data.video))) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     const {
       price, name, categoryId, shipsFrom, shipsFromId, image, video, thumb,
       condition, brandId, productSizeId, described, weight, dimension,
     } = data;
 
-    if (!helpers.isExist(price) || !helpers.isExist(name)
-      || !helpers.isExist(categoryId) || !helpers.isExist(shipsFrom)
-      || !helpers.isExist(shipsFromId) || !helpers.isExist(condition)) {
-      helpers.sendResponse(res, constants.response.paramNotEnough);
-    } else {
-      const priceValid = helpers.validInteger(price);
-      const conditionValid = helpers.validInteger(condition);
-      const nameValid = helpers.validString(name);
-      const shipsFromValid = helpers.validString(shipsFrom);
+    const priceValid = helpers.validInteger(price);
+    const conditionValid = helpers.validInteger(condition);
+    const nameValid = helpers.validString(name);
+    const shipsFromValid = helpers.validString(shipsFrom);
 
-      if (priceValid === null || conditionValid === null
-        || nameValid === null || shipsFromValid === null) {
-        helpers.sendResponse(res, constants.response.paramTypeInvalid);
-      } else if (!helpers.isValidId(categoryId)
-        || (helpers.isExist(brandId) && !helpers.isValidId(brandId))
-        || (helpers.isExist(productSizeId) && !helpers.isValidId(productSizeId))
-        || name.length > 30) {
-        helpers.sendResponse(res, constants.response.paramValueInvalid);
-      } else {
-        const dataValid = {
-          price: priceValid,
-          name: nameValid,
-          categoryId,
-          shipsFrom: shipsFromValid,
-          shipsFromId,
-          condition: conditionValid,
-          brandId,
-          productSizeId,
-          described,
-          weight,
-          dimension,
-          image,
-          video,
-          thumb,
-        };
-        productService.addProduct(dataValid, req.user.id, (responseData) => {
-          helpers.sendResponse(res, responseData);
-        });
-      }
+    if (priceValid === null || conditionValid === null
+      || nameValid === null || shipsFromValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (!helpers.isValidId(categoryId)
+      || (helpers.isExist(brandId) && !helpers.isValidId(brandId))
+      || (helpers.isExist(productSizeId) && !helpers.isValidId(productSizeId))
+      || name.length > 30) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      const dataValid = {
+        price: priceValid,
+        name: nameValid,
+        categoryId,
+        shipsFrom: shipsFromValid,
+        shipsFromId,
+        condition: conditionValid,
+        brandId,
+        productSizeId,
+        described,
+        weight,
+        dimension,
+        image,
+        video,
+        thumb,
+      };
+      productService.addProduct(dataValid, req.user.id, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
+    }
+  }
+};
+
+exports.getUserListing = (req, res) => {
+  const data = req.body;
+
+  if (!data
+    || !helpers.isExist(data.index)
+    || !helpers.isExist(data.count)
+    || (!helpers.isExist(data.token) && !helpers.isExist(data.userId))) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const {
+      token, index, count, userId, keyword, categoryId,
+    } = data;
+
+    let myId = 0;
+    const indexValid = helpers.validInteger(index);
+    const countValid = helpers.validInteger(count);
+
+    if (helpers.isExist(token)) {
+      const user = helpers.getUserFromToken(token);
+      myId = user ? user.id : 0;
+    }
+
+    if (indexValid === null || countValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (indexValid < 0
+      || countValid < 0
+      || (helpers.isExist(userId) && !helpers.isValidId(userId))
+      || (helpers.isExist(categoryId) && !helpers.isValidId(categoryId))) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      const userIdValid = helpers.isExist(userId) ? userId : 0;
+      const categoryIdValid = helpers.isExist(categoryId) ? categoryId : 0;
+      const keywordValid = helpers.isExist(keyword) ? keyword : 0;
+
+      const userListingParams = {
+        myId,
+        indexValid,
+        countValid,
+        userIdValid,
+        keywordValid,
+        categoryIdValid,
+      };
+
+      productService.getUserListing(userListingParams, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
+    }
+  }
+};
+
+exports.editProduct = (req, res) => {
+  const data = req.body;
+
+  if (!data
+    || !helpers.isExist(data.id)
+    || !helpers.isExist(data.name)
+    || !helpers.isExist(data.price)
+    || !helpers.isExist(data.productSizeId)
+    || !helpers.isExist(data.brandId)
+    || !helpers.isExist(data.categoryId)
+    || !helpers.isExist(data.shipsFromId)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else {
+    const validParams = validEditProductParams(data);
+
+    const {
+      nameValid,
+      priceValid,
+      describedValid,
+      shipsFromValid,
+      conditionValid,
+      weightValid,
+    } = validParams;
+    const {
+      id,
+      productSizeId,
+      brandId,
+      categoryId,
+      shipsFromId,
+      dimension,
+      image,
+      imageDel,
+      video,
+      thumb,
+    } = data;
+    if (nameValid === null
+      || priceValid === null
+      || describedValid === null
+      || shipsFromValid === null
+      || conditionValid === null
+      || weightValid === null) {
+      helpers.sendResponse(res, constants.response.paramTypeInvalid);
+    } else if (priceValid < 0
+      || !helpers.isValidId(productSizeId)
+      || !helpers.isValidId(brandId)
+      || !helpers.isValidId(categoryId)
+      || shipsFromId.length !== 3) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      const dataValid = {
+        productId: id,
+        price: priceValid,
+        name: nameValid,
+        categoryId,
+        shipsFrom: shipsFromValid,
+        shipsFromId,
+        condition: conditionValid,
+        brandId,
+        productSizeId,
+        described: describedValid,
+        weight: weightValid,
+        dimension,
+        image,
+        imageDel,
+        video,
+        thumb,
+      };
+      productService.editProduct(dataValid, req.user.id, (responseData) => {
+        helpers.sendResponse(res, responseData);
+      });
     }
   }
 };
@@ -300,7 +412,7 @@ function validValueProductsParams(productListParams) {
 
 function validValueCommentParams(commentParams) {
   const { productId, index } = commentParams;
-  const comment = commentParams.comment.trim();
+  const comment = commentParams.comment.toString().trim();
 
   if (!helpers.isValidId(productId) || !helpers.isValidId(index) || comment === '') {
     return false;
@@ -315,10 +427,10 @@ function validValueCommentParams(commentParams) {
 
 function validValueReportParams(reportParams) {
   const { productId } = reportParams;
-  const subject = reportParams.subject.trim();
-  const details = reportParams.details.trim();
+  const subject = helpers.validString(reportParams.subject);
+  const details = helpers.validString(reportParams.details);
 
-  if (!helpers.isValidId(productId) || subject === '' || details === '') {
+  if (!helpers.isValidId(productId) || subject === null || details === null) {
     return false;
   }
 
@@ -343,3 +455,24 @@ function validValueCheckNewItemParams(checkNewItemParams) {
   };
 }
 
+function validEditProductParams(editProductParams) {
+  const {
+    name, price, described, shipsFrom,
+    condition, weight,
+  } = editProductParams;
+
+  const nameValid = helpers.validString(name);
+  const priceValid = helpers.validInteger(price);
+  const describedValid = helpers.isExist(described) ? helpers.validString(described) : 0;
+  const shipsFromValid = helpers.isExist(shipsFrom) ? helpers.validString(shipsFrom) : 0;
+  const conditionValid = helpers.isExist(condition) ? helpers.validInteger(condition) : '';
+  const weightValid = helpers.isExist(weight) ? helpers.validString(weight) : 0;
+  return {
+    nameValid,
+    priceValid,
+    describedValid,
+    shipsFromValid,
+    conditionValid,
+    weightValid,
+  };
+}

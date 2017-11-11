@@ -7,7 +7,7 @@
 const app = require('../app');
 const debug = require('debug')('moki:server');
 const http = require('http');
-
+const chatService = require('../services/realtime-chat-service');
 /**
  * Get port from environment and store in Express.
  */
@@ -28,6 +28,8 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+chatService.initSocketIo(server);
 
 
 /**
@@ -88,3 +90,4 @@ function onListening() {
     : `port ${addr.port}`;
   debug(`Listening on ${bind}`);
 }
+

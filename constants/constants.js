@@ -145,6 +145,36 @@ module.exports = {
       message: 'Not found items in system',
       data: null,
     },
+    conversationNotFound: {
+      code: 1020,
+      message: 'Not found conversation of user in system',
+      data: null,
+    },
+    noSendPermission: {
+      code: 1021,
+      message: 'You have not permission to send this message',
+      data: null,
+    },
+    sendError: {
+      code: 1022,
+      message: 'Have error while send message, please try again',
+      data: null,
+    },
+    sendTokenInvalid: {
+      code: 1023,
+      message: 'Send token invalid',
+      data: null,
+    },
+    deviceNotFound: {
+      code: 1024,
+      message: 'Not found device in system',
+      data: null,
+    },
+    notificationNotFound: {
+      code: 1025,
+      message: 'Not found notification in system',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,
@@ -176,6 +206,8 @@ module.exports = {
     size: 'sizes',
     user: 'users',
     userSetting: 'user_settings',
+    conversation: 'conversations',
+    message: 'messages',
   },
   search: {
     simple: 'simple',
@@ -191,4 +223,66 @@ module.exports = {
   },
   followedField: 'followed',
   followingField: 'following',
+  conversation: {
+    sender: {
+      partner: 1,
+      user: 2,
+    },
+    status: {
+      unread: 1,
+      read: 0,
+    },
+    partnerRole: {
+      user: 0,
+      seller: 1,
+      admin: 2,
+    },
+  },
+  socketEvent: {
+    connection: 'connection',
+    disconnection: 'disconnection',
+    message: 'message',
+    joinRoomRequest: 'join_room_request',
+    joinRoomResponse: 'join_room_response',
+    updateMsgStatus: 'update_message_status',
+  },
+  role: {
+    user: 0,
+    admin: 1,
+  },
+  tokenExpired: 1,
+  googleDriver: {
+    version: 'v3',
+    folderShare: '1vb-Lnf5M7O7AEoxUpvkDfYmBASg3X6lb',
+    pathFile: 'https://drive.google.com/file/d/fileId/view',
+  },
+  appName: 'MOKI',
+  push: {
+    otherPersonLogin: {
+      title: 'MOKI',
+      body: 'Có ai đó đã đăng nhập tài khoản bạn trên 1 thiết bị khác',
+      code: 1,
+    },
+    message: {
+      title: 'MOKI',
+      body: null,
+      code: 2,
+    },
+  },
+  device: {
+    type: {
+      ios: 0,
+      android: 1,
+    },
+    deviceIdHeader: 'deviceId',
+    deviceTypeHeader: 'deviceType',
+  },
+  notification: {
+    group: {
+      normal: 0,
+      transaction: 1,
+    },
+    unread: 0,
+    read: 1,
+  },
 };

@@ -2,7 +2,10 @@ const userRepo = require('../repositories/user-repository');
 const countryRepo = require('../repositories/country-repository');
 
 const {
-  constants, helpers, _, logger,
+  constants,
+  helpers,
+  _,
+  logger,
 } = global;
 
 exports.getOtherUserDetail = (myId, otherUserId, callback) => {
@@ -100,12 +103,8 @@ exports.updateUser = (userId, updateData, options, callback) => {
     if (!user) {
       return callback(constants.response.userNotFound);
     }
-    const response = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: null,
-    };
-    return callback(response);
+
+    return callback(constants.response.ok);
   }).catch((err) => {
     logger.error('Error at function updateUser in user-service.\n', err);
     return callback(constants.response.systemError);
@@ -115,11 +114,11 @@ exports.updateUser = (userId, updateData, options, callback) => {
 exports.getSetting = (userId, callback) => {
   const promise = userRepo.getPushSetting(userId);
   let pushSetting;
-
+  let responseData = null;
   promise.then((userSettings) => {
     if (userSettings.length > 0) {
       pushSetting = userSettings[0].push_setting;
-      const responseData = {
+      responseData = {
         code: constants.response.ok.code,
         message: constants.response.ok.message,
         data: {
@@ -130,7 +129,7 @@ exports.getSetting = (userId, callback) => {
           soundDefault: pushSetting.sound_default,
         },
       };
-      return callback(responseData);
+      return null;
     }
 
     const { turnOn } = constants.pushSetting;
@@ -146,8 +145,12 @@ exports.getSetting = (userId, callback) => {
     };
     return userRepo.addPushSetting(pushSettingData);
   }).then((newUserSetting) => {
+    if (responseData) {
+      return callback(responseData);
+    }
+
     const newPushSetting = newUserSetting.push_setting;
-    const responseData = {
+    responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: {
@@ -248,10 +251,13 @@ exports.getFollowList = (data, callback) => {
   } = data;
   const promise = userRepo.getUserFollows(userId, index, count, type);
   let followList;
+  let user = null;
+  let responseData = null;
 
-  promise.then((user) => {
+  promise.then((userData) => {
+    user = userData;
     if (!user) {
-      return callback(constants.response.userNotFound);
+      return null;
     }
 
     followList = (type === constants.followedField) ? user.follows_from : user.follows_to;
@@ -268,21 +274,29 @@ exports.getFollowList = (data, callback) => {
           });
         }
       });
-      const responseData = {
+      responseData = {
         code: constants.response.ok.code,
         message: constants.response.ok.message,
         data: followArray,
       };
 
-      return callback(responseData);
+      return null;
     }
     return userRepo.getUserFollows(myId, 0, 0, constants.followingField);
   }).then((myInfo) => {
+    if (!user) {
+      return callback(constants.response.userNotFound);
+    }
+
+    if (responseData) {
+      return callback(responseData);
+    }
+
     const followArray = [];
 
     followList.forEach((follower) => {
       if (follower.user) {
-        const follow = _.find(myInfo.follows_to, user => user.user.id === follower.user.id);
+        const follow = _.find(myInfo.follows_to, userData => userData.user.id === follower.user.id);
         const followed = follow ? 1 : 0;
 
         followArray.push({
@@ -293,7 +307,7 @@ exports.getFollowList = (data, callback) => {
         });
       }
     });
-    const responseData = {
+    responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: followArray,

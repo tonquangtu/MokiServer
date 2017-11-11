@@ -62,7 +62,7 @@ exports.getProductCommentList = productId => Product.findById(productId)
   .populate({ path: 'comments.commenter', select: 'username avatar' })
   .exec();
 
-exports.getProductOfUser = userId => Product.find({ seller: userId })
+exports.getProductOfUserById = userId => Product.find({ seller: userId })
   .exec();
 
 exports.findAndUpdateProductCommentList =
@@ -80,5 +80,37 @@ exports.findAndUpdateProduct =
 exports.addProduct = (productData) => {
   const product = new Product(productData);
   return product.save();
+};
+
+exports.getProductWithOptionSelect =
+  (productId, select) => Product.findById(productId).select(select).exec();
+
+exports.getProductOfUser = (userListingParams) => {
+  const {
+    myId,
+    indexValid,
+    countValid,
+    userIdValid,
+    keywordValid,
+    categoryIdValid,
+  } = userListingParams;
+  let sellerId;
+  if (userIdValid !== 0) {
+    sellerId = userIdValid;
+  } else {
+    sellerId = myId;
+  }
+
+  if (categoryIdValid !== 0) {
+    return Product.find({ seller: sellerId, categories: categoryIdValid })
+      .skip(indexValid)
+      .limit(countValid)
+      .exec();
+  }
+
+  return Product.find({ seller: sellerId })
+    .skip(indexValid)
+    .limit(countValid)
+    .exec();
 };
 

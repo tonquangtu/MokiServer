@@ -2,8 +2,11 @@ const productRepo = require('../repositories/product-repository');
 const likeRepo = require('../repositories/like-repository');
 const blockRepo = require('../repositories/block-repository');
 const reportRepo = require('../repositories/report-repository');
+const mime = require('mime');
 
-const { constants, logger, helpers } = global;
+const {
+  constants, logger, helpers, googleDriver,
+} = global;
 
 exports.getProductList = (data, callback) => {
   const {
@@ -11,18 +14,22 @@ exports.getProductList = (data, callback) => {
   } = data;
 
   let response = {};
-  let products = [];
+  let products = null;
 
   const promise = productRepo.getProductList(categoryId, campaignId, lastId, count);
   promise.then((productList) => {
     products = productList;
 
     if (!products || products.length === 0) {
-      return callback(constants.response.noDataOrEndListData);
+      return null;
     }
 
     return productRepo.getNewItemNum(index, categoryId);
   }).then((newItemNum) => {
+    if (!products || products.length === 0) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
     getProductAttributes(products, userId, (productArr) => {
       response = {
         code: constants.response.ok.code,
@@ -87,7 +94,7 @@ exports.getProductCommentList = (productId, userId, callback) => {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: commentResponse,
-      isBlocked,
+      isBlocked: isBlocked ? 1 : 0,
     };
 
     return callback(response);
@@ -99,9 +106,11 @@ exports.getProductCommentList = (productId, userId, callback) => {
 
 exports.addProductComment = (productId, comment, index, userId, callback) => {
   const promise = productRepo.getProductCommentList(productId);
-  promise.then((product) => {
+  let product = null;
+  promise.then((productData) => {
+    product = productData;
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
 
     const newProduct = product;
@@ -115,6 +124,10 @@ exports.addProductComment = (productId, comment, index, userId, callback) => {
 
     return productRepo.findAndUpdateProductCommentList(product.id, newProduct, { new: true });
   }).then((newProduct) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+
     getNewCommentList(newProduct.comments, index, (data) => {
       if (!data) {
         return callback(constants.response.paramValueInvalid);
@@ -136,69 +149,98 @@ exports.addProductComment = (productId, comment, index, userId, callback) => {
 
 exports.deleteProduct = (productId, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
-  promiseProduct.then((product) => {
+  let product = null;
+  let isSeller = false;
+  promiseProduct.then((productData) => {
+    product = productData;
+
+    if (!product) {
+      return null;
+    }
+
+    const { seller } = product;
+    if (!seller || seller.id !== userId) {
+      return null;
+    }
+
+    isSeller = true;
+    return productRepo.deleteProduct(productId);
+  }).then((data) => {
     if (!product) {
       return callback(constants.response.productNotExist);
     }
 
-    const { seller } = product;
-    if (seller.id !== userId) {
+    if (!isSeller) {
       return callback(constants.response.notAccess);
     }
 
-    return productRepo.deleteProduct(productId);
-  }).then(data => callback(constants.response.ok))
-    .catch((err) => {
-      logger.error('Error at function deleteProduct.\n', err);
-      return callback(constants.response.systemError);
-    });
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function deleteProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.likeProduct = (productId, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
-  let productData;
+  let product;
 
-  promiseProduct.then((product) => {
+  promiseProduct.then((productData) => {
+    product = productData;
+
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
-    productData = product;
 
     return likeRepo.getLikeUserProduct(userId, productId);
   }).then((like) => {
+    if (!product) {
+      return null;
+    }
+
     const likeData = {
       user: userId,
       product: productId,
       is_liked: 1,
     };
 
-    return likeRepo.findAndUpdateLike(like, likeData);
+    return likeRepo.findAndUpdateLike(like, likeData, { new: true });
   }).then((data) => {
-    productData.like = (data.is_liked === 1) ? (productData.like + 1) : (productData.like - 1);
+    if (!product) {
+      return null;
+    }
 
-    return productRepo.findAndUpdateProduct(productId, productData, { new: true });
-  }).then((product) => {
+    product.like = (data.is_liked === 1) ? (product.like + 1) : (product.like - 1);
+
+    return productRepo.findAndUpdateProduct(productId, product, { new: true });
+  }).then((productData) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
     const responseData = {
       code: constants.response.ok.code,
       message: constants.response.ok.message,
       data: {
-        like: product.like,
+        like: productData.like,
       },
     };
 
     return callback(responseData);
-  })
-    .catch((err) => {
-      logger.error('Error at function likeProduct.\n', err);
-      return callback(constants.response.systemError);
-    });
+  }).catch((err) => {
+    logger.error('Error at function likeProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.reportProduct = (productId, subject, details, userId, callback) => {
   const promiseProduct = productRepo.getProductDetail(productId);
-  promiseProduct.then((product) => {
+  let product = null;
+
+  promiseProduct.then((productData) => {
+    product = productData;
+
     if (!product) {
-      return callback(constants.response.productNotExist);
+      return null;
     }
 
     const reportData = {
@@ -209,11 +251,16 @@ exports.reportProduct = (productId, subject, details, userId, callback) => {
     };
 
     return reportRepo.saveReport(reportData);
-  }).then(data => callback(constants.response.ok))
-    .catch((err) => {
-      logger.error('Error at function reportProduct.\n', err);
-      return callback(constants.response.systemError);
-    });
+  }).then((data) => {
+    if (!product) {
+      return callback(constants.response.productNotExist);
+    }
+
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function reportProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
 };
 
 exports.getMyLikeProductList = (index, count, userId, callback) => {
@@ -264,17 +311,23 @@ exports.addProduct = (data, userId, callback) => {
   } = data;
   let media;
   if (!helpers.isExist(image)) {
-    media = {
-      type: constants.product.media.type.video,
-      urls: [video],
-      thumb,
-    };
+    saveAllFile([video], (videoUrl) => {
+      saveAllFile([thumb], (thumbUrl) => {
+        media = {
+          type: constants.product.media.type.video,
+          urls: videoUrl,
+          thumb: thumbUrl[0],
+        };
+      });
+    });
   } else {
-    media = {
-      type: constants.product.media.type.image,
-      urls: image,
-      thumb: null,
-    };
+    saveAllFile(image, (imageIdList) => {
+      media = {
+        type: constants.product.media.type.image,
+        urls: imageIdList,
+        thumb: null,
+      };
+    });
   }
   const productData = {
     name,
@@ -310,6 +363,125 @@ exports.addProduct = (data, userId, callback) => {
     return callback(responseData);
   }).catch((err) => {
     logger.error('Error at function addProduct.\n', err);
+    return callback(constants.response.systemError);
+  });
+};
+
+exports.getUserListing = (userListingParams, callback) => {
+
+  const { myId } = userListingParams;
+  const promise = productRepo.getProductOfUser(userListingParams);
+
+  promise.then((products) => {
+    if (!products || products.length === 0) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    getProductAttributes(products, myId, (productArr) => {
+      const data = productArr.map((product) => {
+        delete product.isBlocked;
+        delete product.seller;
+        delete product.canEdit;
+        delete product.brand;
+        delete product.described;
+        return product;
+      });
+
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data,
+      };
+
+      return callback(response);
+    });
+  }).catch((err) => {
+    logger.error('Error at function getUserListing.\n', err);
+    callback(constants.response.systemError);
+  });
+};
+
+exports.editProduct = (data, userId, callback) => {
+  const {
+    productId, price, name, categoryId, shipsFrom, shipsFromId, condition, brandId,
+    productSizeId, described, weight, dimension, image, imageDel, video, thumb,
+  } = data;
+
+  const select = '';
+  const promise = productRepo.getProductWithOptionSelect(productId, select);
+  let product = null;
+  let isSeller = false;
+  promise.then((productData) => {
+    product = productData;
+    if (!product) {
+      return null;
+    }
+    if (product.seller.toString() !== userId) {
+      return null;
+    }
+
+    isSeller = true;
+    let { media } = product;
+    if (helpers.isExist(imageDel) && imageDel.length > 0) {
+      if (media.type === 0) {
+        deleteFile(imageDel, imageDel, () => {
+          logger.success('Delete success image product.\n');
+        });
+      }
+    }
+
+    if (helpers.isExist(video)) {
+      saveAllFile([video], (videoUrl) => {
+        saveAllFile([thumb], (thumbUrl) => {
+          media = {
+            type: constants.product.media.type.video,
+            urls: videoUrl,
+            thumb: thumbUrl[0],
+          };
+        });
+      });
+    } else if (helpers.isExist(image)) {
+      saveAllFile(image, (imageUrlList) => {
+        media = {
+          type: constants.product.media.type.image,
+          urls: imageUrlList,
+          thumb: null,
+        };
+      });
+    }
+    const productNewData = {
+      name,
+      media,
+      seller: userId,
+      price,
+      price_percent: product.price_percent,
+      description: described === 0 ? product.description : described,
+      ships_from: shipsFrom === 0 ? product.ships_from : shipsFrom,
+      ships_from_ids: shipsFromId,
+      condition: condition === '' ? product.condition : condition,
+      sizes: [productSizeId],
+      brands: [brandId],
+      categories: [categoryId],
+      url: product.url,
+      weight: weight === 0 ? product.weight : weight,
+      dimension: !helpers.isExist(dimension) ? product.dimension : dimension,
+      comments: product.comments,
+      campaigns: product.campaigns,
+    };
+
+    return productRepo.findAndUpdateProduct(productId, productNewData, { new: true });
+  }).then((newProduct) => {
+    if (!product) {
+      return callback(constants.response.noDataOrEndListData);
+    }
+
+    if (!isSeller) {
+      return callback(constants.response.notAccess);
+    }
+
+    return callback(constants.response.ok);
+  }).catch((err) => {
+    logger.error('Error at function editProduct.\n', err);
     return callback(constants.response.systemError);
   });
 };
@@ -359,9 +531,9 @@ function getProductAttributes(products, userId, callback) {
           created: product.created_at,
           like: product.like,
           comment: product.comment,
-          isLiked: isUserLiked,
-          isBlocked: isUserBlocked,
-          canEdit,
+          isLiked: isUserLiked ? 1 : 0,
+          isBlocked: isUserBlocked ? 1 : 0,
+          canEdit: canEdit ? 1 : 0,
           banned: product.banned,
           seller: {
             id: seller.id,
@@ -372,9 +544,7 @@ function getProductAttributes(products, userId, callback) {
 
         if (product.media.type === constants.product.media.type.image) {
           product.media.urls.forEach((item) => {
-            oneProduct.image.push({
-              url: item,
-            });
+            oneProduct.image.push(item);
           });
         } else {
           product.media.urls.forEach((item) => {
@@ -408,7 +578,7 @@ function getResponseForProductDetail(product, userId, callback) {
   }
 
   const { seller } = product;
-  const productOfUserNum = productRepo.getProductOfUser(seller.id);
+  const productOfUserNum = productRepo.getProductOfUserById(seller.id);
 
   Promise.all([
     isLiked,
@@ -448,21 +618,21 @@ function getResponseForProductDetail(product, userId, callback) {
         created: product.created_at,
         like: product.like,
         comment: product.comment,
-        isLiked: isUserLiked,
+        isLiked: isUserLiked ? 1 : 0,
         image: [],
         video: [],
         size: getProductItemList(product.sizes),
         brand: getProductItemList(product.brands),
         seller: {
           id: seller.id,
-          name: seller.name,
+          name: seller.username,
           avatar: seller.avatar,
           score: Math.round(Math.random() * 5),
           listing: listingProduct,
         },
         category: getProductItemList(product.categories, 'category'),
-        isBlocked: isUserBlocked,
-        canEdit,
+        isBlocked: isUserBlocked ? 1 : 0,
+        canEdit: canEdit ? 1 : 0,
         banned: product.banned,
         url: product.url,
         weight: product.weight,
@@ -504,8 +674,8 @@ function getProductItemList(itemList, type = null) {
       return {
         id: item.id,
         name: item.name,
-        hasBrand: item.has_brand,
-        hasName: item.has_name,
+        hasBrand: parseInt(item.has_brand, 10),
+        hasName: parseInt(item.has_name, 10),
       };
     });
   }
@@ -541,4 +711,23 @@ function getNewCommentList(comments, commentId, callback) {
     return callback(newComments);
   }
   return callback(null);
+}
+
+function saveAllFile(files, callback) {
+  const fileList = files.map((file) => {
+    return {
+      fileName: `${file.name}_${new Date().getTime()}`,
+      type: mime.getType(file.path),
+      pathFile: file.path,
+    };
+  });
+  googleDriver.authDriver((auth) => {
+    helpers.uploadFile(auth, fileList, callback);
+  });
+}
+
+function deleteFile(fileIds, callback) {
+  googleDriver.authDriver((auth) => {
+    helpers.deleteFile(auth, fileIds, callback);
+  });
 }
