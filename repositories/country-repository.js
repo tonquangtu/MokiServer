@@ -14,7 +14,7 @@ exports.getDistricts = () => Country
   ])
   .exec();
 
-exports.getWards = () => Country
+exports.getTowns = () => Country
   .aggregate([
     { $unwind: '$provinces' },
     { $unwind: '$provinces.districts' },
@@ -36,7 +36,7 @@ exports.getListDistrictByParentId = parentIdValid => Country
   ])
   .exec();
 
-exports.getListWardByParentId = parentIdValid => Country
+exports.getListTownByParentId = parentIdValid => Country
   .aggregate([
     { $unwind: '$provinces' },
     { $unwind: '$provinces.districts' },

@@ -120,6 +120,9 @@ exports.getShipForm = (req, res) => {
       helpers.sendResponse(res, constants.response.paramNotEnough);
     } else {
       const levelValid = helpers.validInteger(level);
+      const parentIdValid = helpers.validInteger(parentId); // null or number
+      const isExitParentId = helpers.isExist(parentId);
+      const isExitParentIdValid = helpers.isExist(parentIdValid);
 
       if (levelValid === null) {
         helpers.sendResponse(res, constants.response.paramTypeInvalid);
@@ -128,22 +131,22 @@ exports.getShipForm = (req, res) => {
           helpers.sendResponse(res, responseData);
         });
       } else if (levelValid === 2) {
-        if (!helpers.isExist(parentId)) {
+        if (!isExitParentId) {
           userService.getListDist((responseData) => {
             helpers.sendResponse(res, responseData);
           });
         } else {
-          userService.getListDistByParentId(helpers.validInteger(parentId), (responseData) => {
+          userService.getListDistByParentId(parentIdValid, (responseData) => {
             helpers.sendResponse(res, responseData);
           });
         }
       } else if (levelValid === 3) {
-        if (!helpers.isExist(parentId)) {
+        if (!isExitParentId) {
           userService.getListWard((responseData) => {
             helpers.sendResponse(res, responseData);
           });
         } else {
-          userService.getListWardByParentId(helpers.validInteger(parentId), (responseData) => {
+          userService.getListWardByParentId(parentIdValid, (responseData) => {
             helpers.sendResponse(res, responseData);
           });
         }

@@ -329,6 +329,7 @@ exports.getListProvince = (callback) => {
       message: constants.response.ok.message,
       data: provinces.provinces,
     };
+
     return callback(responseProvinces);
   }).catch((err) => {
     logger.error('Error at function getListProvince.\n', err);
@@ -345,6 +346,7 @@ exports.getListDist = (callback) => {
       message: constants.response.ok.message,
       data: dists[0].districts,
     };
+
     return callback(responseDist);
   }).catch((err) => {
     logger.error('Error at function getListDist.\n', err);
@@ -353,23 +355,37 @@ exports.getListDist = (callback) => {
 };
 
 exports.getListDistByParentId = (parentIdValid, callback) => {
-  const promise = countryRepo.getListDistrictByParentId(parentIdValid);
+  let responseDistByParentId = {};
 
-  promise.then((listDistByParentId) => {
-    const responseDistByParentId = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: listDistByParentId[0].provinces.districts,
+  if (parentIdValid !== null) {
+    const promise = countryRepo.getListDistrictByParentId(parentIdValid);
+
+    promise.then((listDistByParentId) => {
+      console.log('up');
+      responseDistByParentId = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: listDistByParentId[0].provinces.districts,
+      };
+
+      return callback(responseDistByParentId);
+    }).catch((err) => {
+      logger.error('Error at function getListDistByParentId.\n', err);
+      return callback(constants.response.systemError);
+    });
+  } else {
+    responseDistByParentId = {
+      code: 1017,
+      message: 'districts is not found in parentId',
+      data: null,
     };
+
     return callback(responseDistByParentId);
-  }).catch((err) => {
-    logger.error('Error at function getListDistByParentId.\n', err);
-    return callback(constants.response.systemError);
-  });
+  }
 };
 
 exports.getListWard = (callback) => {
-  const promise = countryRepo.getWards();
+  const promise = countryRepo.getTowns();
 
   promise.then((wards) => {
     const responseWards = {
@@ -385,17 +401,29 @@ exports.getListWard = (callback) => {
 };
 
 exports.getListWardByParentId = (parentIdValid, callback) => {
-  const promise = countryRepo.getListWardByParentId(parentIdValid);
+  let responseWardByParentId = {};
 
-  promise.then((listWardByParentId) => {
-    const responseWardByParentId = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: listWardByParentId[0].provinces.districts.towns,
+  if (parentIdValid !== null) {
+    const promise = countryRepo.getListTownByParentId(parentIdValid);
+
+    promise.then((listWardByParentId) => {
+      responseWardByParentId = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: listWardByParentId[0].provinces.districts.towns,
+      };
+      return callback(responseWardByParentId);
+    }).catch((err) => {
+      logger.error('Error at function getListWardByParentId.\n', err);
+      return callback(constants.response.systemError);
+    });
+  } else {
+    responseWardByParentId = {
+      code: 1017,
+      message: 'wards is not found in parentId',
+      data: null,
     };
+
     return callback(responseWardByParentId);
-  }).catch((err) => {
-    logger.error('Error at function getListWardByParentId.\n', err);
-    return callback(constants.response.systemError);
-  });
+  }
 };
