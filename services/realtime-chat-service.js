@@ -51,6 +51,7 @@ function receiveMessage(socket, data) {
     message,
   } = data;
 
+  logger.info('receive message\n', data);
   const sendParam = SendToken.extractToken(sendToken);
   if (!sendParam) {
     resendMessage(socket, constants.response.sendTokenInvalid);

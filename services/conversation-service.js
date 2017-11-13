@@ -347,8 +347,8 @@ function conversationsToResponse(userId, conversations) {
   });
 
   return {
-    code: constants.response.ok,
-    message: constants.response.message,
+    code: constants.response.ok.code,
+    message: constants.response.ok.message,
     data,
   };
 }
