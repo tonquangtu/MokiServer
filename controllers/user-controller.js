@@ -108,3 +108,52 @@ function validateSettingParams(data) {
   };
 }
 
+exports.getShipForm = (req, res) => {
+  const reqData = req.body;
+
+  if (!reqData) {
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  } else {
+    const { level, parentId } = reqData;
+
+    if (!helpers.isExist(level)) {
+      helpers.sendResponse(res, constants.response.paramNotEnough);
+    } else {
+      const levelValid = helpers.validInteger(level);
+      const parentIdValid = helpers.validInteger(parentId); // null or number
+      const isExitParentId = helpers.isExist(parentId);
+      const isExitParentIdValid = helpers.isExist(parentIdValid);
+
+      if (levelValid === null) {
+        helpers.sendResponse(res, constants.response.paramTypeInvalid);
+      } else if (levelValid === 1) {
+        userService.getListProvince((responseData) => {
+          helpers.sendResponse(res, responseData);
+        });
+      } else if (levelValid === 2) {
+        if (!isExitParentId) {
+          userService.getListDist((responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        } else {
+          userService.getListDistByParentId(parentIdValid, (responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        }
+      } else if (levelValid === 3) {
+        if (!isExitParentId) {
+          userService.getListWard((responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        } else {
+          userService.getListWardByParentId(parentIdValid, (responseData) => {
+            helpers.sendResponse(res, responseData);
+          });
+        }
+      } else {
+        helpers.sendResponse(res, constants.response.paramTypeInvalid);
+      }
+    }
+  }
+};
+
