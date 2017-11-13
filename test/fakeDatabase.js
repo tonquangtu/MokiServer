@@ -227,9 +227,9 @@ function categoryCreate(categoryParams, callback) {
     name: categoryParams[0],
     has_brand: categoryParams[1],
     has_name: categoryParams[2],
-    parent: categoryParams[3],
-    has_child: categoryParams[4],
-    has_size: categoryParams[5],
+    // parent: categoryParams[3],
+    has_child: categoryParams[3],
+    has_size: categoryParams[4],
   };
 
   const category = new Category(categoryDetail);
@@ -520,14 +520,14 @@ function categoriesFaker(cb) {
       const name = faker.name.title();
       const hasBrand = 0;
       const hasName = 1;
-      const parent = '';
+//      const parent = '';
       const hasChild = 0;
       const hasSize = 0;
       const categoryParams = [
         name,
         hasBrand,
         hasName,
-        parent,
+//        parent,
         hasChild,
         hasSize,
       ];

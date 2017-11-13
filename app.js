@@ -43,6 +43,7 @@ const conversations = require('./routes/conversations');
 const orders = require('./routes/orders');
 const devices = require('./routes/devices');
 const notifications = require('./routes/notifications');
+const categories = require('./routes/categories');
 
 app.use('/', index);
 app.use('/users', users);
@@ -55,6 +56,7 @@ app.use('/conversations', conversations);
 app.use('/orders', orders);
 app.use('/devices', devices);
 app.use('/notifications', notifications);
+app.use('/categories', categories);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
