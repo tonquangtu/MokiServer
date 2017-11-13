@@ -122,6 +122,7 @@ function productCreate(productParams, callback) {
       thumb: productParams[3],
     },
     seller: productParams[4],
+    seller_username: productParams[22],
     price: productParams[5],
     price_percent: productParams[6],
     description: productParams[7],
@@ -226,9 +227,9 @@ function categoryCreate(categoryParams, callback) {
     name: categoryParams[0],
     has_brand: categoryParams[1],
     has_name: categoryParams[2],
-    parent: categoryParams[3],
-    has_child: categoryParams[4],
-    has_size: categoryParams[5],
+    // parent: categoryParams[3],
+    has_child: categoryParams[3],
+    has_size: categoryParams[4],
   };
 
   const category = new Category(categoryDetail);
@@ -403,7 +404,9 @@ function productsFaker(cb) {
       const mediaType = 0;
       const mediaUrlArr = faker.image.imageUrl();
       const mediaThumb = '';
-      const seller = users[randomInt(0, users.length - 1)];
+      const userIndex = randomInt(0, users.length - 1);
+      const seller = users[userIndex];
+      const sellerUsername = users[userIndex].username;
       const price = faker.random.number();
       const pricePercent = 0;
       const description = faker.lorem.paragraph();
@@ -444,6 +447,7 @@ function productsFaker(cb) {
         commentsContent,
         commenter,
         campaignArr,
+        sellerUsername,
       ];
 
       productCreate(productParams, callback);
@@ -516,14 +520,14 @@ function categoriesFaker(cb) {
       const name = faker.name.title();
       const hasBrand = 0;
       const hasName = 1;
-      const parent = '';
+//      const parent = '';
       const hasChild = 0;
       const hasSize = 0;
       const categoryParams = [
         name,
         hasBrand,
         hasName,
-        parent,
+//        parent,
         hasChild,
         hasSize,
       ];

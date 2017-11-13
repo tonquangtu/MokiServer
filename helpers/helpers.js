@@ -46,7 +46,13 @@ exports.validNumber = (aNumber) => {
   if (!this.isExist(aNumber) || Number.isNaN(aNumber)) {
     return null;
   }
-  return Number(aNumber);
+
+  const validNum = Number(aNumber);
+  if (Number.isNaN(validNum)) {
+    return null;
+  }
+
+  return validNum;
 };
 
 exports.getUserFromToken = (token) => {
@@ -120,7 +126,7 @@ exports.isValidExpiredDate = (expiredDate) => {
   return diff < 0;
 };
 
-exports.isValidDeviceId = deviceId => !(deviceId && deviceId.length < 10);
+exports.isValidDeviceId = deviceId => (deviceId && deviceId.length > 10);
 
 exports.getObjectType = aObject => Object.prototype.toString.call(aObject);
 
@@ -134,7 +140,7 @@ exports.uploadFile = (auth, files, callback) => {
         name: file.fileName,
         mimeType: file.type,
         parents: [
-          constants.googleDriver.folderShare
+          constants.googleDriver.folderShare,
         ],
       },
       media: {
@@ -166,7 +172,7 @@ exports.uploadFileWithBase64 = (auth, files, type, callback) => {
         name: `img_${new Date().getTime()}`,
         mimeType: type,
         parents: [
-          constants.googleDriver.folderShare
+          constants.googleDriver.folderShare,
         ],
       },
       media: {

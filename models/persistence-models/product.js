@@ -9,6 +9,7 @@ const ProductsSchema = new Schema({
     thumb: { type: String },
   },
   seller: { type: Schema.ObjectId, ref: 'users', required: true },
+  seller_username: { type: String },
   price: { type: Number, required: true },
   price_percent: { type: Number, required: true },
   description: { type: String, required: true, default: '' },

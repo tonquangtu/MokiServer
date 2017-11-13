@@ -5,7 +5,6 @@ const productService = require('../services/product-service');
 exports.getProductList = (req, res) => {
   const data = req.body;
 
-  console.log(data);
   if (!data || !helpers.isExist(data.count) || !helpers.isExist(data.index)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
@@ -31,7 +30,6 @@ exports.getProductList = (req, res) => {
         index,
         userId,
       }, (responseData) => {
-        console.log(responseData);
         helpers.sendResponse(res, responseData);
       });
     }

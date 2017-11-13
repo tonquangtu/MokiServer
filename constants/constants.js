@@ -284,8 +284,8 @@ module.exports = {
       ios: 0,
       android: 1,
     },
-    deviceIdHeader: 'deviceId',
-    deviceTypeHeader: 'deviceType',
+    deviceIdHeader: 'device-id',
+    deviceTypeHeader: 'device-type',
   },
   notification: {
     group: {
