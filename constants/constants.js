@@ -175,6 +175,16 @@ module.exports = {
       message: 'Not found notification in system',
       data: null,
     },
+    districtNotFound: {
+      code: 1017,
+      message: 'districts is not found with this parentId',
+      data: null,
+    },
+    wardNotFound: {
+      code: 1017,
+      message: 'ward is not found with this parentId',
+      data: null,
+    },
   },
   statusCode: {
     ok: 200,

@@ -30,7 +30,7 @@ exports.getListDistrictByParentId = parentIdValid => Country
     { $match: { 'provinces.order': parentIdValid } },
     {
       $project: {
-        _id: 0, 'provinces.order': 1, 'provinces.districts.name': 1,
+        _id: 0, 'provinces.districts.order': 1, 'provinces.districts.name': 1,
       },
     },
   ])
