@@ -64,9 +64,34 @@ let countCons = 10;
 let countMsg = 0;
 let countNotify = 0;
 
-deleteAllDocuments(() => {
-  console.log('done');
-});
+const clotherList = [
+  'http://truongphucgroup.vn/wp-content/uploads/2016/10/bo-do-tre-em-1-800x800.jpg',
+  'https://tea-4.lozi.vn/v1/images/resized/quan-ao-tre-em-boy-1465521212-1805081-1485229944?w=480&type=o',
+  'http://cagra.vn/wp-content/uploads/2016/01/Chia-se-kinh-nghiem-chon-vai-may-quan-ao-tre-em.jpg',
+  'http://g03.a.alicdn.com/kf/HTB1xSjvIVXXXXbBXVXXq6xXFXXXE/2015-Children-s-font-b-Wear-b-font-Spring-Autumn-Neutral-font-b-Sports-b-font.jpg',
+  'http://depsanhdieu.com/wp-content/uploads/2016/06/quan-ao-tre-em-he-2016-1-600x600.jpg',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZs3K_NZ2LBBxL9NzIQ-f42GmTn6tJOftw6HZXrfy8MlKWEroE',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHwhj1ragqv-LdH1UCA6Rr_DD9_jU6KuU8aUXYf0FxWc38IHPz5A',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVB2znpCyouRnahnsPM8b1A5vL_-k8X5DztdHKSLAz_xdOvcTx',
+  'https://images-na.ssl-images-amazon.com/images/I/81vAsud2S6L._UL1500_.jpg',
+  'https://tea-3.lozi.vn/v1/images/resized/quan-ao-tre-em-boy-1465521212-1805081-1485229944?w=480&type=o',
+  'https://cdn.concung.com/28657-32651/set-3-mon-be-trai-wonderchild-b126006.jpg',
+  'https://vn-live-03.slatic.net/p/4/bo-2-quan-ao-tre-em-lullaby-trang-xanh-1449602292-207449-1-product.jpg',
+  'https://media.shoptretho.com.vn/upload/image/product/20150701/bo-quan-ao-in-hinh-nguoi-nhen-5.jpg?mode=max&width=800&height=800',
+  'http://ngoisaonhi.com.vn/images/detailed/2/48128.jpg?t=1493979618',
+  'http://ngoisaonhi.com.vn/images/detailed/2/do_bo_be_trai_ao_thun_xe_dua_48087.jpg?t=1452010340',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNqA0crPxqAEiMurxhV5gUapb_rIzPrlzbvu1ufjeIibUGdk3v',
+  'https://g.vatgia.vn/gallery_img/9/bys1444182481.jpg',
+  'http://anh.eva.vn/upload/4-2015/images/2015-12-15/1450143144-giam-gia-thoi-trang-mua-donh-cho-be--3-.jpg',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLTmsrkP5S2Tp15lHy6bsCU1Btn2iOysnywVKfC4fGNSLY4_YhAw',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROk7hBpB1GPPKytyq_bk7NVWn4tjpOT-IQQa7C5M7dVClsQp9P',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAoX8EyK5exAipETbTAGLEO9mA5tBqIn84iXvM8l1Q1Yzm159AYA',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhRE9KDATHx_xax8Fuox8JSz_DNkHQitk5VbVfCsib-tEYn4tw4A',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkJw-MlP5acfH1i71l3LpyODSnBKv7wcn3uV4Z_3F2uQbV3Atz',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJP5u6HAo6M53PhjI2T9IL1hAG8WGSSJ16mHrtcJVcqXU6jg2v',
+  'http://quanaongoclinh.com/upload/product/860592196233-do-bo-carters-good-smile-xanh-la-8size-18t.png',
+];
+
 
 function userCreate(userParams, callback) {
   const userDetail = {
@@ -400,9 +425,9 @@ function productsFaker(cb) {
   console.log('product faker');
   async.parallel([
     function (callback) {
-      const name = faker.name.findName();
+      const name = faker.commerce.productName();
       const mediaType = 0;
-      const mediaUrlArr = faker.image.imageUrl();
+      const mediaUrlArr = clotherList[Math.round(Math.random() * (clotherList.length - 1))];
       const mediaThumb = '';
       const userIndex = randomInt(0, users.length - 1);
       const seller = users[userIndex];
@@ -1011,19 +1036,24 @@ for (let i = 0; i < maxNotifi; i++) {
   arrCalls.push(notificationFaker);
 }
 
-async.series(
-  arrCalls,
 
-  // final callback
-  (err, results) => {
-    if (err) {
-      console.log(`Final err at series: ${err}`);
-    } else {
-      console.log('Successful fake data');
-    }
-    // All done, disconnect from database
-    mongoose.connection.close();
-  });
+deleteAllDocuments(() => {
+  console.log('Delete done');
+  async.series(
+    arrCalls,
+
+    // final callback
+    (err, results) => {
+      if (err) {
+        console.log(`Final err at series: ${err}`);
+      } else {
+        console.log('Successful fake data');
+      }
+      // All done, disconnect from database
+      mongoose.connection.close();
+    });
+});
+
 
 function randomInt(low, high) {
   return Math.round(Math.random() * (high - low) + low);
