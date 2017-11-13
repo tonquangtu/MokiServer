@@ -113,7 +113,7 @@ function forwardMessage(socket, roomId, sendContent) {
 }
 
 function resendMessage(socket, resendContent) {
-  socket.emit(resendContent);
+  socket.emit(constants.socketEvent.updateMsgStatus, resendContent);
 }
 
 function updateMsgStatus(socket, data) {
@@ -191,6 +191,7 @@ function joinRoom(socket, data) {
     receiverId,
     productId,
   } = data;
+  logger.info('Join Room\n', data);
   const sender = helpers.getUserFromToken(token);
 
   if (!isValidJoinRoomParam(sender, receiverId, productId)) {
@@ -268,6 +269,7 @@ function sendJoinRoomResponse(err, socket, sendToken) {
     };
   }
 
+  logger.info('Join room response\n', response);
   socket.emit(constants.socketEvent.joinRoomResponse, response);
 }
 

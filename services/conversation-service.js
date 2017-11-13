@@ -394,6 +394,8 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
     }
 
     return {
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
       conversation: chats,
       product: {
         name: product.name,
@@ -406,6 +408,7 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
 
   return constants.response.conversationNotFound;
 }
+
 
 function isBlockedSender(senderId, receiverRaw) {
   if (!receiverRaw || !receiverRaw.active) {
