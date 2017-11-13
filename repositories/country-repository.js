@@ -46,7 +46,6 @@ exports.getListTownByParentId = parentIdValid => Country
         _id: 0, 'provinces.districts.towns.order': 1, 'provinces.districts.towns.name': 1,
       },
     },
-
   ])
   .exec();
 
