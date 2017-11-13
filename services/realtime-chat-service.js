@@ -51,7 +51,9 @@ function receiveMessage(socket, data) {
     message,
   } = data;
 
-  const sendParam = SendToken.extractToken(sendToken);
+  // logger.info('receive message\n', data);
+  const sendParam = SendToken.extractToken(sendToken, rooms);
+  console.log(sendParam);
   if (!sendParam) {
     resendMessage(socket, constants.response.sendTokenInvalid);
     return;
@@ -79,7 +81,8 @@ function receiveMessage(socket, data) {
   };
 
   consService.setConversationCheckedPermission(consParam, (response) => {
-    if (response.code !== constants.response.code.ok) {
+    logger.info(response);
+    if (response.code !== constants.response.ok.code) {
       resendMessage(socket, response);
       return;
     }
@@ -191,7 +194,7 @@ function joinRoom(socket, data) {
     receiverId,
     productId,
   } = data;
-  logger.info('Join Room\n', data);
+  // logger.info('Join Room\n', data);
   const sender = helpers.getUserFromToken(token);
 
   if (!isValidJoinRoomParam(sender, receiverId, productId)) {
@@ -269,7 +272,7 @@ function sendJoinRoomResponse(err, socket, sendToken) {
     };
   }
 
-  logger.info('Join room response\n', response);
+  // logger.info('Join room response\n', response);
   socket.emit(constants.socketEvent.joinRoomResponse, response);
 }
 

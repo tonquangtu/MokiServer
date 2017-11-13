@@ -1,16 +1,18 @@
 const loginService = require('../services/login-service');
 
-const { constants, helpers } = global;
+const { constants, helpers, logger } = global;
 
 exports.login = (req, res) => {
-  console.log(req.headers);
   const deviceId = req.header(constants.device.deviceIdHeader);
   const deviceType = req.header(constants.device.deviceTypeHeader);
+
   const reqData = validateLoginData(req.body);
-  const validDeviceInfo = validateDeviceInfo(deviceId, deviceType);
+  const validDeviceParam = validateDeviceInfo(deviceId, deviceType);
+  logger.info('valid device id\n', validDeviceParam);
+
   if (reqData) {
     const { phoneNumber, password } = reqData;
-    loginService.login(phoneNumber, password, validDeviceInfo, (loginSuccess, response) => {
+    loginService.login(phoneNumber, password, validDeviceParam, (loginSuccess, response) => {
       helpers.sendResponse(res, response);
     });
   } else {
@@ -43,7 +45,7 @@ function validateDeviceInfo(deviceId, deviceType) {
   }
 
   if (validDeviceType !== constants.device.type.ios
-    || validDeviceType === constants.device.type.android) {
+    && validDeviceType !== constants.device.type.android) {
     return null;
   }
 

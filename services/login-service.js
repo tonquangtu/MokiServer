@@ -15,8 +15,8 @@ exports.login = (phoneNumber, password, deviceParam, callback) => {
   let response = {};
 
   if (deviceParam) {
-    newDeviceId = deviceParam.id;
-    newDeviceType = deviceParam.type;
+    newDeviceId = deviceParam.deviceId;
+    newDeviceType = deviceParam.deviceType;
   }
 
   userRepo

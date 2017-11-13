@@ -12,7 +12,8 @@ exports.updateOrAddDevice = (newDeviceParam) => {
   } = newDeviceParam;
   let oldDeviceToken = null;
   let oldExpiredDate = null;
-  if (deviceId && helpers.isExist(deviceType)) {
+
+  if (!deviceId || !helpers.isExist(deviceType)) {
     return Promise.resolve(null);
   }
 
@@ -50,6 +51,8 @@ exports.updateOrAddDevice = (newDeviceParam) => {
         return deviceRepo.saveDevice(oldDevice);
       })
       .then((addedOrSavedDevice) => {
+        console.log('save device id thanh cong');
+
         if (!oldDeviceToken) {
           return resolve(null);
         }
