@@ -357,30 +357,26 @@ exports.getListDist = (callback) => {
 exports.getListDistByParentId = (parentIdValid, callback) => {
   let responseDistByParentId = {};
 
-  if (parentIdValid !== null) {
+  if (parentIdValid !== null || parentIdValid !== '') {
     const promise = countryRepo.getListDistrictByParentId(parentIdValid);
 
     promise.then((listDistByParentId) => {
-      console.log('up');
-      responseDistByParentId = {
-        code: constants.response.ok.code,
-        message: constants.response.ok.message,
-        data: listDistByParentId[0].provinces.districts,
-      };
+      if (listDistByParentId.length > 0) {
+        responseDistByParentId = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: listDistByParentId[0].provinces.districts,
+        };
+        return callback(responseDistByParentId);
+      }
 
-      return callback(responseDistByParentId);
+      return callback(constants.response.districtNotFound);
     }).catch((err) => {
       logger.error('Error at function getListDistByParentId.\n', err);
       return callback(constants.response.systemError);
     });
   } else {
-    responseDistByParentId = {
-      code: 1017,
-      message: 'districts is not found in parentId',
-      data: null,
-    };
-
-    return callback(responseDistByParentId);
+    return callback(constants.response.districtNotFound);
   }
 };
 
@@ -400,30 +396,30 @@ exports.getListWard = (callback) => {
   });
 };
 
+
 exports.getListWardByParentId = (parentIdValid, callback) => {
   let responseWardByParentId = {};
 
-  if (parentIdValid !== null) {
+  if (parentIdValid !== null || parentIdValid !== '') {
     const promise = countryRepo.getListTownByParentId(parentIdValid);
 
     promise.then((listWardByParentId) => {
-      responseWardByParentId = {
-        code: constants.response.ok.code,
-        message: constants.response.ok.message,
-        data: listWardByParentId[0].provinces.districts.towns,
-      };
-      return callback(responseWardByParentId);
+      if (listWardByParentId.length > 0) {
+        responseWardByParentId = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: listWardByParentId[0].provinces.districts.towns,
+        };
+        return callback(responseWardByParentId);
+      }
+
+      return callback(constants.response.wardNotFound);
     }).catch((err) => {
       logger.error('Error at function getListWardByParentId.\n', err);
       return callback(constants.response.systemError);
     });
   } else {
-    responseWardByParentId = {
-      code: 1017,
-      message: 'wards is not found in parentId',
-      data: null,
-    };
-
-    return callback(responseWardByParentId);
+    return callback(constants.response.wardNotFound);
   }
 };
+
