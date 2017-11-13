@@ -149,9 +149,12 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
   let addedMsgId = null;
   const now = new Date();
 
+  console.log('vao day');
+
   return conversationRepo
     .findConversation(userId, partnerId, productId)
     .then((consRaw) => {
+      console.log(consRaw);
       if (consRaw) {
         isExistCons = true;
         return consRaw;
@@ -172,7 +175,7 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
       if (!consRaw) {
         return null;
       }
-
+      console.log(consRaw);
       conversation = consRaw;
       const msgContent = {
         message,
@@ -473,6 +476,7 @@ function checkSendPermissionWithSeller(senderId, receiver, product) {
 }
 
 function handleSendError(err, callback) {
+  console.log(err);
   if (err === constants.response.noSendPermission || err === constants.response.sendError) {
     return callback(err);
   }
