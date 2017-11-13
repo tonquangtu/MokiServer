@@ -15,7 +15,7 @@ module.exports = class SendToken {
 
   static extractToken(token, rooms) {
     const payload = helpers.decodeToken(token);
-
+    console.log('extract token');
     if (!payload) {
       return null;
     }
