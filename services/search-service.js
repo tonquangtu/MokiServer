@@ -8,50 +8,45 @@ exports.searchProducts = (searchParams, callback) => {
   const selectFields = ['name', 'media', 'price', 'price_percent', 'like', 'comment'];
   const fullSearchParams = Object.assign({}, searchParams, { selectFields });
   const { userId } = fullSearchParams;
-  let products = null;
+  let products = [];
 
   searcher
     .searchProducts(fullSearchParams)
-    .then(esResponse => getProdsFromESResponse(esResponse))
-    .then((items) => {
-      products = items;
-      if (!products || !userId) {
+    .then((esResponse) => {
+      const results = getResultsFromESResponse(esResponse);
+      if (!results || results.length < 1) {
+        return Promise.reject(constants.response.searchNotFound);
+      }
+
+      products = results;
+      if (!userId) {
         return null;
       }
+
       const promisesCheckLiked = products.map(item => likeRepo.getLikeUserProduct(userId, item.id));
       return Promise.all(promisesCheckLiked);
     })
     .then((userLikes) => {
-      let response;
-      if (!products) {
-        return callback(constants.response.searchNotFound);
+      if (userLikes) {
+        products.forEach((product, i) => {
+          products[i].isLiked = userLikes[i] ? userLikes[i].is_liked : 0;
+        });
       }
 
-      if (!userLikes) {
-        response = {
-          code: constants.response.ok.code,
-          message: constants.response.ok.message,
-          data: products,
-        };
-      } else {
-        let i = 0;
-        const productsWithLike = products.map((product) => {
-          const isLiked = userLikes[i] ? userLikes[i].is_liked : 0;
-          const item = Object.assign({}, product, { isLiked });
-          i += 1;
-          return item;
-        });
-        response = {
-          code: constants.response.ok.code,
-          message: constants.response.ok.message,
-          data: productsWithLike,
-        };
-      }
+      const response = {
+        code: constants.response.ok.code,
+        message: constants.response.ok.message,
+        data: products,
+      };
       return callback(response);
     })
     .catch((err) => {
-      logger.error('Error at function searchProducts in search-service.\n', err);
-      return callback(constants.response.systemError);
+      let errResponse = err;
+      if (err !== constants.response.searchNotFound) {
+        errResponse = constants.response.systemError;
+        logger.error('Error at function searchProducts in search-service.\n', err);
+      }
+      return callback(errResponse);
     });
 };
 
@@ -122,9 +117,7 @@ exports.saveSearch = (validSaveSearchParams, userId, callback) => {
     searchHistoryData.condition = conditionValid;
   }
   const promise = searchHistoryRepo.saveSearchHistory(searchHistoryData);
-  promise.then((searchHistory) => {
-    return callback(constants.response.ok);
-  }).catch((err) => {
+  promise.then(searchHistory => callback(constants.response.ok)).catch((err) => {
     logger.error('Error at function saveSearch.\n', err);
     return callback(constants.response.systemError);
   });
@@ -198,7 +191,7 @@ exports.getSaveSearchList = (indexValid, countValid, userId, callback) => {
   });
 };
 
-function getProdsFromESResponse(esResponse) {
+function getResultsFromESResponse(esResponse) {
   if (!esResponse || !esResponse.hits || esResponse.hits.total < 1) {
     return null;
   }
@@ -206,10 +199,10 @@ function getProdsFromESResponse(esResponse) {
   logger.info(`Search take: ${esResponse.took}  ms\n`);
 
   return hits.map((item) => {
+    const sourceData = item._source;
     let image = null;
     let video = null;
-    const itemData = item._source;
-    const { media } = itemData;
+    const { media } = sourceData;
 
     if (media.urls.length > 0) {
       if (media.type === constants.product.media.type.image) {
@@ -223,14 +216,16 @@ function getProdsFromESResponse(esResponse) {
     }
 
     return {
+      type: item.type,
       id: item._id,
-      name: itemData.name,
+      name: sourceData.name,
       image,
       video,
-      price: itemData.price,
-      pricePercent: itemData.pricePercent,
-      like: itemData.like,
-      comment: itemData.comment,
+      price: sourceData.price,
+      pricePercent: sourceData.pricePercent,
+      like: sourceData.like,
+      comment: sourceData.comment,
+      isLiked: 0,
     };
   });
 }

@@ -1,6 +1,6 @@
 const elasticsearch = require('elasticsearch');
 
-const { constants, mongoose } = global;
+const { constants, logger } = global;
 
 const client = new elasticsearch.Client({
   host: 'localhost:9200',
@@ -12,9 +12,9 @@ exports.ping = () => {
     requestTimeout: 1000,
   }, (err) => {
     if (err) {
-      console.log('Elasticsearch cluster is down');
+      logger.info('Elasticsearch cluster is down');
     } else {
-      console.log('All is well');
+      logger.info('Elasticsearch: All is well');
     }
   });
 };
@@ -22,7 +22,7 @@ exports.ping = () => {
 exports.simpleSearchProducts = (keyword, fromIndex, limit, selectFields) => {
   const searchQuery = {
     index: constants.dbName,
-    type: constants.documents.product,
+    type: [constants.documents.product, constants.documents.user],
     from: fromIndex,
     size: limit,
     _source: selectFields,
@@ -51,6 +51,32 @@ exports.searchProducts = (searchParams) => {
   return client.search(searchQuery);
 };
 
+exports.searchProductsBySeller = (searchParams) => {
+  const {
+    fromIndex,
+    limit,
+    selectFields,
+    seller,
+  } = searchParams;
+
+  const searchQuery = {
+    index: constants.dbName,
+    type: constants.documents.product,
+    from: fromIndex,
+    size: limit,
+    _source: selectFields,
+    body: {
+      query: {
+        bool: {
+          filter: { term: { seller } },
+        },
+      },
+    },
+  };
+
+  return client.search(searchQuery);
+};
+
 function getSearchQuery(searchParams) {
   const {
     keyword,
@@ -63,11 +89,16 @@ function getSearchQuery(searchParams) {
   } = searchParams;
 
   const filter = [];
-  const must = {};
+  let must = null;
   if (keyword) {
-    must.match = { name: keyword };
+    must = {
+      multi_match: {
+        query: keyword,
+        fields: ['name', 'seller_username'],
+      },
+    };
   } else {
-    must.match_all = {};
+    must = { match_all: {} };
   }
 
   if (categoryId) {

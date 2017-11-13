@@ -149,9 +149,12 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
   let addedMsgId = null;
   const now = new Date();
 
+  console.log('vao day');
+
   return conversationRepo
     .findConversation(userId, partnerId, productId)
     .then((consRaw) => {
+      console.log(consRaw);
       if (consRaw) {
         isExistCons = true;
         return consRaw;
@@ -172,7 +175,7 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
       if (!consRaw) {
         return null;
       }
-
+      console.log(consRaw);
       conversation = consRaw;
       const msgContent = {
         message,
@@ -347,8 +350,8 @@ function conversationsToResponse(userId, conversations) {
   });
 
   return {
-    code: constants.response.ok,
-    message: constants.response.message,
+    code: constants.response.ok.code,
+    message: constants.response.ok.message,
     data,
   };
 }
@@ -394,18 +397,23 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
     }
 
     return {
-      conversation: chats,
-      product: {
-        name: product.name,
-        price: product.price,
-        image: productImage,
-        sellerId: product.seller,
+      code: constants.response.ok.code,
+      message: constants.response.ok.message,
+      data: {
+        conversation: chats,
+        product: {
+          name: product.name,
+          price: product.price,
+          image: productImage,
+          sellerId: product.seller,
+        },
       },
     };
   }
 
   return constants.response.conversationNotFound;
 }
+
 
 function isBlockedSender(senderId, receiverRaw) {
   if (!receiverRaw || !receiverRaw.active) {
@@ -470,6 +478,7 @@ function checkSendPermissionWithSeller(senderId, receiver, product) {
 }
 
 function handleSendError(err, callback) {
+  console.log(err);
   if (err === constants.response.noSendPermission || err === constants.response.sendError) {
     return callback(err);
   }
