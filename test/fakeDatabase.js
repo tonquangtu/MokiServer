@@ -53,7 +53,7 @@ const maxBrand = 100;
 const maxCategory = 50;
 const maxReport = 100;
 const maxSize = 10;
-const maxCountry = 60;
+const maxCountry = 63;
 const maxUserSetting = 20;
 const maxOrderAddress = 30;
 const maxConversation = 3;
@@ -63,6 +63,46 @@ const maxNotifi = 10;
 let countCons = 10;
 let countMsg = 0;
 let countNotify = 0;
+
+const listClother = [];
+const listAvatart = [];
+
+listClother.push('http://truongphucgroup.vn/wp-content/uploads/2016/10/bo-do-tre-em-1-800x800.jpg');
+listClother.push('https://tea-4.lozi.vn/v1/images/resized/quan-ao-tre-em-boy-1465521212-1805081-1485229944?w=480&type=o');
+listClother.push('http://cagra.vn/wp-content/uploads/2016/01/Chia-se-kinh-nghiem-chon-vai-may-quan-ao-tre-em.jpg');
+listClother.push('http://g03.a.alicdn.com/kf/HTB1xSjvIVXXXXbBXVXXq6xXFXXXE/2015-Children-s-font-b-Wear-b-font-Spring-Autumn-Neutral-font-b-Sports-b-font.jpg');
+listClother.push('http://depsanhdieu.com/wp-content/uploads/2016/06/quan-ao-tre-em-he-2016-1-600x600.jpg');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZs3K_NZ2LBBxL9NzIQ-f42GmTn6tJOftw6HZXrfy8MlKWEroE');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHwhj1ragqv-LdH1UCA6Rr_DD9_jU6KuU8aUXYf0FxWc38IHPz5A');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVB2znpCyouRnahnsPM8b1A5vL_-k8X5DztdHKSLAz_xdOvcTx');
+listClother.push('https://images-na.ssl-images-amazon.com/images/I/81vAsud2S6L._UL1500_.jpg');
+listClother.push('https://tea-3.lozi.vn/v1/images/resized/quan-ao-tre-em-boy-1465521212-1805081-1485229944?w=480&type=o');
+listClother.push('https://cdn.concung.com/28657-32651/set-3-mon-be-trai-wonderchild-b126006.jpg');
+listClother.push('https://vn-live-03.slatic.net/p/4/bo-2-quan-ao-tre-em-lullaby-trang-xanh-1449602292-207449-1-product.jpg');
+listClother.push('https://media.shoptretho.com.vn/upload/image/product/20150701/bo-quan-ao-in-hinh-nguoi-nhen-5.jpg?mode=max&width=800&height=800');
+listClother.push('http://ngoisaonhi.com.vn/images/detailed/2/48128.jpg?t=1493979618');
+listClother.push('http://ngoisaonhi.com.vn/images/detailed/2/do_bo_be_trai_ao_thun_xe_dua_48087.jpg?t=1452010340');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNqA0crPxqAEiMurxhV5gUapb_rIzPrlzbvu1ufjeIibUGdk3v');
+listClother.push('https://g.vatgia.vn/gallery_img/9/bys1444182481.jpg');
+listClother.push('http://anh.eva.vn/upload/4-2015/images/2015-12-15/1450143144-giam-gia-thoi-trang-mua-donh-cho-be--3-.jpg');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLTmsrkP5S2Tp15lHy6bsCU1Btn2iOysnywVKfC4fGNSLY4_YhAw');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROk7hBpB1GPPKytyq_bk7NVWn4tjpOT-IQQa7C5M7dVClsQp9P');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAoX8EyK5exAipETbTAGLEO9mA5tBqIn84iXvM8l1Q1Yzm159AYA');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhRE9KDATHx_xax8Fuox8JSz_DNkHQitk5VbVfCsib-tEYn4tw4A');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkJw-MlP5acfH1i71l3LpyODSnBKv7wcn3uV4Z_3F2uQbV3Atz');
+listClother.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJP5u6HAo6M53PhjI2T9IL1hAG8WGSSJ16mHrtcJVcqXU6jg2v');
+listClother.push('http://quanaongoclinh.com/upload/product/860592196233-do-bo-carters-good-smile-xanh-la-8size-18t.png');
+
+listAvatart.push('https://exelord.github.io/ember-initials/images/default-d5f51047d8bd6327ec4a74361a7aae7f.jpg');
+listAvatart.push('http://www.nzasianleaders.com/wp-content/uploads/default-avatar.jpg');
+listAvatart.push('http://www.lovemarks.com/wp-content/uploads/profile-avatars/default-avatar-ginger-guy.png');
+listAvatart.push('https://www.youth4work.com/Images/Users/2275901.png?v=20170721111939');
+listAvatart.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVRgyiIud7hu2NItdAvK57a7YNH4Ht0DsJGwb7_j2Tn2BqhXXW');
+listAvatart.push('https://luckyworm.com/media/imgs/users/avatars/default-user-avatar.png');
+listAvatart.push('https://coralcovegolfclub.com/wp-content/uploads/2017/09/default-avatar.jpg');
+listAvatart.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEeyhS5uuX7Tyy9X1DS2x8wbZFg5KqhhBAooW9NM3YJeWKqc2d');
+listAvatart.push('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_RvTBLkuMVpx1YMjwYI90c0MseNCKJ3nuJHP7gmrYhH6AihLEbw');
+listAvatart.push('http://www.lovemarks.com/wp-content/uploads/profile-avatars/default-avatar-beard-glasses-guy.png');
 
 deleteAllDocuments(() => {
   console.log('done');
@@ -277,24 +317,7 @@ function sizeCreate(sizeParams, callback) {
 }
 function countryCreate(countryParams, callback) {
   const countryDetail = {
-    provinces: [
-      {
-        order: countryParams[0],
-        name: countryParams[1],
-        districts: [
-          {
-            order: countryParams[2],
-            name: countryParams[3],
-            towns: [
-              {
-                order: countryParams[4],
-                name: countryParams[5],
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    provinces: countryParams,
   };
 
   const country = new Country(countryDetail);
@@ -520,14 +543,14 @@ function categoriesFaker(cb) {
       const name = faker.name.title();
       const hasBrand = 0;
       const hasName = 1;
-//      const parent = '';
+      //      const parent = '';
       const hasChild = 0;
       const hasSize = 0;
       const categoryParams = [
         name,
         hasBrand,
         hasName,
-//        parent,
+        //        parent,
         hasChild,
         hasSize,
       ];
@@ -569,21 +592,36 @@ function countriesFaker(cb) {
   console.log('country faker');
   async.parallel([
     function (callback) {
-      const provinceOrder = faker.random.number();
-      const provinceName = faker.address.city();
-      const districtOrder = faker.random.number();
-      const districtName = faker.address.state();
-      const townOrder = faker.random.number();
-      const townName = faker.address.streetName();
-      const countryParams = [
-        provinceOrder,
-        provinceName,
-        districtOrder,
-        districtName,
-        townOrder,
-        townName,
-      ];
-      countryCreate(countryParams, callback);
+      const countryArr = [];
+
+      for (let i = 0; i < maxCountry; i += 1) {
+        const provinceOrder = faker.random.number();
+        const provinceName = faker.address.city();
+        const districtOrder = faker.random.number();
+        const districtName = faker.address.state();
+        const townOrder = faker.random.number();
+        const townName = faker.address.streetName();
+        countryArr.push({
+          order: provinceOrder,
+          name: provinceName,
+          districts: [
+            {
+              order: districtOrder,
+              name: districtName,
+              towns: [
+                {
+                  order: townOrder,
+                  name: townName,
+                },
+              ],
+            },
+          ],
+        });
+
+        if (countryArr.length === maxCountry) {
+          countryCreate(countryArr, callback);
+        }
+      }
     },
   ], cb);
 }
@@ -626,7 +664,7 @@ function userOrderAddressFaker(cb) {
       }
       const orderParams = [
         users[randomInt(0, users.length - 1)],
-        orderAddresses
+        orderAddresses,
       ];
 
       userOrderAddressCreate(orderParams, callback);
@@ -686,14 +724,12 @@ function conversationFaker(cb) {
 
 function messageCreate(msgParams, callback) {
   const { conversation, contents } = msgParams;
-  const msgList = contents.map((item) => {
-    return {
-      message: item.message,
-      sender_type: item.senderType,
-      unread: item.unread,
-      deleted_at: null,
-    };
-  });
+  const msgList = contents.map(item => ({
+    message: item.message,
+    sender_type: item.senderType,
+    unread: item.unread,
+    deleted_at: null,
+  }));
 
   const msgDetail = {
     conversation,
@@ -957,7 +993,8 @@ function deleteAllDocuments(cb) {
         console.log('delete all table');
       }
       cb(null, 'deleteAllDocuments');
-    });
+    },
+  );
 }
 
 const arrCalls = [];
@@ -989,7 +1026,7 @@ for (let i = 0; i < maxReport; i += 1) {
 for (let i = 0; i < maxSize; i += 1) {
   arrCalls.push(sizesFaker);
 }
-for (let i = 0; i < maxCountry; i += 1) {
+for (let i = 0; i < 1; i += 1) {
   arrCalls.push(countriesFaker);
 }
 for (let i = 0; i < maxUserSetting; i += 1) {
@@ -1023,7 +1060,8 @@ async.series(
     }
     // All done, disconnect from database
     mongoose.connection.close();
-  });
+  },
+);
 
 function randomInt(low, high) {
   return Math.round(Math.random() * (high - low) + low);

@@ -14,6 +14,8 @@ exports.getConversations = (req, res) => {
       const validCount = helpers.validNumber(reqBody.count);
       const userId = req.user.id;
 
+      console.log('validIndex: ', validIndex);
+
       if (!helpers.isExist(validIndex) ||
         validIndex < 0 ||
         !helpers.isExist(validCount) ||
