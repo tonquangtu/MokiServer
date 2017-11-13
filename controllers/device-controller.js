@@ -6,15 +6,13 @@ exports.setDeviceToken = (req, res) => {
   const reqData = req.body;
   const userId = req.user.id;
   const expiredDate = req.expiredAt;
-  console.log('device token');
-  console.log(reqData);
+
   if (!isEnoughDeviceParam(reqData)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     // console.log(reqData.deviceToken);
     const validDevice = validDeviceInfo(reqData.deviceToken, reqData.deviceType);
-    console.log('valid device');
-    console.log(validDevice);
+
     if (!validDevice) {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
@@ -25,8 +23,6 @@ exports.setDeviceToken = (req, res) => {
         deviceType: validDevice.deviceType,
       };
       deviceService.setDeviceToken(param, (response) => {
-        console.log('response set device');
-        console.log(response);
         helpers.sendResponse(res, response);
       });
     }

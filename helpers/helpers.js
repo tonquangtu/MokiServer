@@ -47,12 +47,12 @@ exports.validNumber = (aNumber) => {
     return null;
   }
 
-  const validNumber = Number(aNumber);
-  if (Number.isNaN(validNumber)) {
+  const validNum = Number(aNumber);
+  if (Number.isNaN(validNum)) {
     return null;
   }
 
-  return validNumber;
+  return validNum;
 };
 
 exports.getUserFromToken = (token) => {
