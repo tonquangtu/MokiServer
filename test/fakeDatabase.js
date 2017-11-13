@@ -164,13 +164,14 @@ function productCreate(productParams, callback) {
       width: productParams[17],
       length: productParams[18],
     },
+    comment: productParams[19],
     comments: [
       {
-        content: productParams[19],
-        commenter: productParams[20],
+        content: productParams[20],
+        commenter: productParams[21],
       },
     ],
-    campaigns: productParams[21],
+    campaigns: productParams[22],
   };
   const product = new Product(productDetail);
   product.save((err) => {
@@ -446,6 +447,7 @@ function productsFaker(cb) {
       const dimensionHeight = faker.random.number();
       const dimensionWidth = faker.random.number();
       const dimensionLength = faker.random.number();
+      const comment = 1;
       const commentsContent = faker.lorem.sentence();
       const commenter = users[randomInt(0, users.length - 1)];
       const campaignArr = [];
@@ -469,6 +471,7 @@ function productsFaker(cb) {
         dimensionHeight,
         dimensionWidth,
         dimensionLength,
+        comment,
         commentsContent,
         commenter,
         campaignArr,
