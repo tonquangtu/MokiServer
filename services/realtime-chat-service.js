@@ -53,6 +53,7 @@ function receiveMessage(socket, data) {
 
   // logger.info('receive message\n', data);
   const sendParam = SendToken.extractToken(sendToken, rooms);
+  console.log('send param');
   console.log(sendParam);
   if (!sendParam) {
     resendMessage(socket, constants.response.sendTokenInvalid);
@@ -112,6 +113,7 @@ function receiveMessage(socket, data) {
 }
 
 function forwardMessage(socket, roomId, sendContent) {
+  logger.info('forwardMessage');
   socket.broadcast.to(roomId).emit(constants.socketEvent.message, sendContent);
 }
 
@@ -299,7 +301,7 @@ function pushNotification(receiverId, pushContent) {
         }
       }
 
-      logger.info(`No device token attached with user: ${receiverId}`);
+      logger.info('Function pushNotification in realtime-chat-service', `No device token attached with user: ${receiverId}`);
       return null;
     })
     .catch((err) => {
@@ -310,6 +312,7 @@ function pushNotification(receiverId, pushContent) {
 function doPush(deviceToken, pushContent) {
   const title = constants.appName;
   const body = pushContent.message.content;
+  pushContent.code = constants.push.message.code;
   const pushParam = {
     deviceToken,
     title,

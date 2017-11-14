@@ -149,12 +149,9 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
   let addedMsgId = null;
   const now = new Date();
 
-  console.log('vao day');
-
   return conversationRepo
     .findConversation(userId, partnerId, productId)
     .then((consRaw) => {
-      console.log(consRaw);
       if (consRaw) {
         isExistCons = true;
         return consRaw;
@@ -175,7 +172,6 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
       if (!consRaw) {
         return null;
       }
-      console.log(consRaw);
       conversation = consRaw;
       const msgContent = {
         message,
@@ -218,7 +214,7 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
           createdAt: now,
         },
       };
-
+      logger.info('save chat message successful');
       return callback(response);
     })
     .catch(err => handleSendError(err, callback));
@@ -297,7 +293,9 @@ function conversationsToResponse(userId, conversations) {
     return constants.response.conversationNotFound;
   }
 
-  const data = conversations.map((conversation) => {
+  let totalUnreadMsg = 0;
+
+  const chats = conversations.map((conversation) => {
     const {
       user,
       partner,
@@ -309,7 +307,10 @@ function conversationsToResponse(userId, conversations) {
     let unreadLastMes = constants.conversation.status.unread;
     if (countUnreadMes < 1) {
       unreadLastMes = constants.conversation.status.read;
+    } else {
+      totalUnreadMsg += 1;
     }
+
 
     let resPartner;
     if (userId === user.id) {
@@ -352,7 +353,10 @@ function conversationsToResponse(userId, conversations) {
   return {
     code: constants.response.ok.code,
     message: constants.response.ok.message,
-    data,
+    data: {
+      chats,
+      numNewMessage: totalUnreadMsg,
+    },
   };
 }
 
