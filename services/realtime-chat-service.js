@@ -53,7 +53,8 @@ function receiveMessage(socket, data) {
 
   // logger.info('receive message\n', data);
   const sendParam = SendToken.extractToken(sendToken, rooms);
-  console.log(sendParam);
+  logger.info('Send param\n', sendParam);
+
   if (!sendParam) {
     resendMessage(socket, constants.response.sendTokenInvalid);
     return;
@@ -103,15 +104,28 @@ function receiveMessage(socket, data) {
       },
     };
 
+    // console.log(forwardContent);
     forwardMessage(socket, roomId, forwardContent);
 
     if (!isJoinRoom(roomId, receiverId)) {
-      pushNotification(receiverId, forwardContent);
+      const pushContent = {
+        message,
+        productId,
+        receiverId,
+        code: constants.push.message.code,
+        partnerId: sender.id,
+        partnerUsername: sender.username,
+        partnerAvatar: sender.avatar,
+        messageId: response.data.messageId,
+        sentAt: response.data.createdAt,
+      };
+      pushNotification(receiverId, pushContent);
     }
   });
 }
 
 function forwardMessage(socket, roomId, sendContent) {
+  logger.info('forwardMessage');
   socket.broadcast.to(roomId).emit(constants.socketEvent.message, sendContent);
 }
 
@@ -120,12 +134,13 @@ function resendMessage(socket, resendContent) {
 }
 
 function updateMsgStatus(socket, data) {
+  logger.info('Update Message Status with param\n', data.messageId);
   const {
     sendToken,
     messageId,
   } = data;
 
-  const sendParam = SendToken.extractToken(sendToken);
+  const sendParam = SendToken.extractToken(sendToken, rooms);
   if (!sendParam) {
     resendMessage(socket, constants.response.sendTokenInvalid);
     return;
@@ -139,6 +154,8 @@ function updateMsgStatus(socket, data) {
     partnerId,
     productId,
   } = ChatRoom.extractRoomId(roomId);
+
+  logger.info('extract roomId: ', userId);
 
   const status = constants.conversation.status.read;
   let conversation = null;
@@ -161,7 +178,7 @@ function updateMsgStatus(socket, data) {
       return null;
     })
     .then(() => {
-      logger.info('Updated message and conversation status');
+      logger.info('Updated successful message and conversation status');
       resendMessage(socket, constants.response.ok);
     })
     .catch((err) => {
@@ -175,14 +192,16 @@ function updateMsgStatus(socket, data) {
 }
 
 function disconnectSocket(socket) {
+  logger.info(`Disconnected socket: ${socket.id}`);
   const socketId = socket.id;
-  for (let i = rooms.length; i >= 0; i -= 1) {
+  for (let i = rooms.length - 1; i >= 0; i -= 1) {
     const joiner = rooms[i].findJoinerBySocketId(socketId);
     if (joiner) {
       rooms[i].removeJoiner(socketId);
       if (rooms[i].numJoiner < 1) {
         rooms.splice(i, 1);
       }
+      logger.info(`Disconnected socket: ${socketId} successful!`);
       break;
     }
   }
@@ -288,18 +307,23 @@ function isJoinRoom(roomId, receiverId) {
 }
 
 function pushNotification(receiverId, pushContent) {
+  logger.info('Do push notification chat');
   deviceRepo
     .findDeviceByUserId(receiverId)
     .then((device) => {
+      logger.info('Push into device\n', device.device_token);
+
       if (device && device.device_token) {
         const expiredDateString = device.expired_at.toISOString();
+
         if (helpers.isValidExpiredDate(expiredDateString)) {
+          logger.info('Found device, do push');
           doPush(device.device_token, pushContent);
           return null;
         }
       }
 
-      logger.info(`No device token attached with user: ${receiverId}`);
+      logger.info('Function pushNotification in realtime-chat-service fail', `No device token attached with user: ${receiverId}`);
       return null;
     })
     .catch((err) => {
@@ -308,16 +332,18 @@ function pushNotification(receiverId, pushContent) {
 }
 
 function doPush(deviceToken, pushContent) {
-  const title = constants.appName;
-  const body = pushContent.message.content;
+  const title = pushContent.partnerUsername;
+  const body = pushContent.message;
+  // pushContent.code = constants.push.message.code;
   const pushParam = {
     deviceToken,
     title,
     body,
     payload: pushContent,
+    clickAction: 'ProductChatActivity',
   };
 
-  pushService.pushNotification(deviceToken, pushParam);
+  pushService.pushNotification(pushParam);
 }
 
 function validMsgParam(sender, receiverId, productId, message) {
@@ -358,24 +384,3 @@ function isEnoughJoinRoomParam(sender, receiverId, productId) {
     && helpers.isExist(productId));
 }
 
-function createSendToken(sendParam) {
-  const {
-    roomId,
-    socketId,
-    senderId,
-    receiverId,
-    productId,
-  } = sendParam;
-  const expiredAt = helpers.getExpiredDate(constants.tokenExpired);
-
-  const payload = {
-    roomId,
-    socketId,
-    senderId,
-    receiverId,
-    productId,
-    expiredAt,
-  };
-
-  return helpers.encodeToken(payload);
-}

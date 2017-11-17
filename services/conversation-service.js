@@ -28,20 +28,50 @@ exports.getConversationDetail = (conversationInfo, callback) => {
     userId1,
     userId2,
     productId,
-    conversationId,
     fromIndex,
     limit,
   } = conversationInfo;
 
+  let isExistsConversation = false;
+  let response = null;
+
   conversationRepo
-    .getConversation(conversationId, fromIndex, limit)
+    .findConversation(userId1, userId2, productId)
+    .then((conversation) => {
+      if (conversation) {
+        return conversationRepo.getConversation(conversation.id, fromIndex, limit);
+      }
+
+      return null;
+    })
     .then((consRaw) => {
-      const response = getConsDetailResponse(userId1, userId2, productId, consRaw);
+      if (consRaw) {
+        response = getConsDetailResponse(userId1, userId2, productId, consRaw);
+        isExistsConversation = true;
+        return null;
+      }
+
+      return productRepo.getProductWithOptionSelect(productId, 'name media price seller');
+    })
+    .then((productRaw) => {
+      if (isExistsConversation) {
+        return callback(response);
+      }
+
+      if (!productRaw) {
+        return Promise.reject(constants.response.productNotExist);
+      }
+
+      response = getConsDetailResponseFromProduct(productRaw);
       return callback(response);
     })
     .catch((err) => {
-      logger.error('Error at function getConversation in conversation-service\n', err);
-      return callback(constants.response.systemError);
+      let errResponse = err;
+      if (err !== constants.response.productNotExist) {
+        errResponse = constants.response.systemError;
+        logger.error('Error at function getConversation in conversation-service\n', err);
+      }
+      return callback(errResponse);
     });
 };
 
@@ -149,12 +179,9 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
   let addedMsgId = null;
   const now = new Date();
 
-  console.log('vao day');
-
   return conversationRepo
     .findConversation(userId, partnerId, productId)
     .then((consRaw) => {
-      console.log(consRaw);
       if (consRaw) {
         isExistCons = true;
         return consRaw;
@@ -175,7 +202,6 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
       if (!consRaw) {
         return null;
       }
-      console.log(consRaw);
       conversation = consRaw;
       const msgContent = {
         message,
@@ -190,12 +216,13 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
       return conversationRepo.createMessage(msgContent);
     })
     .then((newAddedMsg) => {
-      if (!newAddedMsg) {
+      if (!newAddedMsg && newAddedMsg.contents.length < 1) {
         return Promise.reject(constants.response.sendError);
       }
 
       // update last message
-      addedMsgId = newAddedMsg.id;
+      logger.info(`setConversationCheckedPermission: newAddedMsg ${newAddedMsg.contents.length}`);
+      addedMsgId = newAddedMsg.contents[0]._id;
       conversation.last_message = {
         message,
         created_at: now,
@@ -218,7 +245,7 @@ exports.setConversationCheckedPermission = (consContent, callback) => {
           createdAt: now,
         },
       };
-
+      logger.info('save chat message successful');
       return callback(response);
     })
     .catch(err => handleSendError(err, callback));
@@ -297,7 +324,9 @@ function conversationsToResponse(userId, conversations) {
     return constants.response.conversationNotFound;
   }
 
-  const data = conversations.map((conversation) => {
+  let totalUnreadMsg = 0;
+
+  const chats = conversations.map((conversation) => {
     const {
       user,
       partner,
@@ -309,6 +338,8 @@ function conversationsToResponse(userId, conversations) {
     let unreadLastMes = constants.conversation.status.unread;
     if (countUnreadMes < 1) {
       unreadLastMes = constants.conversation.status.read;
+    } else {
+      totalUnreadMsg += 1;
     }
 
     let resPartner;
@@ -321,7 +352,7 @@ function conversationsToResponse(userId, conversations) {
     } else {
       resPartner = {
         id: user.id,
-        username: partner.username,
+        username: user.username,
         avatar: user.avatar,
       };
     }
@@ -352,7 +383,10 @@ function conversationsToResponse(userId, conversations) {
   return {
     code: constants.response.ok.code,
     message: constants.response.ok.message,
-    data,
+    data: {
+      chats,
+      numNewMessage: totalUnreadMsg,
+    },
   };
 }
 
@@ -373,7 +407,8 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
     }
 
     const chats = [];
-    for (let i = msgContents.length - 1; i >= 0; i -= 1) {
+    const numMsg = msgContents.length;
+    for (let i = 0; i < numMsg; i += 1) {
       const content = msgContents[i];
       let sender;
       if (content.sender_type === constants.conversation.sender.user) {
@@ -405,7 +440,7 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
           name: product.name,
           price: product.price,
           image: productImage,
-          sellerId: product.seller,
+          sellerId: product.seller.toString(),
         },
       },
     };
@@ -414,6 +449,26 @@ function getConsDetailResponse(userId1, userId2, productId, consRaw) {
   return constants.response.conversationNotFound;
 }
 
+function getConsDetailResponseFromProduct(productRaw) {
+  let productImage = null;
+  if (productRaw.media.type === constants.product.media.type.image) {
+    productImage = productRaw.media.urls[0];
+  }
+
+  return {
+    code: constants.response.ok.code,
+    message: constants.response.ok.message,
+    data: {
+      chats: [],
+      product: {
+        name: productRaw.name,
+        image: productImage,
+        seller: productRaw.seller.toString(),
+        price: productRaw.price,
+      },
+    },
+  };
+}
 
 function isBlockedSender(senderId, receiverRaw) {
   if (!receiverRaw || !receiverRaw.active) {
