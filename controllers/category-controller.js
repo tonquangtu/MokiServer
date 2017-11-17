@@ -7,6 +7,8 @@ exports.getCategories = (req, res) => {
 
   if (!helpers.isExist(reqParentId)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
+  } else if (reqParentId !== '' && !helpers.isValidId(reqParentId)) {
+    helpers.sendResponse(res, constants.response.paramValueInvalid);
   } else {
     categoryService.getCategories(reqParentId, (responseData) => {
       helpers.sendResponse(res, responseData);

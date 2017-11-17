@@ -91,6 +91,103 @@ const clotherList = [
   'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJP5u6HAo6M53PhjI2T9IL1hAG8WGSSJ16mHrtcJVcqXU6jg2v',
   'http://quanaongoclinh.com/upload/product/860592196233-do-bo-carters-good-smile-xanh-la-8size-18t.png',
 ];
+const categoryArray = [
+  {
+    stt: 1,
+    level: 1,
+    name: 'Miễn phí',
+    hasChild: 0,
+  }, {
+    stt: 2,
+    level: 1,
+    name: 'Bé ăn',
+    hasChild: 1,
+  }, {
+    stt: 3,
+    level: 1,
+    name: 'Bé mặc',
+    hasChild: 1,
+  }, {
+    stt: 4,
+    level: 1,
+    name: 'Bé ngủ',
+    hasChild: 1,
+  }, {
+    stt: 5,
+    level: 1,
+    name: 'Bé tắm',
+    hasChild: 0,
+  }, {
+    stt: 6,
+    level: 1,
+    name: 'Bé vệ sinh',
+    hasChild: 0,
+  }, {
+    stt: 7,
+    level: 1,
+    name: 'Bé khỏe - an toàn',
+    hasChild: 0,
+  }, {
+    stt: 8,
+    level: 1,
+    name: 'Bé đi ra ngoài',
+    hasChild: 0,
+  }, {
+    stt: 9,
+    level: 1,
+    name: 'Bé chơi mà học',
+    hasChild: 0,
+  }, {
+    stt: 10,
+    level: 1,
+    name: 'Sản phẩm khác',
+    hasChild: 0,
+  }, {
+    stt: 11,
+    level: 2,
+    name: 'Sữa bột các loại',
+    hasChild: 0,
+    parent: 2,
+  }, {
+    stt: 12,
+    level: 2,
+    name: 'Bình sữa và phụ kiện',
+    hasChild: 0,
+    parent: 2,
+  }, {
+    stt: 13,
+    level: 2,
+    name: 'Bột, Cháo, Bánh ăn dặm',
+    hasChild: 0,
+    parent: 2,
+  }, {
+    stt: 14,
+    level: 2,
+    name: 'Đồ sơ sinh',
+    hasChild: 0,
+    parent: 3,
+  }, {
+    stt: 15,
+    level: 2,
+    name: 'Thời trang cho bé',
+    hasChild: 0,
+    parent: 3,
+  }, {
+    stt: 16,
+    level: 2,
+    name: 'Cũi cho bé',
+    hasChild: 0,
+    parent: 4,
+  },
+];
+
+const categoryLevel1 = categoryArray.filter((category) => {
+  return category.level === 1;
+});
+
+const categoryLevel2 = categoryArray.filter((category) => {
+  return category.level === 2;
+});
 
 
 function userCreate(userParams, callback) {
@@ -253,9 +350,9 @@ function categoryCreate(categoryParams, callback) {
     name: categoryParams[0],
     has_brand: categoryParams[1],
     has_name: categoryParams[2],
-    // parent: categoryParams[3],
-    has_child: categoryParams[3],
-    has_size: categoryParams[4],
+    parent: categoryParams[3],
+    has_child: categoryParams[4],
+    has_size: categoryParams[5],
   };
 
   const category = new Category(categoryDetail);
@@ -541,25 +638,63 @@ function brandsFaker(cb) {
     },
   ], cb);
 }
+
+let count = 0;
+
 function categoriesFaker(cb) {
   console.log('category faker');
+
   async.parallel([
     function (callback) {
-      const name = faker.name.title();
+      const { name, hasChild } = categoryLevel1[count];
       const hasBrand = 0;
       const hasName = 1;
-//      const parent = '';
-      const hasChild = 0;
+      const parent = null;
       const hasSize = 0;
       const categoryParams = [
         name,
         hasBrand,
         hasName,
-//        parent,
+        parent,
         hasChild,
         hasSize,
       ];
+      count += 1;
       categoryCreate(categoryParams, callback);
+    },
+  ], cb);
+}
+
+let count2 = 0;
+function categoriesFakerLevel2(cb) {
+  console.log('category faker 2');
+
+  async.parallel([
+    function (callback) {
+      const { name, hasChild, parent } = categoryLevel2[count2];
+      const temp = categoryLevel1.filter((category) => {
+        return category.stt === parent;
+      });
+      Category.find({ name: temp[0].name }).exec().then((categoryList) => {
+        if (categoryList) {
+          const hasBrand = 0;
+          const hasName = 1;
+          const parentA = categoryList[0].id;
+          const hasSize = 0;
+          const categoryParams = [
+            name,
+            hasBrand,
+            hasName,
+            parentA,
+            hasChild,
+            hasSize,
+          ];
+          count2 += 1;
+          categoryCreate(categoryParams, callback);
+        }
+      }).catch((err) => {
+        console.log('bug: ' + err.message);
+      });
     },
   ], cb);
 }
@@ -1008,7 +1143,8 @@ for (let i = 0; i < maxCampaign; i += 1) {
 for (let i = 0; i < maxBrand; i += 1) {
   arrCalls.push(brandsFaker);
 }
-for (let i = 0; i < maxCategory; i += 1) {
+
+for (let i = 0; i < categoryLevel1.length; i += 1) {
   arrCalls.push(categoriesFaker);
 }
 for (let i = 0; i < maxReport; i += 1) {
@@ -1039,6 +1175,10 @@ for (let i = 0; i < maxNotifi; i++) {
   arrCalls.push(notificationFaker);
 }
 
+
+for (let i = 0; i < categoryLevel2.length; i += 1) {
+  arrCalls.push(categoriesFakerLevel2);
+}
 
 deleteAllDocuments(() => {
   console.log('Delete done');
