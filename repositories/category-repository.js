@@ -15,9 +15,13 @@ exports.getBrandByCategoryId = categoryId => Category
 exports.getCategoryNoParentId = () => Category
   .find({ parent: null })
   .select('name has_brand has_name parent has_child has_size created_at sizes brands')
+  .populate({ path: 'sizes', select: 'name'})
+  .populate({ path: 'brands', select: 'name'})
   .exec();
 
 exports.getCategoryByParentId = parentIdValid => Category
   .find({ parent: parentIdValid })
   .select('name has_brand has_name parent has_child has_size created_at sizes brands')
+  .populate({ path: 'sizes', select: 'name'})
+  .populate({ path: 'brands', select: 'name'})
   .exec();
