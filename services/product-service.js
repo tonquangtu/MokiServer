@@ -627,7 +627,7 @@ function getResponseForProductDetail(product, userId, callback) {
           id: seller.id,
           name: seller.username,
           avatar: seller.avatar,
-          score: Math.round(Math.random() * 5),
+          score: 0,
           listing: listingProduct,
         },
         category: getProductItemList(product.categories, 'category'),

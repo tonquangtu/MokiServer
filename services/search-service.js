@@ -38,6 +38,7 @@ exports.searchProducts = (searchParams, callback) => {
         message: constants.response.ok.message,
         data: products,
       };
+      logger.info(`Search results: ${products.length}`);
       return callback(response);
     })
     .catch((err) => {
@@ -216,7 +217,6 @@ function getResultsFromESResponse(esResponse) {
     }
 
     return {
-      type: item.type,
       id: item._id,
       name: sourceData.name,
       image,

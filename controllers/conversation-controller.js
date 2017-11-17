@@ -29,6 +29,7 @@ exports.getConversations = (req, res) => {
 };
 
 exports.getConversationDetail = (req, res) => {
+  console.log(req.body);
   if (!req.body || !isEnoughConsParam(req.body)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
@@ -80,20 +81,17 @@ function validConsParam(consParam, userId) {
   const {
     partnerId,
     productId,
-    conversationId,
     index,
     count,
   } = consParam;
 
   const isValidPartnerId = helpers.isValidId(partnerId);
   const isValidProductId = helpers.isValidId(productId);
-  const isValidConsId = helpers.isValidId(conversationId);
   const validIndex = helpers.validNumber(index);
   const validCount = helpers.validNumber(count);
 
   if (!isValidPartnerId
   || !isValidProductId
-  || !isValidConsId
   || !helpers.isExist(validIndex)
   || !helpers.isExist(validCount)
   || validIndex < 0
@@ -103,7 +101,6 @@ function validConsParam(consParam, userId) {
 
   return {
     productId,
-    conversationId,
     userId1: userId,
     userId2: partnerId,
     fromIndex: validIndex,
@@ -149,14 +146,12 @@ function isEnoughConsParam(consParam) {
   const {
     partnerId,
     productId,
-    conversationId,
     index,
     count,
   } = consParam;
 
   return (helpers.isExist(partnerId)
     && helpers.isExist(productId)
-    && helpers.isExist(conversationId)
     && helpers.isExist(index)
     && helpers.isExist(count));
 }

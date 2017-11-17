@@ -250,7 +250,7 @@ module.exports = {
   },
   socketEvent: {
     connection: 'connection',
-    disconnection: 'disconnection',
+    disconnection: 'disconnect',
     message: 'message',
     joinRoomRequest: 'join_room_request',
     joinRoomResponse: 'join_room_response',

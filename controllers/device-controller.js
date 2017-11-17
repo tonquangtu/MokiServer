@@ -1,16 +1,16 @@
 const deviceService = require('../services/device-service');
 
-const { helpers, constants } = global;
+const { helpers, constants, logger } = global;
 
 exports.setDeviceToken = (req, res) => {
   const reqData = req.body;
   const userId = req.user.id;
   const expiredDate = req.expiredAt;
+  logger.info('Device token\n', reqData);
 
   if (!isEnoughDeviceParam(reqData)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
-    // console.log(reqData.deviceToken);
     const validDevice = validDeviceInfo(reqData.deviceToken, reqData.deviceType);
 
     if (!validDevice) {

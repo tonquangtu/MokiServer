@@ -175,12 +175,21 @@ exports.addMessage = (msgContent) => {
     updated_at: now,
   };
 
-  return Message
-    .update({ conversation: conversationId }, { $push: { contents: msgItem } });
+  // return Message
+  //   .update({ conversation: conversationId }, { $push: { contents: msgItem } });
+
+  return Message.findOneAndUpdate(
+    { conversation: conversationId },
+    { $push: { contents: msgItem } },
+    {
+      projection: { contents: { $slice: -1 } },
+      new: true,
+    }
+  );
 };
 
 exports.updateMessageStatus = (consId, msgId, status) => {
-  const where = { conversation_id: consId, 'contents._id': msgId };
+  const where = { conversation: consId, 'contents._id': msgId };
   const set = { $set: { 'contents.$.unread': status } };
   return Message.update(where, set);
 };

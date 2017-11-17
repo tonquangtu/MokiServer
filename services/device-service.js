@@ -94,7 +94,10 @@ exports.setDeviceToken = (deviceParam, callback) => {
       }
       return device;
     })
-    .then(savedDevice => callback(constants.response.ok))
+    .then((savedDevice) => {
+      logger.info('Save device token successful');
+      return callback(constants.response.ok);
+    })
     .catch((err) => {
       let errResponse = err;
       if (err !== constants.response.deviceNotFound) {

@@ -14,12 +14,19 @@ exports.pushNotification = (notifyParam) => {
     body,
   } = notifyParam;
 
+  let { clickAction } = notifyParam;
+
+  if (!clickAction) {
+    clickAction = 'MainActivity';
+  }
+
   const message = {
     to: deviceToken,
     data: payload,
     notification: {
       title,
       body,
+      click_action: clickAction,
     },
   };
 
