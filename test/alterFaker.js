@@ -73,6 +73,15 @@ function addAttributeUser() {
     console.log(err.message);
   });
 }
+function addChildCategory() {
+  Category.find({}).exec().then((categories) => {
+    categories.forEach((category) => {
+      if (Math.random() > 0.5) {
+        category.has_child = 1;
+      }
+    });
+  });
+}
 function getRandomUserList(userIdList, userId) {
   const userList = [];
   for (let i = 0; i < randomInt(0, 5); i += 1) {

@@ -70,6 +70,7 @@ exports.getFollowList = (req, res, type) => {
     const indexValid = helpers.validInteger(index);
 
     if (!helpers.isExist(userId) || !helpers.isExist(index) || !helpers.isExist(count)) {
+      console.log(userId + " " + index + " " + count);
       helpers.sendResponse(res, constants.response.paramNotEnough);
     } else if (countValid === null || indexValid === null) {
       helpers.sendResponse(res, constants.response.paramTypeInvalid);

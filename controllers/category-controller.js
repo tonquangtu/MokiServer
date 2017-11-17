@@ -9,6 +9,7 @@ exports.getCategories = (req, res) => {
     helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
     categoryService.getCategories(reqParentId, (responseData) => {
+      console.log(responseData);
       helpers.sendResponse(res, responseData);
     });
   }
