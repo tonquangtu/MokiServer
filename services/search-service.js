@@ -5,6 +5,7 @@ const searcher = require('../searches/elasticsearch');
 const { constants, logger, helpers } = global;
 
 exports.searchProducts = (searchParams, callback) => {
+  console.log(searchParams);
   const selectFields = ['name', 'media', 'price', 'price_percent', 'like', 'comment'];
   const fullSearchParams = Object.assign({}, searchParams, { selectFields });
   const { userId } = fullSearchParams;

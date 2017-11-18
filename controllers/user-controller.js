@@ -4,12 +4,19 @@ const { constants, helpers } = global;
 
 exports.userDetail = (req, res) => {
   const reqData = req.body;
-  if (!reqData) {
-    helpers.sendResponse(res, constants.response.paramValueInvalid);
+  if (!isEnoughGetUserParam(reqData)) {
+    helpers.sendResponse(res, constants.response.paramNotEnough);
   } else {
-    userService.getUserDetail(req.user.id, reqData.userId, (response) => {
-      helpers.sendResponse(res, response);
-    });
+    const { token, userId } = reqData;
+    const validData = validateGetUserParam(token, userId);
+    if (!validData) {
+      helpers.sendResponse(res, constants.response.paramValueInvalid);
+    } else {
+      const { myId, otherUserId } = validData;
+      userService.getUserDetail(myId, otherUserId, (response) => {
+        helpers.sendResponse(res, response);
+      });
+    }
   }
 };
 
@@ -92,6 +99,32 @@ exports.getFollowList = (req, res, type) => {
     }
   }
 };
+
+function isEnoughGetUserParam(reqData) {
+  return reqData && (reqData.token || reqData.userId);
+}
+
+function validateGetUserParam(token, otherUserId) {
+  if (otherUserId) {
+    if (!helpers.isValidId(otherUserId)) {
+      return null;
+    }
+  }
+
+  let myId = null;
+  if (token) {
+    const user = helpers.getUserFromToken(token);
+    if (!user) {
+      return null;
+    }
+    myId = user.id;
+  }
+
+  return {
+    myId,
+    otherUserId,
+  };
+}
 
 function validateSettingParams(data) {
   const {

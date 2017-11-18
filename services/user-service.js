@@ -11,19 +11,24 @@ const {
 exports.getOtherUserDetail = (myId, otherUserId, callback) => {
   let response;
   const otherUserPromise = userRepo.getUserById(otherUserId);
-  const userPromise = userRepo.getUserById(myId);
+  const userPromise = myId ? userRepo.getUserById(myId) : Promise.resolve(null);
   Promise.all([
     otherUserPromise,
     userPromise,
   ]).then((result) => {
     const otherUser = result[0];
     const user = result[1];
-    if (!otherUser || !user) {
+    if (!otherUser) {
       return callback(constants.response.userNotFound);
     }
 
-    const isFollowed = _.findIndex(user.follows_to, { user: otherUser._id }) !== -1 ? 1 : 0;
-    const isBlocked = _.findIndex(user.blocks, { user: otherUser._id }) !== -1 ? 1 : 0;
+    let isFollowed = 0;
+    let isBlocked = 0;
+    if (user) {
+      isFollowed = _.findIndex(user.follows_to, { user: otherUser._id }) !== -1 ? 1 : 0;
+      isBlocked = _.findIndex(user.blocks, { user: otherUser._id }) !== -1 ? 1 : 0;
+    }
+
     const data = {
       id: otherUserId,
       username: otherUser.username,
@@ -88,8 +93,6 @@ exports.getMyDetail = (myId, callback) => {
 exports.getUserDetail = (myId, otherUserId, callback) => {
   if (!otherUserId || myId === otherUserId) {
     return this.getMyDetail(myId, callback);
-  } else if (!helpers.isValidId(otherUserId)) {
-    return callback(constants.response.paramValueInvalid);
   }
   return this.getOtherUserDetail(myId, otherUserId, callback);
 };
