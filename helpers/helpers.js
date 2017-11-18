@@ -60,14 +60,25 @@ exports.getUserFromToken = (token) => {
     return null;
   }
   const payload = this.decodeToken(token);
-  if (!payload || !payload.isLogin || !payload.user) {
+
+  if (!payload) {
     return null;
   }
 
-  // need to check this token is still valid or not ?
-  if (!this.isValidId(payload.user.id)) {
+  const {
+    isLogin,
+    user,
+    expiredAt,
+  } = payload;
+
+  if (!isLogin || !user || !this.isValidId(user.id)) {
     return null;
   }
+
+  if (!this.isValidExpiredDate(expiredAt)) {
+    return null;
+  }
+
   return payload.user;
 };
 

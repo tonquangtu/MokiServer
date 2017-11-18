@@ -383,4 +383,3 @@ function isEnoughJoinRoomParam(sender, receiverId, productId) {
     && helpers.isExist(receiverId)
     && helpers.isExist(productId));
 }
-

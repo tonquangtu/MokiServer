@@ -126,6 +126,7 @@ function pushLoginNotification(deviceToken, expiredDate) {
       payload: {
         code: notification.code,
       },
+      clickAction: 'LoginActivity',
     };
 
     pushService.pushNotification(notifyParam);

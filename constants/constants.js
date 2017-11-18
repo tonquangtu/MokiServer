@@ -270,7 +270,7 @@ module.exports = {
   push: {
     otherPersonLogin: {
       title: 'MOKI',
-      body: 'Có ai đó đã đăng nhập tài khoản bạn trên 1 thiết bị khác',
+      body: 'Có ai đó đã đăng nhập tài khoản bạn từ một thiết bị khác',
       code: 1,
     },
     message: {
