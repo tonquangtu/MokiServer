@@ -162,25 +162,30 @@ exports.getShipForm = (req, res) => {
         helpers.sendResponse(res, constants.response.paramTypeInvalid);
       } else if (levelValid === 1) {
         userService.getListProvince((responseData) => {
+          console.log(responseData);
           helpers.sendResponse(res, responseData);
         });
       } else if (levelValid === 2) {
         if (!isExitParentId) {
           userService.getListDist((responseData) => {
+            console.log(responseData);
             helpers.sendResponse(res, responseData);
           });
         } else {
           userService.getListDistByParentId(parentIdValid, (responseData) => {
+            console.log(responseData);
             helpers.sendResponse(res, responseData);
           });
         }
       } else if (levelValid === 3) {
         if (!isExitParentId) {
           userService.getListWard((responseData) => {
+            console.log(responseData);
             helpers.sendResponse(res, responseData);
           });
         } else {
           userService.getListWardByParentId(parentIdValid, (responseData) => {
+            console.log(responseData);
             helpers.sendResponse(res, responseData);
           });
         }
