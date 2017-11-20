@@ -244,7 +244,7 @@ function productCreate(productParams, callback) {
       thumb: productParams[3],
     },
     seller: productParams[4],
-    seller_username: productParams[22],
+    seller_username: productParams[23],
     price: productParams[5],
     price_percent: productParams[6],
     description: productParams[7],
