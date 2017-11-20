@@ -82,8 +82,9 @@ exports.postCommentProduct = (req, res) => {
     || !helpers.isExist(data.comment)
     || !helpers.isExist(data.index)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
+    
   } else {
-    const { productId, comment, index } = data;
+    const { productId, comment } = data;
     const validValueParams = validValueCommentParams(data);
 
     if (typeof comment !== 'string' && !(comment instanceof String)) {
@@ -92,7 +93,7 @@ exports.postCommentProduct = (req, res) => {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       productService.addProductComment(
-        productId, validValueParams.commentValid, index, req.user.id,
+        productId, validValueParams.commentValid, validValueParams.index, req.user.id,
         (responseData) => {
           helpers.sendResponse(res, responseData);
         }
@@ -169,7 +170,6 @@ exports.reportProduct = (req, res) => {
 
 exports.getProductListMyLike = (req, res) => {
   const data = req.body;
-  console.log(data);
 
   if (!data || !helpers.isExist(data.count) || !helpers.isExist(data.index)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
@@ -184,7 +184,6 @@ exports.getProductListMyLike = (req, res) => {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       productService.getMyLikeProductList(index, countValid, req.user.id, (responseData) => {
-        console.log(responseData);
         helpers.sendResponse(res, responseData);
       });
     }
@@ -411,10 +410,11 @@ function validValueProductsParams(productListParams) {
 }
 
 function validValueCommentParams(commentParams) {
-  const { productId, index } = commentParams;
+  const { productId } = commentParams;
+  const index = commentParams.index === '' ? 0 : commentParams.index;
   const comment = commentParams.comment.toString().trim();
 
-  if (!helpers.isValidId(productId) || !helpers.isValidId(index) || comment === '') {
+  if (!helpers.isValidId(productId) || (index !== 0 && !helpers.isValidId(index)) || comment === '') {
     return false;
   }
 
