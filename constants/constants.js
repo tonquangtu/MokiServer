@@ -264,7 +264,7 @@ module.exports = {
   googleDriver: {
     version: 'v3',
     folderShare: '1vb-Lnf5M7O7AEoxUpvkDfYmBASg3X6lb',
-    pathFile: 'https://drive.google.com/file/d/fileId/view',
+    pathFile: 'https://drive.google.com/uc?export=view&id=fileId',
   },
   appName: 'MOKI',
   push: {
