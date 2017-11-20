@@ -169,6 +169,7 @@ exports.reportProduct = (req, res) => {
 
 exports.getProductListMyLike = (req, res) => {
   const data = req.body;
+  console.log(data);
 
   if (!data || !helpers.isExist(data.count) || !helpers.isExist(data.index)) {
     helpers.sendResponse(res, constants.response.paramNotEnough);
@@ -183,6 +184,7 @@ exports.getProductListMyLike = (req, res) => {
       helpers.sendResponse(res, constants.response.paramValueInvalid);
     } else {
       productService.getMyLikeProductList(index, countValid, req.user.id, (responseData) => {
+        console.log(responseData);
         helpers.sendResponse(res, responseData);
       });
     }

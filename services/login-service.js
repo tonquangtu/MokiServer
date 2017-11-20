@@ -98,8 +98,13 @@ exports.logout = (userId, callback) => {
     return;
   }
 
+  const deviceUpdate = {
+    device_token: null,
+    expired_at: helpers.getExpiredDate(-1),
+  };
+
   const updateUserPromise = userRepo.findAndUpdateUser(userId, { token: null }, null);
-  const updateDevicePromise = deviceRepo.findAndUpdateDevice(userId, { device_token: null }, null);
+  const updateDevicePromise = deviceRepo.findAndUpdateDevice(userId, deviceUpdate, null);
 
   Promise
     .all([updateUserPromise, updateDevicePromise])
