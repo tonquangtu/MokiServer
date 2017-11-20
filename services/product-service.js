@@ -16,37 +16,73 @@ exports.getProductList = (data, callback) => {
   let response = {};
   let products = null;
 
-  const promise = productRepo.getProductList(categoryId, campaignId, lastId, count);
-  promise.then((productList) => {
-    products = productList;
+  if (index === '0') {
+    const promise = productRepo.getProductList(categoryId, campaignId, lastId, count);
+    promise.then((productList) => {
+      products = productList;
 
-    if (!products || products.length === 0) {
-      return null;
-    }
+      if (!products || products.length === 0) {
+        return null;
+      }
 
-    return productRepo.getNewItemNum(index, categoryId);
-  }).then((newItemNum) => {
-    if (!products || products.length === 0) {
-      return callback(constants.response.noDataOrEndListData);
-    }
+      return productRepo.getNewItemNum(index, categoryId);
+    }).then((newItemNum) => {
+      if (!products || products.length === 0) {
+        return callback(constants.response.noDataOrEndListData);
+      }
 
-    getProductAttributes(products, userId, (productArr) => {
-      response = {
-        code: constants.response.ok.code,
-        message: constants.response.ok.message,
-        data: {
-          products: productArr,
-          newItems: newItemNum,
-          lastId: products.slice(-1)[0].id,
-        },
-      };
+      getProductAttributes(products, userId, (productArr) => {
+        response = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: {
+            products: productArr,
+            newItems: newItemNum,
+            lastId: products.slice(-1)[0].id,
+          },
+        };
 
-      return callback(response);
+        return callback(response);
+      });
+    }).catch((err) => {
+      logger.error('Error at function getProductList.\n', err);
+      return callback(constants.response.systemError);
     });
-  }).catch((err) => {
-    logger.error('Error at function getProductList.\n', err);
-    return callback(constants.response.systemError);
-  });
+  } else {
+    const promise = productRepo.getNewItemList(categoryId, campaignId, index);
+    promise.then((productList) => {
+      if (productList.length === 0) {
+        response = {
+              code: constants.response.ok.code,
+              message: constants.response.ok.message,
+              data: {
+                products: [],
+                newItems: 0,
+                lastId,
+              },
+            };
+
+        return callback(response);
+      }
+      getProductAttributes(productList, userId, (productArr) => {
+      
+        response = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: {
+            products: productArr,
+            newItems: 0,
+            lastId,
+          },
+        };
+
+        return callback(response);
+      }).catch((err) => {
+        logger.error('Error at function getProductList.\n', err);
+        return callback(constants.response.systemError);
+      });
+    });
+  }
 };
 
 exports.getProductDetail = (productId, userId, callback) => {
@@ -318,6 +354,43 @@ exports.addProduct = (data, userId, callback) => {
           urls: videoUrl,
           thumb: thumbUrl[0],
         };
+        
+        const productData = {
+          name,
+          media,
+          seller: userId,
+          price,
+          price_percent: 0,
+          description: !helpers.isExist(described) ? '' : described,
+          ships_from: shipsFrom,
+          ships_from_ids: shipsFromId,
+          condition,
+          sizes: !helpers.isExist(productSizeId) ? [] : [productSizeId],
+          brands: !helpers.isExist(brandId) ? [] : [brandId],
+          categories: [categoryId],
+          url: '/products/detail',
+          weight: !helpers.isExist(weight) ? '' : weight,
+          dimension: !helpers.isExist(dimension) ? [] : dimension,
+          comments: [],
+          campaigns: [],
+        };
+
+        const promise = productRepo.addProduct(productData);
+        promise.then((newProduct) => {
+          const responseData = {
+            code: constants.response.ok.code,
+            message: constants.response.ok.message,
+            data: {
+              id: newProduct.id,
+              url: newProduct.url,
+            },
+          };
+
+          return callback(responseData);
+        }).catch((err) => {
+          logger.error('Error at function addProduct.\n', err);
+          return callback(constants.response.systemError);
+        });
       });
     });
   } else {
@@ -327,44 +400,46 @@ exports.addProduct = (data, userId, callback) => {
         urls: imageIdList,
         thumb: null,
       };
+      
+      const productData = {
+        name,
+        media,
+        seller: userId,
+        price,
+        price_percent: 0,
+        description: !helpers.isExist(described) ? '' : described,
+        ships_from: shipsFrom,
+        ships_from_ids: shipsFromId,
+        condition,
+        sizes: !helpers.isExist(productSizeId) ? [] : [productSizeId],
+        brands: !helpers.isExist(brandId) ? [] : [brandId],
+        categories: [categoryId],
+        url: '/products/detail',
+        weight: !helpers.isExist(weight) ? '' : weight,
+        dimension: !helpers.isExist(dimension) ? [] : dimension,
+        comments: [],
+        campaigns: [],
+      };
+
+      const promise = productRepo.addProduct(productData);
+      promise.then((newProduct) => {
+        const responseData = {
+          code: constants.response.ok.code,
+          message: constants.response.ok.message,
+          data: {
+            id: newProduct.id,
+            url: newProduct.url,
+          },
+        };
+
+        return callback(responseData);
+      }).catch((err) => {
+        logger.error('Error at function addProduct.\n', err);
+        return callback(constants.response.systemError);
+      });
     });
   }
-  const productData = {
-    name,
-    media,
-    seller: userId,
-    price,
-    price_percent: 0,
-    description: !helpers.isExist(described) ? '' : described,
-    ships_from: shipsFrom,
-    ships_from_ids: shipsFromId,
-    condition,
-    sizes: !helpers.isExist(productSizeId) ? [] : [productSizeId],
-    brands: !helpers.isExist(brandId) ? [] : [brandId],
-    categories: [categoryId],
-    url: '/products/detail',
-    weight: !helpers.isExist(weight) ? '' : weight,
-    dimension: !helpers.isExist(dimension) ? [] : dimension,
-    comments: [],
-    campaigns: [],
-  };
-
-  const promise = productRepo.addProduct(productData);
-  promise.then((newProduct) => {
-    const responseData = {
-      code: constants.response.ok.code,
-      message: constants.response.ok.message,
-      data: {
-        id: newProduct.id,
-        url: newProduct.url,
-      },
-    };
-
-    return callback(responseData);
-  }).catch((err) => {
-    logger.error('Error at function addProduct.\n', err);
-    return callback(constants.response.systemError);
-  });
+  
 };
 
 exports.getUserListing = (userListingParams, callback) => {
@@ -714,15 +789,9 @@ function getNewCommentList(comments, commentId, callback) {
 }
 
 function saveAllFile(files, callback) {
-  const fileList = files.map((file) => {
-    return {
-      fileName: `${file.name}_${new Date().getTime()}`,
-      type: mime.getType(file.path),
-      pathFile: file.path,
-    };
-  });
   googleDriver.authDriver((auth) => {
-    helpers.uploadFile(auth, fileList, callback);
+    logger.info('Uploading image to google driver');
+    helpers.uploadFileWithBase64(auth, files, 'image/*', callback);
   });
 }
 

@@ -53,7 +53,7 @@ const maxBrand = 100;
 const maxCategory = 50;
 const maxReport = 100;
 const maxSize = 10;
-const maxCountry = 60;
+const maxCountry = 1;
 const maxUserSetting = 20;
 const maxOrderAddress = 30;
 const maxConversation = 3;
@@ -400,24 +400,7 @@ function sizeCreate(sizeParams, callback) {
 }
 function countryCreate(countryParams, callback) {
   const countryDetail = {
-    provinces: [
-      {
-        order: countryParams[0],
-        name: countryParams[1],
-        districts: [
-          {
-            order: countryParams[2],
-            name: countryParams[3],
-            towns: [
-              {
-                order: countryParams[4],
-                name: countryParams[5],
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    provinces: countryParams,
   };
 
   const country = new Country(countryDetail);
@@ -732,20 +715,40 @@ function countriesFaker(cb) {
   console.log('country faker');
   async.parallel([
     function (callback) {
-      const provinceOrder = faker.random.number();
-      const provinceName = faker.address.city();
-      const districtOrder = faker.random.number();
-      const districtName = faker.address.state();
-      const townOrder = faker.random.number();
-      const townName = faker.address.streetName();
-      const countryParams = [
-        provinceOrder,
-        provinceName,
-        districtOrder,
-        districtName,
-        townOrder,
-        townName,
-      ];
+      const countryParams = [];
+      for (let i = 0; i < 63; i += 1) {
+        const provinceOrder = faker.random.number();
+        const provinceName = faker.address.city();
+
+        const districts = [];
+        for (let j = 0; j < 10; j += 1) {
+          const districtOrder = faker.random.number();
+          const districtName = faker.address.state();
+
+          const towns = [];
+          for (let k = 0; k < 10; k += 1) {
+            const townOrder = faker.random.number();
+            const townName = faker.address.streetName();
+
+            towns.push({
+              order: townOrder,
+              name: townName,
+            });
+          }
+
+          districts.push({
+            order: districtOrder,
+            name: districtName,
+            towns,
+          });
+        }
+
+        countryParams.push({
+          order: provinceOrder,
+          name: provinceName,
+          districts,
+        });
+      }
       countryCreate(countryParams, callback);
     },
   ], cb);
