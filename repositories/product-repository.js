@@ -50,6 +50,27 @@ exports.getNewItemNum = (index, categoryId) => {
     .exec();
 };
 
+exports.getNewItemList = (categoryId, campaignId, index) => {
+  const data = {};
+  const selectAttribute = 'name media seller price price_percent description brands created_at like comment banned';
+
+  if (campaignId !== 0) {
+    data.campaigns = campaignId;
+  }
+
+  if (categoryId !== 0) {
+    data.categories = categoryId;
+  }
+
+  return Product.find(data)
+    .where('_id').gt(index)
+    .sort({ _id: -1 })
+    .populate({ path: 'brands', select: 'name' })
+    .populate({ path: 'seller', select: 'username avatar' })
+    .select(selectAttribute)
+    .exec();
+};
+
 exports.getProductDetail = productId => Product.findById(productId)
   .populate({ path: 'seller', select: 'username avatar' })
   .populate({ path: 'sizes', select: 'name' })
@@ -91,7 +112,6 @@ exports.getProductOfUser = (userListingParams) => {
     indexValid,
     countValid,
     userIdValid,
-    keywordValid,
     categoryIdValid,
   } = userListingParams;
   let sellerId;

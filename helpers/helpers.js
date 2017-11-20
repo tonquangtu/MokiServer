@@ -194,11 +194,14 @@ exports.uploadFileWithBase64 = (auth, files, type, callback) => {
     }, (err, response) => {
       if (err) {
         logger.error('Error when save image to driver.\n', err);
-      }
-      count += 1;
-      fileUrlList.push(constants.googleDriver.pathFile.replace('fileId', response.id));
-      if (count === files.length) {
         return callback(fileUrlList);
+      } else {
+        count += 1;
+        fileUrlList.push(constants.googleDriver.pathFile.replace('fileId', response.id));
+        if (count === files.length) {
+          logger.info('Upload Image Done To Google Driver');
+          return callback(fileUrlList);
+        }
       }
     });
   });
