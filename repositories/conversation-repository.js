@@ -24,7 +24,7 @@ exports.getConversation = (conversationId, fromIndex, limit) => {
       $slice: -limit,
     };
   } else {
-    const fromLastIndex = fromIndex + limit;
+    const fromLastIndex = fromIndex + imit;
     sliceOption = {
       $slice: [-fromLastIndex, limit],
     };

@@ -311,9 +311,7 @@ function pushNotification(receiverId, pushContent) {
   deviceRepo
     .findDeviceByUserId(receiverId)
     .then((device) => {
-      logger.info('Push into device\n', device.device_token);
-
-      if (device && device.device_token) {
+      if (helpers.isExist(device) && helpers.isExist(device.device_token)) {
         const expiredDateString = device.expired_at.toISOString();
 
         if (helpers.isValidExpiredDate(expiredDateString)) {
