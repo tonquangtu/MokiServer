@@ -104,5 +104,4 @@ exports.setReadNotification = (userId, notificationId, callback) => {
 
       return callback(errResponse);
     });
-
 };
